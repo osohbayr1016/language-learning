@@ -1,0 +1,18 @@
+name = "chinese-learning-api"
+main = "src/index.ts"
+compatibility_date = "2025-05-01"
+compatibility_flags = ["nodejs_compat"]
+
+[[d1_databases]]
+binding = "DB"
+database_name = "chinese-learning-db"
+database_id = "placeholder-replace-after-create"
+
+[[r2_buckets]]
+binding = "STORAGE"
+bucket_name = "chinese-learning-assets"
+
+[vars]
+ENVIRONMENT = "development"
+JWT_SECRET = "change-me-in-production"
+CORS_ORIGIN = "http://localhost:5173"

@@ -1,0 +1,23 @@
+{
+  "name": "@chinese-app/api",
+  "version": "0.0.1",
+  "private": true,
+  "scripts": {
+    "dev": "wrangler dev --port 8787",
+    "deploy": "wrangler deploy",
+    "type-check": "tsc --noEmit",
+    "db:migrate": "wrangler d1 migrations apply chinese-learning-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply chinese-learning-db --remote",
+    "db:seed": "wrangler d1 execute chinese-learning-db --local --file=./src/db/seed.sql"
+  },
+  "dependencies": {
+    "hono": "^4.7.10",
+    "@chinese-app/types": "workspace:*",
+    "@chinese-app/srs": "workspace:*"
+  },
+  "devDependencies": {
+    "typescript": "^5.8.3",
+    "wrangler": "^4.14.1",
+    "@cloudflare/workers-types": "^4.20250430.0"
+  }
+}
