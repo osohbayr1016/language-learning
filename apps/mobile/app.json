@@ -15,14 +15,19 @@
     },
     "ios": {
       "supportsTablet": false,
-      "bundleIdentifier": "com.chineselearning.app"
+      "bundleIdentifier": "com.chineselearning.app",
+      "infoPlist": {
+        "NSMicrophoneUsageDescription": "Хятад өгүүлбэр хэлэх дасгалд микрофон шаардлагатай.",
+        "NSSpeechRecognitionUsageDescription": "Таны хэлсэн үгийг таних зөвшөөрөл шаардлагатай."
+      }
     },
     "android": {
       "adaptiveIcon": {
         "foregroundImage": "./assets/adaptive-icon.png",
         "backgroundColor": "#0F0F1A"
       },
-      "package": "com.chineselearning.app"
+      "package": "com.chineselearning.app",
+      "permissions": ["android.permission.RECORD_AUDIO"]
     },
     "web": {
       "bundler": "metro",
@@ -35,10 +40,18 @@
       [
         "expo-av",
         {
-          "microphonePermission": false
+          "microphonePermission": "Дуудлагаа сонсож сурахын тулд микрофон ашиглана."
         }
       ],
-      "expo-secure-store"
+      "expo-secure-store",
+      [
+        "expo-speech-recognition",
+        {
+          "microphonePermission": "Хятад өгүүлбэр хэлэх дасгалд микрофон шаардлагатай.",
+          "speechRecognitionPermission": "Таны хэлсэн үгийг таних зөвшөөрөл шаардлагатай.",
+          "androidSpeechServicePackages": ["com.google.android.googlequicksearchbox"]
+        }
+      ]
     ],
     "experiments": {
       "typedRoutes": true

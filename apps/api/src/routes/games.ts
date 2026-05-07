@@ -1,6 +1,8 @@
 import { Hono } from 'hono';
 import { authMiddleware } from '../middleware/auth';
 import type { Env, Variables } from '../types';
+import { bumpDailyActivity, bumpGamePlayed } from '../lib/activity';
+import { updateStreak } from '../lib/streak';
 
 const games = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -30,6 +32,10 @@ games.post('/session', async (c) => {
   await c.env.DB.prepare(
     'UPDATE user_stats SET total_xp = total_xp + ? WHERE user_id = ?'
   ).bind(body.xp_earned, sub).run();
+
+  await bumpDailyActivity(c.env.DB, sub, body.duration_seconds);
+  await bumpGamePlayed(c.env.DB, sub);
+  await updateStreak(c.env.DB, sub);
 
   return c.json({ message: 'Тоглоом хадгалагдлаа', data: { xp_earned: body.xp_earned } });
 });

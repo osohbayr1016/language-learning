@@ -9,6 +9,9 @@ import wordRoutes from './routes/words';
 import audioRoutes from './routes/audio';
 import courseRoutes from './routes/courses';
 import gameRoutes from './routes/games';
+import cartoonRoutes from './routes/cartoons';
+import lessonRoutes from './routes/lessons';
+import insightRoutes from './routes/insights';
 
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -43,6 +46,9 @@ app.route('/api/words', wordRoutes);
 app.route('/api/audio', audioRoutes);
 app.route('/api/courses', courseRoutes);
 app.route('/api/games', gameRoutes);
+app.route('/api/cartoons', cartoonRoutes);
+app.route('/api/lessons', lessonRoutes);
+app.route('/api/insights', insightRoutes);
 
 // ── 404 handler ─────────────────────────────────────────────
 app.notFound((c) => c.json({ error: 'Route олдсонгүй' }, 404));

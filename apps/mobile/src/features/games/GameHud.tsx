@@ -1,0 +1,58 @@
+import React from 'react';
+import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
+import { colors, spacing, typography } from '../../theme';
+import { mn } from '../../i18n/mn';
+
+type Props = {
+  title: string;
+  score: number;
+  timeLeft?: number | null;
+  progressLabel?: string;
+};
+
+export function GameHud({ title, score, timeLeft, progressLabel }: Props) {
+  const router = useRouter();
+  return (
+    <View style={styles.container}>
+      <Pressable onPress={() => router.back()} hitSlop={12}>
+        <Ionicons name="close" size={26} color={colors.text.secondary} />
+      </Pressable>
+      <View style={styles.center}>
+        <Text style={styles.title}>{title}</Text>
+        {progressLabel ? <Text style={styles.progress}>{progressLabel}</Text> : null}
+      </View>
+      <View style={styles.right}>
+        {timeLeft !== undefined && timeLeft !== null ? (
+          <View style={styles.chip}>
+            <Ionicons name="time-outline" size={14} color={colors.warning} />
+            <Text style={[styles.chipText, { color: colors.warning }]}>{timeLeft}s</Text>
+          </View>
+        ) : null}
+        <View style={styles.chip}>
+          <Ionicons name="star" size={14} color={colors.accent.purple} />
+          <Text style={[styles.chipText, { color: colors.accent.purple }]}>{score} {mn.games.score}</Text>
+        </View>
+      </View>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { flexDirection: 'row', alignItems: 'center', gap: spacing.md, marginBottom: spacing.md },
+  center: { flex: 1 },
+  title: { ...typography.heading.md, color: colors.text.primary },
+  progress: { ...typography.body.sm, color: colors.text.secondary, marginTop: 2 },
+  right: { flexDirection: 'row', gap: spacing.xs },
+  chip: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: 4,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: 999,
+    backgroundColor: colors.bg.elevated,
+  },
+  chipText: { ...typography.body.sm, fontWeight: '700' },
+});

@@ -31,18 +31,13 @@ courses.get('/', async (c) => {
 courses.get('/:id', async (c) => {
   const id = c.req.param('id');
 
-  const [course, lessons] = await Promise.all([
-    c.env.DB.prepare('SELECT * FROM courses WHERE id = ? AND is_published = 1').bind(id).first(),
-    c.env.DB.prepare(
-      `SELECT l.*, COUNT(lw.word_id) as word_count
-       FROM lessons l LEFT JOIN lesson_words lw ON l.id = lw.lesson_id
-       WHERE l.course_id = ? GROUP BY l.id ORDER BY l.order_index ASC`
-    ).bind(id).all(),
-  ]);
+  const course = await c.env.DB.prepare(
+    'SELECT * FROM courses WHERE id = ? AND is_published = 1'
+  ).bind(id).first();
 
   if (!course) return c.json({ error: 'Хичээл олдсонгүй' }, 404);
 
-  return c.json({ data: { ...course, lessons: lessons.results } });
+  return c.json({ data: course });
 });
 
 // GET /api/courses/:id/words — public
@@ -126,23 +121,22 @@ courses.post('/:id/words', authMiddleware, adminMiddleware, async (c) => {
   return c.json({ message: 'Үгнүүд нэмэгдлээ' });
 });
 
-// POST /api/upload/presign — admin: get R2 presigned upload URL
-courses.post('/upload/presign', authMiddleware, adminMiddleware, async (c) => {
-  const body = await c.req.json<{ filename: string; type: 'video' | 'thumbnail' }>();
+// POST /api/courses/upload — admin: stream upload directly to R2
+// Send file as raw body with `?filename=...&type=video|thumbnail`.
+courses.post('/upload', authMiddleware, adminMiddleware, async (c) => {
+  const filename = c.req.query('filename') ?? `upload_${Date.now()}`;
+  const type = (c.req.query('type') ?? 'thumbnail') as 'video' | 'thumbnail';
+  const ext = filename.includes('.') ? filename.split('.').pop() : type === 'video' ? 'mp4' : 'jpg';
+  const key = `${type}s/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
 
-  const ext = body.filename.split('.').pop();
-  const key = `${body.type}s/${Date.now()}_${Math.random().toString(36).slice(2)}.${ext}`;
+  const body = c.req.raw.body;
+  if (!body) return c.json({ error: 'Файл алга' }, 400);
+  const contentType = c.req.header('content-type') ?? (type === 'video' ? 'video/mp4' : 'image/jpeg');
+  await c.env.STORAGE.put(key, body, { httpMetadata: { contentType } });
 
-  // For Cloudflare R2, generate a presigned URL (1 hour expiry)
-  const uploadUrl = await c.env.STORAGE.createMultipartUpload(key);
-
-  return c.json({
-    data: {
-      key,
-      upload_url: uploadUrl,
-      public_url: `https://assets.yourdomain.com/${key}`, // Replace with your R2 custom domain
-    },
-  });
+  const u = new URL(c.req.url);
+  const url = `${u.protocol}//${u.host}/api/cartoons/file/${encodeURIComponent(key)}`;
+  return c.json({ data: { key, url } }, 201);
 });
 
 // DELETE /api/courses/:id — admin

@@ -1,54 +1,42 @@
-import { DarkTheme, ThemeProvider } from '@react-navigation/native';
-import { Slot, Stack, useRouter, useSegments } from 'expo-router';
-import * as SplashScreen from 'expo-splash-screen';
-import { useEffect } from 'react';
-import { GestureHandlerRootView } from 'react-native-gesture-handler';
+import { DefaultTheme, ThemeProvider } from "@react-navigation/native";
+import { Slot, useRouter, useSegments } from "expo-router";
+import * as SplashScreen from "expo-splash-screen";
+import { StatusBar } from "expo-status-bar";
+import { useEffect } from "react";
+import { GestureHandlerRootView } from "react-native-gesture-handler";
 
-import { AuthProvider, useAuth } from '../src/context/AuthContext';
-import { colors } from '../src/theme';
+import { AuthProvider, useAuth } from "../src/context/AuthContext";
+import { AudioProvider } from "../src/context/AudioContext";
+import { GamificationProvider } from "../src/context/GamificationContext";
+import { colors } from "../src/theme";
 
-// Prevent the splash screen from auto-hiding before asset loading is complete.
 SplashScreen.preventAutoHideAsync();
 
-function InitialLayout() {
-  const { isAuthenticated, isLoading, hasSeenOnboarding, hasCompletedSetup } = useAuth();
+function RouteGuard() {
+  const { isAuthenticated, isLoading, hasSeenOnboarding } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
   useEffect(() => {
     if (isLoading) return;
-
-    const inAuthGroup = segments[0] === '(auth)';
-    const inOnboarding = segments[0] === 'onboarding';
-    const inSetupGroup = segments[0] === '(setup)';
+    const inAuth = segments[0] === "(auth)";
+    const inOnboarding = segments[0] === "(onboarding)";
+    const inSetup = segments[0] === "(setup)";
+    const inTabs = segments[0] === "(tabs)";
 
     if (isAuthenticated) {
-      if (!hasCompletedSetup && !inSetupGroup) {
-        // Newly registered users must complete setup
-        router.replace('/(setup)/profile');
-      } else if (hasCompletedSetup && (inAuthGroup || inOnboarding || inSetupGroup)) {
-        // Authenticated users who completed setup go to tabs
-        router.replace('/(tabs)');
+      if (!inTabs && (inAuth || inOnboarding || inSetup)) {
+        router.replace("/(tabs)/home");
       }
     } else {
-      // If not authenticated
-      if (!hasSeenOnboarding) {
-        // First time users go to onboarding
-        if (!inOnboarding) {
-          console.log('[InitialLayout] Redirecting to /onboarding');
-          router.replace('/onboarding');
-        }
-      } else {
-        // Returning unauthenticated users go to login
-        if (!inAuthGroup && !inOnboarding) {
-          console.log('[InitialLayout] Redirecting to /(auth)/login');
-          router.replace('/(auth)/login');
-        }
+      if (!hasSeenOnboarding && !inOnboarding) {
+        router.replace("/(onboarding)");
+      } else if (hasSeenOnboarding && !inAuth && !inOnboarding && !inSetup) {
+        router.replace("/(auth)/login");
       }
     }
-  }, [isAuthenticated, isLoading, hasSeenOnboarding, hasCompletedSetup, segments]);
+  }, [isAuthenticated, isLoading, hasSeenOnboarding, segments, router]);
 
-  console.log('[InitialLayout] Rendering, segments:', segments);
   return <Slot />;
 }
 
@@ -57,23 +45,30 @@ export default function RootLayout() {
     SplashScreen.hideAsync();
   }, []);
 
-  const customTheme = {
-    ...DarkTheme,
+  const navTheme = {
+    ...DefaultTheme,
     colors: {
-      ...DarkTheme.colors,
+      ...DefaultTheme.colors,
       background: colors.bg.primary,
-      card: colors.bg.secondary,
+      card: colors.bg.primary,
       text: colors.text.primary,
       border: colors.border,
-      primary: colors.accent.purple,
+      primary: colors.brand.primary,
     },
   };
 
   return (
-    <GestureHandlerRootView style={{ flex: 1 }}>
-      <ThemeProvider value={customTheme}>
+    <GestureHandlerRootView
+      style={{ flex: 1, backgroundColor: colors.bg.primary }}
+    >
+      <ThemeProvider value={navTheme}>
         <AuthProvider>
-          <InitialLayout />
+          <AudioProvider>
+            <GamificationProvider>
+              <StatusBar style="dark" />
+              <RouteGuard />
+            </GamificationProvider>
+          </AudioProvider>
         </AuthProvider>
       </ThemeProvider>
     </GestureHandlerRootView>

@@ -1,25 +1,28 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
 import * as SecureStore from 'expo-secure-store';
 import { api } from '../lib/api';
+import type { ChineseLevel, LearningReason } from '../features/setup/types';
 
 const TOKEN_KEY = 'auth_token';
 const REFRESH_KEY = 'refresh_token';
 const ONBOARDING_KEY = 'has_seen_onboarding';
-const SETUP_KEY = 'has_completed_setup';
+const LEVEL_KEY = 'chinese_level';
+const REASON_KEY = 'learning_reason';
 
 interface AuthState {
   token: string | null;
   isLoading: boolean;
   isAuthenticated: boolean;
   hasSeenOnboarding: boolean;
-  hasCompletedSetup: boolean;
+  chineseLevel: ChineseLevel | null;
+  reason: LearningReason | null;
 }
 
 interface AuthContextType extends AuthState {
   signIn: (tokens: { access_token: string; refresh_token: string }) => Promise<void>;
   signOut: () => Promise<void>;
   completeOnboarding: () => Promise<void>;
-  completeSetup: () => Promise<void>;
+  saveSetup: (level: ChineseLevel, reason: LearningReason) => Promise<void>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,128 +33,86 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     isLoading: true,
     isAuthenticated: false,
     hasSeenOnboarding: false,
-    hasCompletedSetup: false,
+    chineseLevel: null,
+    reason: null,
   });
 
   useEffect(() => {
-    // Check for token on mount
-    const bootstrapAsync = async () => {
+    void bootstrap();
+    async function bootstrap() {
       let token: string | null = null;
-      let refreshToken: string | null = null;
       let hasSeenOnboarding = false;
-      let hasCompletedSetup = false;
-
+      let chineseLevel: ChineseLevel | null = null;
+      let reason: LearningReason | null = null;
       try {
         token = await SecureStore.getItemAsync(TOKEN_KEY);
-        refreshToken = await SecureStore.getItemAsync(REFRESH_KEY);
-        
-        const onboardingFlag = await SecureStore.getItemAsync(ONBOARDING_KEY);
-        hasSeenOnboarding = onboardingFlag === 'true';
+        const refresh = await SecureStore.getItemAsync(REFRESH_KEY);
+        const flag = await SecureStore.getItemAsync(ONBOARDING_KEY);
+        hasSeenOnboarding = flag === 'true';
+        chineseLevel = (await SecureStore.getItemAsync(LEVEL_KEY)) as ChineseLevel | null;
+        reason = (await SecureStore.getItemAsync(REASON_KEY)) as LearningReason | null;
 
-        const setupFlag = await SecureStore.getItemAsync(SETUP_KEY);
-        hasCompletedSetup = setupFlag === 'true';
-
-        // Optional: Implement refresh token logic here if access token is expired
-        // For MVP, we just check if token exists
-        
-        // If we have a refresh token but no access token, try to refresh
-        if (!token && refreshToken) {
-           try {
-             const res = await api.auth.refresh(refreshToken);
-             token = res.data.access_token;
-             await SecureStore.setItemAsync(TOKEN_KEY, token);
-           } catch (e) {
-             console.error("Failed to refresh token on boot", e);
-             // Clear invalid tokens
-             await SecureStore.deleteItemAsync(TOKEN_KEY);
-             await SecureStore.deleteItemAsync(REFRESH_KEY);
-           }
+        if (!token && refresh) {
+          try {
+            const res = await api.auth.refresh(refresh);
+            token = res.data.access_token;
+            await SecureStore.setItemAsync(TOKEN_KEY, token);
+          } catch {
+            await SecureStore.deleteItemAsync(TOKEN_KEY);
+            await SecureStore.deleteItemAsync(REFRESH_KEY);
+            token = null;
+          }
         }
-
       } catch (e) {
-        console.error('Failed to restore token', e);
+        console.error('Auth bootstrap failed', e);
       }
-
-      setState((prev) => ({
-        ...prev,
-        token: token || null,
+      setState({
+        token,
         isLoading: false,
         isAuthenticated: !!token,
         hasSeenOnboarding,
-        hasCompletedSetup,
-      }));
-    };
-
-    bootstrapAsync();
+        chineseLevel,
+        reason,
+      });
+    }
   }, []);
 
-  const signIn = async ({ access_token, refresh_token }: { access_token: string; refresh_token: string }) => {
-    try {
-      await SecureStore.setItemAsync(TOKEN_KEY, access_token);
-      await SecureStore.setItemAsync(REFRESH_KEY, refresh_token);
-      setState((prev) => ({
-        ...prev,
-        token: access_token,
-        isLoading: false,
-        isAuthenticated: true,
-      }));
-    } catch (e) {
-      console.error('Failed to store tokens', e);
-    }
+  const signIn = async (tokens: { access_token: string; refresh_token: string }) => {
+    await SecureStore.setItemAsync(TOKEN_KEY, tokens.access_token);
+    await SecureStore.setItemAsync(REFRESH_KEY, tokens.refresh_token);
+    setState((s) => ({ ...s, token: tokens.access_token, isAuthenticated: true }));
   };
 
   const signOut = async () => {
-    try {
-      const refreshToken = await SecureStore.getItemAsync(REFRESH_KEY);
-      if (refreshToken) {
-        try {
-           await api.auth.logout(refreshToken);
-        } catch(e) {
-           console.error("Server logout failed, clearing local tokens anyway");
-        }
-      }
-      await SecureStore.deleteItemAsync(TOKEN_KEY);
-      await SecureStore.deleteItemAsync(REFRESH_KEY);
-      setState((prev) => ({
-        ...prev,
-        token: null,
-        isLoading: false,
-        isAuthenticated: false,
-      }));
-    } catch (e) {
-      console.error('Failed to delete tokens', e);
+    const refresh = await SecureStore.getItemAsync(REFRESH_KEY);
+    if (refresh) {
+      try { await api.auth.logout(refresh); } catch { /* ignore */ }
     }
+    await SecureStore.deleteItemAsync(TOKEN_KEY);
+    await SecureStore.deleteItemAsync(REFRESH_KEY);
+    setState((s) => ({ ...s, token: null, isAuthenticated: false }));
   };
 
   const completeOnboarding = async () => {
-    try {
-      await SecureStore.setItemAsync(ONBOARDING_KEY, 'true');
-      setState((prev) => ({ ...prev, hasSeenOnboarding: true }));
-    } catch (e) {
-      console.error('Failed to save onboarding state', e);
-    }
+    await SecureStore.setItemAsync(ONBOARDING_KEY, 'true');
+    setState((s) => ({ ...s, hasSeenOnboarding: true }));
   };
 
-  const completeSetup = async () => {
-    try {
-      await SecureStore.setItemAsync(SETUP_KEY, 'true');
-      setState((prev) => ({ ...prev, hasCompletedSetup: true }));
-    } catch (e) {
-      console.error('Failed to set setup complete status', e);
-    }
+  const saveSetup = async (level: ChineseLevel, reason: LearningReason) => {
+    await SecureStore.setItemAsync(LEVEL_KEY, level);
+    await SecureStore.setItemAsync(REASON_KEY, reason);
+    setState((s) => ({ ...s, chineseLevel: level, reason }));
   };
 
   return (
-    <AuthContext.Provider value={{ ...state, signIn, signOut, completeOnboarding, completeSetup }}>
+    <AuthContext.Provider value={{ ...state, signIn, signOut, completeOnboarding, saveSetup }}>
       {children}
     </AuthContext.Provider>
   );
 }
 
 export function useAuth() {
-  const context = useContext(AuthContext);
-  if (context === undefined) {
-    throw new Error('useAuth must be used within an AuthProvider');
-  }
-  return context;
+  const ctx = useContext(AuthContext);
+  if (!ctx) throw new Error('useAuth must be used within AuthProvider');
+  return ctx;
 }

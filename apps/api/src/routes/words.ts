@@ -44,18 +44,7 @@ words.get('/', async (c) => {
   });
 });
 
-// GET /api/words/:id — public
-words.get('/:id', async (c) => {
-  const word = await c.env.DB.prepare(
-    'SELECT * FROM words WHERE id = ?'
-  ).bind(c.req.param('id')).first();
-
-  if (!word) return c.json({ error: 'Үг олдсонгүй' }, 404);
-
-  return c.json({ data: word });
-});
-
-// GET /api/words/due — protected SRS queue
+// GET /api/words/due — protected SRS queue (must be registered BEFORE /:id)
 words.get('/due', authMiddleware, async (c) => {
   const { sub } = c.get('user');
   const limit = Number(c.req.query('limit') ?? 20);
@@ -84,6 +73,17 @@ words.get('/due', authMiddleware, async (c) => {
 
   const combined = [...(overdueResult.results ?? []), ...(newWordsResult.results ?? [])];
   return c.json({ data: combined });
+});
+
+// GET /api/words/:id — public
+words.get('/:id', async (c) => {
+  const word = await c.env.DB.prepare(
+    'SELECT * FROM words WHERE id = ?'
+  ).bind(c.req.param('id')).first();
+
+  if (!word) return c.json({ error: 'Үг олдсонгүй' }, 404);
+
+  return c.json({ data: word });
 });
 
 // POST /api/words — admin only

@@ -1,17 +1,15 @@
 import { Stack } from 'expo-router';
+import { colors } from '../../src/theme';
 
-export default function ProfileStackLayout() {
+export default function ProfileLayout() {
   return (
-    <Stack screenOptions={{ headerShown: false }}>
-      <Stack.Screen name="edit" />
-      <Stack.Screen name="notification" />
-      <Stack.Screen name="payment" />
-      <Stack.Screen name="add-card" />
-      <Stack.Screen name="security" />
-      <Stack.Screen name="privacy" />
-      <Stack.Screen name="invite" />
-      <Stack.Screen name="help-center" />
-      <Stack.Screen name="customer-service" />
-    </Stack>
+    <Stack
+      screenOptions={{
+        headerStyle: { backgroundColor: colors.bg.primary },
+        headerTintColor: colors.text.primary,
+        headerTitleStyle: { color: colors.text.primary, fontSize: 18, fontWeight: '600' },
+        contentStyle: { backgroundColor: colors.bg.primary },
+      }}
+    />
   );
 }

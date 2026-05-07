@@ -1,63 +1,61 @@
-// Design tokens for the Chinese Learning App
-// Based on Elera UI Kit — dark mode
-
 export const colors = {
-  // Backgrounds
   bg: {
-    primary: '#0F0F1A',
-    secondary: '#1A1A2E',
-    card: '#16213E',
-    elevated: '#1E1E35',
-    input: '#252540',
+    primary: '#FFFFFF',
+    secondary: '#F7F7F7',
+    card: '#FFFFFF',
+    elevated: '#FFFFFF',
+    input: '#FFFFFF',
   },
 
-  // Brand gradient colors
   accent: {
-    purple: '#7C3AED',
-    blue: '#3B82F6',
+    purple: '#58CC02',
+    blue: '#1CB0F6',
     teal: '#06B6D4',
-    pink: '#EC4899',
+    pink: '#FF4B4B',
+    green: '#58CC02',
+    amber: '#FFC800',
   },
 
-  // Tone colors (standard Chinese linguistics)
+  brand: {
+    primary: '#58CC02',
+    primaryDark: '#46A302',
+    primaryShadow: '#46A302',
+    secondary: '#1CB0F6',
+  },
+
   tone: {
-    1: '#EF4444', // First tone — red (flat)
-    2: '#F59E0B', // Second tone — amber (rising)
-    3: '#10B981', // Third tone — green (dipping)
-    4: '#3B82F6', // Fourth tone — blue (falling)
-    0: '#6B7280', // Neutral tone — gray
+    1: '#FF4B4B',
+    2: '#FF9600',
+    3: '#58CC02',
+    4: '#1CB0F6',
+    0: '#AFAFAF',
   },
 
-  // HSK level colors
   hsk: {
-    1: '#10B981',
-    2: '#3B82F6',
-    3: '#7C3AED',
-    4: '#F59E0B',
-    5: '#EF4444',
-    6: '#EC4899',
+    1: '#58CC02',
+    2: '#1CB0F6',
+    3: '#A560E8',
+    4: '#FF9600',
+    5: '#FF4B4B',
+    6: '#CE82FF',
   },
 
-  // Text
   text: {
-    primary: '#F8FAFC',
-    secondary: '#94A3B8',
-    muted: '#475569',
-    inverse: '#0F172A',
+    primary: '#1F2937',
+    secondary: '#4B5563',
+    muted: '#9CA3AF',
+    inverse: '#FFFFFF',
   },
 
-  // Status
-  success: '#10B981',
-  error: '#EF4444',
-  warning: '#F59E0B',
-  info: '#3B82F6',
+  success: '#58CC02',
+  error: '#FF4B4B',
+  warning: '#FF9600',
+  info: '#1CB0F6',
 
-  // Borders
-  border: '#2D2D4A',
-  borderLight: '#3D3D5A',
+  border: '#E5E7EB',
+  borderLight: '#F3F4F6',
 
-  // Overlay
-  overlay: 'rgba(0,0,0,0.7)',
+  overlay: 'rgba(0,0,0,0.5)',
 };
 
 export const spacing = {
@@ -78,25 +76,22 @@ export const radius = {
 };
 
 export const typography = {
-  // Hanzi (Chinese characters)
   hanzi: {
-    xl: { fontSize: 72, fontWeight: '300' as const, letterSpacing: 4 },
-    lg: { fontSize: 48, fontWeight: '300' as const, letterSpacing: 2 },
-    md: { fontSize: 32, fontWeight: '400' as const },
-    sm: { fontSize: 24, fontWeight: '400' as const },
+    xl: { fontSize: 88, fontWeight: '300' as const, letterSpacing: 4 },
+    lg: { fontSize: 64, fontWeight: '300' as const, letterSpacing: 2 },
+    md: { fontSize: 40, fontWeight: '400' as const },
+    sm: { fontSize: 28, fontWeight: '400' as const },
   },
-  // Pinyin
   pinyin: {
-    lg: { fontSize: 20, letterSpacing: 2 },
-    md: { fontSize: 16, letterSpacing: 1 },
-    sm: { fontSize: 13, letterSpacing: 0.5 },
+    lg: { fontSize: 22, letterSpacing: 2 },
+    md: { fontSize: 18, letterSpacing: 1 },
+    sm: { fontSize: 14, letterSpacing: 0.5 },
   },
-  // UI text
   heading: {
-    xl: { fontSize: 28, fontWeight: '700' as const },
-    lg: { fontSize: 22, fontWeight: '700' as const },
-    md: { fontSize: 18, fontWeight: '600' as const },
-    sm: { fontSize: 15, fontWeight: '600' as const },
+    xl: { fontSize: 30, fontWeight: '800' as const },
+    lg: { fontSize: 24, fontWeight: '800' as const },
+    md: { fontSize: 18, fontWeight: '700' as const },
+    sm: { fontSize: 15, fontWeight: '700' as const },
   },
   body: {
     lg: { fontSize: 16, lineHeight: 24 },
@@ -108,23 +103,29 @@ export const typography = {
 export const shadows = {
   sm: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.3,
-    shadowRadius: 4,
-    elevation: 3,
+    shadowOffset: { width: 0, height: 1 },
+    shadowOpacity: 0.05,
+    shadowRadius: 2,
+    elevation: 2,
   },
   md: {
     shadowColor: '#000',
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.4,
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
     shadowRadius: 8,
-    elevation: 6,
+    elevation: 4,
   },
   glow: (color: string) => ({
     shadowColor: color,
     shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.5,
-    shadowRadius: 12,
-    elevation: 8,
+    shadowOpacity: 0.25,
+    shadowRadius: 8,
+    elevation: 4,
   }),
+};
+
+export const gradients = {
+  hero: ['#58CC02', '#1CB0F6'] as const,
+  flame: ['#FF9600', '#FF4B4B'] as const,
+  success: ['#58CC02', '#06B6D4'] as const,
 };
