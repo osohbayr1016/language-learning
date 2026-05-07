@@ -2,18 +2,20 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, shadows, spacing, typography } from '../../theme';
+import { mn } from '../../i18n/mn';
 
 type Props = { onPress?: () => void };
 
 export function PremiumBanner({ onPress }: Props) {
+  const b = mn.premium.banner;
   return (
     <Pressable onPress={onPress} style={({ pressed }) => [styles.card, pressed && styles.pressed]}>
       <View style={styles.left}>
-        <Text style={styles.kicker}>JOLINGO+</Text>
-        <Text style={styles.title}>Хязгааргүй амьдрал</Text>
-        <Text style={styles.subtitle}>Реклам байхгүй, түвшин түгжээгүй</Text>
+        <Text style={styles.kicker}>{b.kicker}</Text>
+        <Text style={styles.title}>{b.title}</Text>
+        <Text style={styles.subtitle}>{b.subtitle}</Text>
         <View style={styles.cta}>
-          <Text style={styles.ctaLabel}>УРГЭЛЖЛҮҮЛЭХ</Text>
+          <Text style={styles.ctaLabel}>{b.cta}</Text>
           <Ionicons name="arrow-forward" size={16} color={colors.brand.primary} />
         </View>
       </View>

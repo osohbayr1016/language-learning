@@ -3,6 +3,7 @@ import { lesson } from './strings/lesson';
 import { insights } from './strings/insights';
 import { study } from './strings/study';
 import { games } from './strings/games';
+import { premium } from './strings/premium';
 
 export const mn = {
   appName: 'Хятад Хэл',
@@ -87,4 +88,5 @@ export const mn = {
   },
   lesson,
   insights,
+  premium,
 };

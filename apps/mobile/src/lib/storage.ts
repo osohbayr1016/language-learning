@@ -11,17 +11,29 @@ if (Platform.OS !== 'web') {
   }
 }
 
+function webStorage(): Storage | null {
+  try {
+    const ls = (globalThis as unknown as { localStorage?: Storage }).localStorage;
+    return ls ?? null;
+  } catch {
+    return null;
+  }
+}
+
 function webGet(key: string): string | null {
-  if (typeof window === 'undefined' || !window.localStorage) return null;
-  try { return window.localStorage.getItem(key); } catch { return null; }
+  const ls = webStorage();
+  if (!ls) return null;
+  try { return ls.getItem(key); } catch { return null; }
 }
 function webSet(key: string, value: string): void {
-  if (typeof window === 'undefined' || !window.localStorage) return;
-  try { window.localStorage.setItem(key, value); } catch { /* quota / privacy mode */ }
+  const ls = webStorage();
+  if (!ls) return;
+  try { ls.setItem(key, value); } catch { /* quota / privacy mode */ }
 }
 function webRemove(key: string): void {
-  if (typeof window === 'undefined' || !window.localStorage) return;
-  try { window.localStorage.removeItem(key); } catch { /* ignore */ }
+  const ls = webStorage();
+  if (!ls) return;
+  try { ls.removeItem(key); } catch { /* ignore */ }
 }
 
 export async function getItem(key: string): Promise<string | null> {
