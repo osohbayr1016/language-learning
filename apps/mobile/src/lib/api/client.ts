@@ -11,18 +11,39 @@ export async function request<T>(
 ): Promise<T> {
   const { token, ...rest } = options;
   const headers: Record<string, string> = {
-    'Content-Type': 'application/json',
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...((rest.headers as Record<string, string>) ?? {}),
   };
-  const res = await fetch(`${getApiBase()}${path}`, { ...rest, headers });
-  let data: unknown = null;
-  try { data = await res.json(); } catch { /* non-json response */ }
+  if (rest.body != null && rest.body !== '') {
+    headers['Content-Type'] = 'application/json';
+  }
+
+  const base = getApiBase();
+  const res = await fetch(`${base}${path}`, { ...rest, headers });
+  const text = await res.text();
+
   if (!res.ok) {
-    const msg = (data as { error?: string } | null)?.error ?? `HTTP ${res.status}`;
+    let msg = `HTTP ${res.status}`;
+    try {
+      const j = JSON.parse(text) as { error?: string };
+      if (typeof j?.error === 'string' && j.error) msg = j.error;
+    } catch {
+      /* ignore */
+    }
     throw new Error(msg);
   }
-  return data as T;
+
+  if (!text.trim()) {
+    return {} as T;
+  }
+
+  try {
+    return JSON.parse(text) as T;
+  } catch {
+    throw new Error(
+      'API суурь буруу эсвэл вэб SPA HTML ирлээ. EXPO_PUBLIC_API_URL нь chinese-learning-api.*.workers.dev байх ёстой.'
+    );
+  }
 }
 
 export function buildQuery(params: Record<string, string | number | undefined | null>): string {
