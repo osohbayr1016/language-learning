@@ -11,6 +11,11 @@ export const study = {
   recommended: 'Танд санал болгох',
   startNow: 'ЭХЛЭХ',
   dueSection: 'Өнөөдөр давтах үгс',
+  coursePathTitle: 'Хичээлийн зам',
+  coursePathSubtitle: 'HSK түвшин — алхам алхмаар үг, дасгал',
+  courseEmptyTitle: 'Хичээл одоогоор байхгүй',
+  courseEmpty:
+    'Хичээлийн жагсаалт хоосон эсвэл ачаалж чадсангүй. Интернэт ба нэвтрэлтээ шалгаад дахин оролдоно уу.',
   heroDueTitle: 'Цээжлэх карт',
   heroDueSubtitle: '{n} үгийн давталт чамайг хүлээж байна',
   heroFallbackTitle: 'Сурах горим',
@@ -29,4 +34,6 @@ export const study = {
   correct: 'Зөв байна',
   wrong: 'Буруу',
   noWords: 'Сурах үг олдсонгүй',
+  wordsLoadError:
+    'Үгсийг ачаалж чадсангүй. Интернэт, серверийн холболт эсвэл бүртгэлээ шалгаад дахин оролдоно уу.',
 };

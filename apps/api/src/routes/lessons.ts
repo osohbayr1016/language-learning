@@ -9,66 +9,45 @@ import {
   bumpSkillStats,
   type SkillResults,
 } from '../lib/activity';
+import { publishedLessonTree, safeAll } from '../lib/lessonCatalog';
 
 const lessons = new Hono<{ Bindings: Env; Variables: Variables }>();
 
+// Public catalog (same shape as GET / but progress always null) — web + fallback when auth fetch fails.
+lessons.get('/catalog', async (c) => {
+  const data = await publishedLessonTree(c.env.DB, null);
+  return c.json({ data });
+});
+
 lessons.use('*', authMiddleware);
 
-async function safeAll<T = unknown>(p: Promise<{ results?: T[] }>): Promise<{ results: T[] }> {
-  try { const r = await p; return { results: r.results ?? [] }; } catch { return { results: [] }; }
-}
-
-// GET /api/lessons — chapters joined with their lessons + my progress
+// GET /api/lessons — chapters + lessons + my progress
 lessons.get('/', async (c) => {
   const { sub } = c.get('user');
-
-  const [chaptersRes, lessonsRes, progressRes] = await Promise.all([
-    safeAll(
-      c.env.DB.prepare(
-        `SELECT id, title_mn, subtitle_mn, color, hsk_level, order_num, is_published
-         FROM chapters WHERE is_published = 1 ORDER BY order_num ASC`
-      ).all()
-    ),
-    safeAll(
-      c.env.DB.prepare(
-        `SELECT l.id, l.chapter_id, l.title_mn, l.subtitle_mn, l.icon,
-                l.order_num, l.is_published,
-                (SELECT COUNT(*) FROM lesson_words WHERE lesson_id = l.id) AS word_count
-         FROM lessons l WHERE l.is_published = 1
-         ORDER BY l.chapter_id ASC, l.order_num ASC`
-      ).all()
-    ),
-    safeAll(
-      c.env.DB.prepare(
+  const progressRes = await safeAll(
+    c.env.DB
+      .prepare(
         `SELECT lesson_id, best_accuracy, attempts, completed_at
          FROM user_lesson_progress WHERE user_id = ?`
-      ).bind(sub).all()
-    ),
-  ]);
-
+      )
+      .bind(sub)
+      .all()
+  );
   const progress = new Map<number, { best_accuracy: number; attempts: number; completed_at: string | null }>();
   for (const row of progressRes.results ?? []) {
-    const p = row as { lesson_id: number; best_accuracy: number; attempts: number; completed_at: string | null };
+    const p = row as {
+      lesson_id: number;
+      best_accuracy: number;
+      attempts: number;
+      completed_at: string | null;
+    };
     progress.set(p.lesson_id, {
       best_accuracy: p.best_accuracy,
       attempts: p.attempts,
       completed_at: p.completed_at,
     });
   }
-
-  const lessonsByChapter = new Map<number, unknown[]>();
-  for (const row of lessonsRes.results ?? []) {
-    const l = row as { id: number; chapter_id: number };
-    const list = lessonsByChapter.get(l.chapter_id) ?? [];
-    list.push({ ...l, progress: progress.get(l.id) ?? null });
-    lessonsByChapter.set(l.chapter_id, list);
-  }
-
-  const data = (chaptersRes.results ?? []).map((row) => {
-    const ch = row as { id: number };
-    return { ...ch, lessons: lessonsByChapter.get(ch.id) ?? [] };
-  });
-
+  const data = await publishedLessonTree(c.env.DB, progress);
   return c.json({ data });
 });
 

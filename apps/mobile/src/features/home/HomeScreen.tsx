@@ -11,7 +11,7 @@ import { QuickActions } from './QuickActions';
 import { ExploreRow } from './ExploreRow';
 import { LeaderboardPreview } from './LeaderboardPreview';
 import { PremiumBanner } from './PremiumBanner';
-import { LessonPath } from './LessonPath';
+import { LessonPath } from '../lessons/LessonPath';
 
 export default function HomeScreen() {
   const router = useRouter();

@@ -25,7 +25,7 @@ function isAnswerCorrect(input: string, word: WordWithProgress): boolean {
 }
 
 export default function WriteScreen() {
-  const { words, loading } = useDueWords(10);
+  const { words, loading, error } = useDueWords(10);
   const session = useSrsRating('write');
   const timer = useAdaptiveTimer();
   const { playWord } = useAudio();
@@ -51,7 +51,9 @@ export default function WriteScreen() {
       </Screen>
     );
   }
-  if (words.length === 0) return <StudyEmptyState />;
+  if (words.length === 0) {
+    return <StudyEmptyState message={error ? mn.study.wordsLoadError : undefined} />;
+  }
   if (done) return <SessionDoneScreen xp={xp} total={words.length} correct={correctCount} />;
 
   const handleSubmit = async (val: string) => {

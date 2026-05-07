@@ -8,6 +8,8 @@
     "type-check": "tsc --noEmit",
     "db:migrate": "wrangler d1 migrations apply chinese-learning-db --local",
     "db:migrate:remote": "wrangler d1 migrations apply chinese-learning-db --remote",
+    "db:migrate:remote:production": "wrangler d1 migrations apply chinese-learning-db --remote --env production",
+    "db:count:local": "wrangler d1 execute chinese-learning-db --local --command \"SELECT (SELECT COUNT(*) FROM words) AS word_count, (SELECT COUNT(*) FROM chapters) AS chapter_count\"",
     "db:seed": "wrangler d1 execute chinese-learning-db --local --file=./src/db/seed.sql"
   },
   "dependencies": {

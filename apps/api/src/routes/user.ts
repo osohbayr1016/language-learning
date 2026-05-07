@@ -3,6 +3,7 @@ import { authMiddleware } from '../middleware/auth';
 import type { Env, Variables } from '../types';
 import { updateStreak } from '../lib/streak';
 import { buildProgressStatements, bumpStats, type ProgressResult } from '../lib/progress';
+import { studyQueueCount } from '../lib/studyQueue';
 
 const user = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -44,19 +45,16 @@ user.get('/stats', async (c) => {
 
 user.get('/dashboard', async (c) => {
   const { sub } = c.get('user');
-  const [profile, streak, stats, dueCount] = await Promise.all([
+  const [profile, streak, stats, dueToday] = await Promise.all([
     c.env.DB.prepare(
       'SELECT id, email, display_name, avatar_url FROM users WHERE id = ?'
     ).bind(sub).first(),
     c.env.DB.prepare('SELECT * FROM user_streaks WHERE user_id = ?').bind(sub).first(),
     c.env.DB.prepare('SELECT * FROM user_stats WHERE user_id = ?').bind(sub).first(),
-    c.env.DB.prepare(
-      `SELECT COUNT(*) as count FROM user_word_progress
-       WHERE user_id = ? AND next_review <= datetime('now')`
-    ).bind(sub).first<{ count: number }>(),
+    studyQueueCount(c.env.DB, sub),
   ]);
   return c.json({
-    data: { user: profile, streak, stats, due_today: dueCount?.count ?? 0 },
+    data: { user: profile, streak, stats, due_today: dueToday },
   });
 });
 

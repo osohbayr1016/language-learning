@@ -13,7 +13,7 @@ import { CharacterPicker } from './CharacterPicker';
 import { AccuracyMeter } from './AccuracyMeter';
 
 export default function WriterScreen() {
-  const { words, loading } = useDueWords(8);
+  const { words, loading, error } = useDueWords(8);
   const { save } = useGameSession();
   const { width } = useWindowDimensions();
   const canvasSize = Math.min(width - spacing.lg * 2, 320);
@@ -41,7 +41,9 @@ export default function WriterScreen() {
       </Screen>
     );
   }
-  if (words.length === 0) return <StudyEmptyState />;
+  if (words.length === 0) {
+    return <StudyEmptyState message={error ? mn.study.wordsLoadError : undefined} />;
+  }
 
   const handleEvent = (e: HanziWriterEvent) => {
     if (e.type === 'mistake') setMistakes((m) => m + 1);
@@ -78,7 +80,7 @@ export default function WriterScreen() {
           mode={mode}
           size={canvasSize}
           strokeColor={colors.accent.purple}
-          outlineColor={colors.borderLight}
+          outlineColor={colors.border}
           onEvent={handleEvent}
         />
       </View>

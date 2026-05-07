@@ -19,7 +19,7 @@ import type { WordWithProgress } from '../../../lib/types';
 const OPTIONS = 4;
 
 export default function LearnScreen() {
-  const { words, loading } = useDueWords(15);
+  const { words, loading, error } = useDueWords(15);
   const session = useSrsRating('learn');
   const timer = useAdaptiveTimer();
   const { playWord } = useAudio();
@@ -56,7 +56,9 @@ export default function LearnScreen() {
       </Screen>
     );
   }
-  if (words.length === 0) return <StudyEmptyState />;
+  if (words.length === 0) {
+    return <StudyEmptyState message={error ? mn.study.wordsLoadError : undefined} />;
+  }
   if (done) return <SessionDoneScreen xp={xp} total={words.length} correct={correctCount} />;
 
   const handleSelect = async (chosen: WordWithProgress) => {

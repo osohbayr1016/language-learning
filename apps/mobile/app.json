@@ -55,6 +55,9 @@
     ],
     "experiments": {
       "typedRoutes": true
+    },
+    "extra": {
+      "apiUrl": "https://chinese-learning-api.osohoo691016.workers.dev"
     }
   }
 }

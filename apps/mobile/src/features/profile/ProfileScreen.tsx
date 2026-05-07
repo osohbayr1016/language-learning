@@ -1,5 +1,5 @@
 import React, { useEffect, useState } from 'react';
-import { Alert } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Screen } from '../../primitives';
 import { useAuth } from '../../context/AuthContext';
@@ -30,6 +30,13 @@ export default function ProfileScreen() {
   }, [token]);
 
   const confirmSignOut = () => {
+    if (Platform.OS === 'web') {
+      const g = globalThis as { confirm?: (message?: string) => boolean };
+      if (g.confirm?.(`${mn.profile.signOut}\n\n${mn.profile.signOutConfirm}`)) {
+        void signOut();
+      }
+      return;
+    }
     Alert.alert(mn.profile.signOut, mn.profile.signOutConfirm, [
       { text: mn.common.cancel, style: 'cancel' },
       { text: mn.profile.signOut, style: 'destructive', onPress: () => void signOut() },

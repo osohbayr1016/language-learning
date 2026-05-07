@@ -19,7 +19,7 @@ import { CardBack } from './CardBack';
 import type { ConfidenceLevel } from '../../../lib/srs/adaptive';
 
 export default function FlashcardScreen() {
-  const { words, loading } = useDueWords(15);
+  const { words, loading, error } = useDueWords(15);
   const session = useSrsRating('flashcard');
   const timer = useAdaptiveTimer();
 
@@ -48,7 +48,9 @@ export default function FlashcardScreen() {
     );
   }
 
-  if (words.length === 0) return <StudyEmptyState />;
+  if (words.length === 0) {
+    return <StudyEmptyState message={error ? mn.study.wordsLoadError : undefined} />;
+  }
 
   if (done) return <SessionDoneScreen xp={xp} total={words.length} correct={correctCount} />;
 

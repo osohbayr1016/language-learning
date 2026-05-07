@@ -26,4 +26,4 @@ export type { Course } from './courses';
 export type { GameSessionBody, GameType, LeaderboardRow } from './games';
 export type { Cartoon, CartoonDetail, CartoonWord } from './cartoons';
 export type { LessonCompleteBody } from './lessons';
-export { API_BASE } from './client';
+export { getApiBase } from './client';

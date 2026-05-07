@@ -1,4 +1,9 @@
-export const API_BASE = process.env.EXPO_PUBLIC_API_URL ?? 'http://localhost:8787';
+import { resolveApiBase } from './publicUrl';
+
+/** Resolve at call time so static web bundles get the live origin (not build-time undefined). */
+export function getApiBase(): string {
+  return resolveApiBase();
+}
 
 export async function request<T>(
   path: string,
@@ -10,7 +15,7 @@ export async function request<T>(
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...((rest.headers as Record<string, string>) ?? {}),
   };
-  const res = await fetch(`${API_BASE}${path}`, { ...rest, headers });
+  const res = await fetch(`${getApiBase()}${path}`, { ...rest, headers });
   let data: unknown = null;
   try { data = await res.json(); } catch { /* non-json response */ }
   if (!res.ok) {
