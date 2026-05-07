@@ -1,0 +1,17 @@
+{
+  "name": "@chinese-app/web",
+  "private": true,
+  "version": "1.0.0",
+  "scripts": {
+    "build": "cd ../mobile && EXPO_PUBLIC_API_URL=$API_URL npx expo export --platform web --output-dir ../web/dist",
+    "ship": "wrangler deploy --env production",
+    "preview": "wrangler dev --env production",
+    "release": "pnpm build && pnpm ship",
+    "tail": "wrangler tail --env production"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20240903.0",
+    "typescript": "~5.9.2",
+    "wrangler": "^4.87.0"
+  }
+}

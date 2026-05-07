@@ -1,7 +1,7 @@
 import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
-import * as SecureStore from 'expo-secure-store';
 import { useAuth } from './AuthContext';
 import { api } from '../lib/api';
+import { getItem, setItem } from '../lib/storage';
 
 const DAILY_GOAL_KEY = 'daily_xp_goal';
 const DEFAULT_GOAL = 30;
@@ -41,7 +41,7 @@ export function GamificationProvider({ children }: { children: React.ReactNode }
 
   useEffect(() => {
     void (async () => {
-      const v = await SecureStore.getItemAsync(DAILY_GOAL_KEY);
+      const v = await getItem(DAILY_GOAL_KEY);
       if (v) setDailyGoalState(Number(v) || DEFAULT_GOAL);
     })();
   }, []);
@@ -50,7 +50,7 @@ export function GamificationProvider({ children }: { children: React.ReactNode }
 
   const setDailyGoal = async (v: number) => {
     setDailyGoalState(v);
-    await SecureStore.setItemAsync(DAILY_GOAL_KEY, String(v));
+    await setItem(DAILY_GOAL_KEY, String(v));
   };
 
   const addLocalXp = (xp: number) => {

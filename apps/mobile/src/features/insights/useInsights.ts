@@ -24,32 +24,34 @@ export function useInsights(month: Date, weekEnd: Date) {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
+  // Depend on stable string keys; new Date objects with the same calendar
+  // value would otherwise re-trigger the effect every render.
+  const from = ymd(firstOfMonth(month));
+  const to = ymd(lastOfMonth(month));
+  const end = ymd(weekEnd);
+
   const refresh = useCallback(async () => {
-    if (!token) return;
+    if (!token) {
+      setData(EMPTY);
+      setLoading(false);
+      return;
+    }
     setLoading(true);
     setError(null);
-    try {
-      const from = ymd(firstOfMonth(month));
-      const to = ymd(lastOfMonth(month));
-      const end = ymd(weekEnd);
-      const [s, sk, cal, wk] = await Promise.all([
-        api.insights.summary(token),
-        api.insights.skills(token),
-        api.insights.calendar(token, from, to),
-        api.insights.timeSpent(token, end),
-      ]);
-      setData({
-        summary: s.data,
-        skills: sk.data,
-        calendar: cal.data,
-        week: wk.data,
-      });
-    } catch (e) {
-      setError(e instanceof Error ? e.message : 'unknown');
-    } finally {
-      setLoading(false);
-    }
-  }, [token, month, weekEnd]);
+    const [sRes, skRes, calRes, wkRes] = await Promise.allSettled([
+      api.insights.summary(token),
+      api.insights.skills(token),
+      api.insights.calendar(token, from, to),
+      api.insights.timeSpent(token, end),
+    ]);
+    setData({
+      summary: sRes.status === 'fulfilled' ? sRes.value.data : null,
+      skills: skRes.status === 'fulfilled' ? skRes.value.data : null,
+      calendar: calRes.status === 'fulfilled' ? calRes.value.data : [],
+      week: wkRes.status === 'fulfilled' ? wkRes.value.data : [],
+    });
+    setLoading(false);
+  }, [token, from, to, end]);
 
   useEffect(() => {
     void refresh();

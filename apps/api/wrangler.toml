@@ -3,10 +3,11 @@ main = "src/index.ts"
 compatibility_date = "2025-05-01"
 compatibility_flags = ["nodejs_compat"]
 
+# Local dev defaults — overridden in env.production for the deployed Worker.
 [[d1_databases]]
 binding = "DB"
 database_name = "chinese-learning-db"
-database_id = "placeholder-replace-after-create"
+database_id = "160b44e2-1323-4e51-b788-8fb43e4cb078"
 
 [[r2_buckets]]
 binding = "STORAGE"
@@ -14,5 +15,33 @@ bucket_name = "chinese-learning-assets"
 
 [vars]
 ENVIRONMENT = "development"
-JWT_SECRET = "change-me-in-production"
-CORS_ORIGIN = "http://localhost:5173"
+CORS_ORIGIN = "http://localhost:5173,http://localhost:8081,http://localhost:8085,exp://localhost:8081"
+
+# JWT_SECRET intentionally NOT set here.  For local dev, create
+# `apps/api/.dev.vars` with `JWT_SECRET=any-string`.  In production it MUST be
+# uploaded via `wrangler secret put JWT_SECRET --env production`.
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Production environment — used by `wrangler deploy --env production` and the
+# default `wrangler deploy` after the database id is filled in below.
+# JWT_SECRET MUST be set via `wrangler secret put JWT_SECRET --env production`
+# (never commit it).  CORS_ORIGIN should include the live Pages URL.
+# ─────────────────────────────────────────────────────────────────────────────
+[env.production]
+name = "chinese-learning-api"
+
+[[env.production.d1_databases]]
+binding = "DB"
+database_name = "chinese-learning-db"
+database_id = "160b44e2-1323-4e51-b788-8fb43e4cb078"
+
+[[env.production.r2_buckets]]
+binding = "STORAGE"
+bucket_name = "chinese-learning-assets"
+
+[env.production.vars]
+ENVIRONMENT = "production"
+# Allow the production web Worker plus the legacy Pages domain (kept until DNS
+# expires).  The src/index.ts CORS handler also accepts *.workers.dev /
+# *.pages.dev preview subdomains derived from the entries below.
+CORS_ORIGIN = "https://chinese-learning-web.osohoo691016.workers.dev,https://chinese-learning-tt5.pages.dev"

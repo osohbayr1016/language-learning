@@ -33,9 +33,7 @@ export default function CartoonsHubScreen() {
       </View>
       {loading ? (
         <ActivityIndicator color={colors.accent.purple} style={{ marginTop: spacing.xl }} />
-      ) : error ? (
-        <Text style={styles.muted}>{error}</Text>
-      ) : items.length === 0 ? (
+      ) : error || items.length === 0 ? (
         <Text style={styles.muted}>Хүүхэлдэйн кино нэмэгдээгүй байна</Text>
       ) : (
         <FlatList

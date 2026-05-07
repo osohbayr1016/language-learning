@@ -1,5 +1,5 @@
 import React, { useRef, useState } from 'react';
-import { FlatList, StyleSheet, View } from 'react-native';
+import { FlatList, LayoutChangeEvent, StyleSheet, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Button, Screen } from '../../primitives';
 import { useAuth } from '../../context/AuthContext';
@@ -13,6 +13,7 @@ export default function OnboardingScreen() {
   const { completeOnboarding } = useAuth();
   const router = useRouter();
   const [current, setCurrent] = useState(0);
+  const [containerW, setContainerW] = useState(0);
   const listRef = useRef<FlatList<Slide>>(null);
 
   const handleNext = async () => {
@@ -34,20 +35,32 @@ export default function OnboardingScreen() {
     if (typeof i === 'number') setCurrent(i);
   }).current;
 
+  const onLayout = (e: LayoutChangeEvent) => {
+    const w = Math.round(e.nativeEvent.layout.width);
+    if (w && w !== containerW) setContainerW(w);
+  };
+
   return (
     <Screen padded={false} edges={['top', 'bottom']}>
-      <View style={styles.container}>
-        <FlatList
-          ref={listRef}
-          data={slides}
-          keyExtractor={(it) => it.id}
-          renderItem={({ item }) => <SlideView slide={item} />}
-          horizontal
-          pagingEnabled
-          showsHorizontalScrollIndicator={false}
-          onViewableItemsChanged={onViewable}
-          viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
-        />
+      <View style={styles.container} onLayout={onLayout}>
+        {containerW > 0 && (
+          <FlatList
+            ref={listRef}
+            data={slides}
+            keyExtractor={(it) => it.id}
+            renderItem={({ item }) => <SlideView slide={item} width={containerW} />}
+            horizontal
+            pagingEnabled
+            showsHorizontalScrollIndicator={false}
+            onViewableItemsChanged={onViewable}
+            viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
+            getItemLayout={(_, index) => ({
+              length: containerW,
+              offset: containerW * index,
+              index,
+            })}
+          />
+        )}
 
         <View style={styles.bottom}>
           <Pagination count={slides.length} current={current} />

@@ -1,0 +1,24 @@
+name = "chinese-learning-web"
+main = "src/index.ts"
+compatibility_date = "2025-09-01"
+
+# Local dev defaults — Workers Static Assets serves the Expo web bundle.
+[assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+html_handling = "auto-trailing-slash"
+
+# ─────────────────────────────────────────────────────────────────────────────
+# Production environment — `wrangler deploy --env production` uploads the
+# bundle in ./dist via Workers Static Assets (a different upload pipeline
+# from Cloudflare Pages, which has been returning 502s on direct upload).
+# ─────────────────────────────────────────────────────────────────────────────
+[env.production]
+name = "chinese-learning-web"
+
+[env.production.assets]
+directory = "./dist"
+binding = "ASSETS"
+not_found_handling = "single-page-application"
+html_handling = "auto-trailing-slash"

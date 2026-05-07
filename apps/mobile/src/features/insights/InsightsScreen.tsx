@@ -1,8 +1,7 @@
-import React, { useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import React, { useMemo, useState } from 'react';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { Screen } from '../../primitives';
-import { colors, spacing, typography } from '../../theme';
-import { mn } from '../../i18n/mn';
+import { colors, spacing } from '../../theme';
 import { addMonths, addWeeks, firstOfMonth, startOfWeek, addDays } from './dates';
 import { useInsights } from './useInsights';
 import { InsightsHeader } from './InsightsHeader';
@@ -13,23 +12,23 @@ import { LearningDayHistoryCard } from './LearningDayHistoryCard';
 import { LearningTimeCard } from './LearningTimeCard';
 
 export function InsightsScreen() {
-  const today = new Date();
-  const [month, setMonth] = useState<Date>(firstOfMonth(today));
-  const [weekStart, setWeekStart] = useState<Date>(startOfWeek(today));
-  const weekEnd = addDays(weekStart, 6);
+  const initial = useMemo(() => {
+    const t = new Date();
+    return { month: firstOfMonth(t), weekStart: startOfWeek(t) };
+  }, []);
+  const [month, setMonth] = useState<Date>(initial.month);
+  const [weekStart, setWeekStart] = useState<Date>(initial.weekStart);
+  const weekEnd = useMemo(() => addDays(weekStart, 6), [weekStart]);
 
-  const { data, loading, error } = useInsights(month, weekEnd);
+  const { data, loading } = useInsights(month, weekEnd);
 
   return (
-    <Screen scroll>
+    <Screen scroll scrollBottomInset={70}>
       <InsightsHeader />
-
       {loading ? (
         <View style={styles.center}>
           <ActivityIndicator color={colors.brand.primary} />
         </View>
-      ) : error ? (
-        <Text style={styles.error}>{mn.insights.errors.load}</Text>
       ) : (
         <>
           <TopStatsRow
@@ -59,10 +58,4 @@ export function InsightsScreen() {
 
 const styles = StyleSheet.create({
   center: { paddingVertical: spacing.xxl, alignItems: 'center' },
-  error: {
-    ...typography.body.md,
-    color: colors.error,
-    textAlign: 'center',
-    paddingVertical: spacing.xl,
-  },
 });

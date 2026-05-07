@@ -14,26 +14,36 @@ const lessons = new Hono<{ Bindings: Env; Variables: Variables }>();
 
 lessons.use('*', authMiddleware);
 
+async function safeAll<T = unknown>(p: Promise<{ results?: T[] }>): Promise<{ results: T[] }> {
+  try { const r = await p; return { results: r.results ?? [] }; } catch { return { results: [] }; }
+}
+
 // GET /api/lessons — chapters joined with their lessons + my progress
 lessons.get('/', async (c) => {
   const { sub } = c.get('user');
 
   const [chaptersRes, lessonsRes, progressRes] = await Promise.all([
-    c.env.DB.prepare(
-      `SELECT id, title_mn, subtitle_mn, color, hsk_level, order_num, is_published
-       FROM chapters WHERE is_published = 1 ORDER BY order_num ASC`
-    ).all(),
-    c.env.DB.prepare(
-      `SELECT l.id, l.chapter_id, l.title_mn, l.subtitle_mn, l.icon,
-              l.order_num, l.is_published,
-              (SELECT COUNT(*) FROM lesson_words WHERE lesson_id = l.id) AS word_count
-       FROM lessons l WHERE l.is_published = 1
-       ORDER BY l.chapter_id ASC, l.order_num ASC`
-    ).all(),
-    c.env.DB.prepare(
-      `SELECT lesson_id, best_accuracy, attempts, completed_at
-       FROM user_lesson_progress WHERE user_id = ?`
-    ).bind(sub).all(),
+    safeAll(
+      c.env.DB.prepare(
+        `SELECT id, title_mn, subtitle_mn, color, hsk_level, order_num, is_published
+         FROM chapters WHERE is_published = 1 ORDER BY order_num ASC`
+      ).all()
+    ),
+    safeAll(
+      c.env.DB.prepare(
+        `SELECT l.id, l.chapter_id, l.title_mn, l.subtitle_mn, l.icon,
+                l.order_num, l.is_published,
+                (SELECT COUNT(*) FROM lesson_words WHERE lesson_id = l.id) AS word_count
+         FROM lessons l WHERE l.is_published = 1
+         ORDER BY l.chapter_id ASC, l.order_num ASC`
+      ).all()
+    ),
+    safeAll(
+      c.env.DB.prepare(
+        `SELECT lesson_id, best_accuracy, attempts, completed_at
+         FROM user_lesson_progress WHERE user_id = ?`
+      ).bind(sub).all()
+    ),
   ]);
 
   const progress = new Map<number, { best_accuracy: number; attempts: number; completed_at: string | null }>();

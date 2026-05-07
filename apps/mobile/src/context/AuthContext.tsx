@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useEffect, useState } from 'react';
-import * as SecureStore from 'expo-secure-store';
 import { api } from '../lib/api';
+import { getItem, removeItem, setItem } from '../lib/storage';
 import type { ChineseLevel, LearningReason } from '../features/setup/types';
 
 const TOKEN_KEY = 'auth_token';
@@ -45,21 +45,21 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let chineseLevel: ChineseLevel | null = null;
       let reason: LearningReason | null = null;
       try {
-        token = await SecureStore.getItemAsync(TOKEN_KEY);
-        const refresh = await SecureStore.getItemAsync(REFRESH_KEY);
-        const flag = await SecureStore.getItemAsync(ONBOARDING_KEY);
+        token = await getItem(TOKEN_KEY);
+        const refresh = await getItem(REFRESH_KEY);
+        const flag = await getItem(ONBOARDING_KEY);
         hasSeenOnboarding = flag === 'true';
-        chineseLevel = (await SecureStore.getItemAsync(LEVEL_KEY)) as ChineseLevel | null;
-        reason = (await SecureStore.getItemAsync(REASON_KEY)) as LearningReason | null;
+        chineseLevel = (await getItem(LEVEL_KEY)) as ChineseLevel | null;
+        reason = (await getItem(REASON_KEY)) as LearningReason | null;
 
         if (!token && refresh) {
           try {
             const res = await api.auth.refresh(refresh);
             token = res.data.access_token;
-            await SecureStore.setItemAsync(TOKEN_KEY, token);
+            await setItem(TOKEN_KEY, token);
           } catch {
-            await SecureStore.deleteItemAsync(TOKEN_KEY);
-            await SecureStore.deleteItemAsync(REFRESH_KEY);
+            await removeItem(TOKEN_KEY);
+            await removeItem(REFRESH_KEY);
             token = null;
           }
         }
@@ -78,29 +78,29 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (tokens: { access_token: string; refresh_token: string }) => {
-    await SecureStore.setItemAsync(TOKEN_KEY, tokens.access_token);
-    await SecureStore.setItemAsync(REFRESH_KEY, tokens.refresh_token);
+    await setItem(TOKEN_KEY, tokens.access_token);
+    await setItem(REFRESH_KEY, tokens.refresh_token);
     setState((s) => ({ ...s, token: tokens.access_token, isAuthenticated: true }));
   };
 
   const signOut = async () => {
-    const refresh = await SecureStore.getItemAsync(REFRESH_KEY);
+    const refresh = await getItem(REFRESH_KEY);
     if (refresh) {
       try { await api.auth.logout(refresh); } catch { /* ignore */ }
     }
-    await SecureStore.deleteItemAsync(TOKEN_KEY);
-    await SecureStore.deleteItemAsync(REFRESH_KEY);
+    await removeItem(TOKEN_KEY);
+    await removeItem(REFRESH_KEY);
     setState((s) => ({ ...s, token: null, isAuthenticated: false }));
   };
 
   const completeOnboarding = async () => {
-    await SecureStore.setItemAsync(ONBOARDING_KEY, 'true');
+    await setItem(ONBOARDING_KEY, 'true');
     setState((s) => ({ ...s, hasSeenOnboarding: true }));
   };
 
   const saveSetup = async (level: ChineseLevel, reason: LearningReason) => {
-    await SecureStore.setItemAsync(LEVEL_KEY, level);
-    await SecureStore.setItemAsync(REASON_KEY, reason);
+    await setItem(LEVEL_KEY, level);
+    await setItem(REASON_KEY, reason);
     setState((s) => ({ ...s, chineseLevel: level, reason }));
   };
 

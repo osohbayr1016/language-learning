@@ -1,8 +1,8 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, StyleSheet, View } from 'react-native';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
-import { colors, spacing, typography } from '../../theme';
+import { colors, spacing } from '../../theme';
 import type { Chapter } from '../../lib/types';
 import { ChapterCard } from './ChapterCard';
 import { LessonRow } from './LessonRow';
@@ -11,18 +11,20 @@ export function LessonPath() {
   const { token } = useAuth();
   const [chapters, setChapters] = useState<Chapter[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
-    if (!token) return;
+    if (!token) {
+      setLoading(false);
+      return;
+    }
     let cancelled = false;
     void (async () => {
       try {
         setLoading(true);
         const res = await api.lessons.list(token);
-        if (!cancelled) setChapters(res.data);
-      } catch (e) {
-        if (!cancelled) setError(e instanceof Error ? e.message : 'Алдаа гарлаа');
+        if (!cancelled) setChapters(res.data ?? []);
+      } catch {
+        if (!cancelled) setChapters([]);
       } finally {
         if (!cancelled) setLoading(false);
       }
@@ -40,9 +42,7 @@ export function LessonPath() {
     );
   }
 
-  if (error) {
-    return <Text style={styles.error}>{error}</Text>;
-  }
+  if (chapters.length === 0) return null;
 
   return (
     <View>
@@ -80,10 +80,4 @@ export function LessonPath() {
 
 const styles = StyleSheet.create({
   center: { paddingVertical: spacing.xl, alignItems: 'center' },
-  error: {
-    ...typography.body.md,
-    color: colors.error,
-    textAlign: 'center',
-    paddingVertical: spacing.lg,
-  },
 });

@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
 import { AudioProvider } from "../src/context/AudioContext";
 import { GamificationProvider } from "../src/context/GamificationContext";
+import { AppShell } from "../src/primitives/AppShell";
 import { colors } from "../src/theme";
 
 SplashScreen.preventAutoHideAsync();
@@ -66,7 +67,9 @@ export default function RootLayout() {
           <AudioProvider>
             <GamificationProvider>
               <StatusBar style="dark" />
-              <RouteGuard />
+              <AppShell>
+                <RouteGuard />
+              </AppShell>
             </GamificationProvider>
           </AudioProvider>
         </AuthProvider>

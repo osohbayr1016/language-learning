@@ -20,6 +20,7 @@ audio.get('/:wordId', async (c) => {
         'Content-Type': 'audio/mpeg',
         'Cache-Control': 'public, max-age=31536000',
         'Access-Control-Allow-Origin': '*',
+        'Cross-Origin-Resource-Policy': 'cross-origin',
       },
     });
   }
@@ -63,6 +64,7 @@ audio.get('/:wordId', async (c) => {
           'Content-Type': 'audio/mpeg',
           'Cache-Control': 'public, max-age=31536000',
           'Access-Control-Allow-Origin': '*',
+          'Cross-Origin-Resource-Policy': 'cross-origin',
         },
       });
     }

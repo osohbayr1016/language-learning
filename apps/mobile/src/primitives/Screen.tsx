@@ -7,15 +7,32 @@ type Props = {
   children: React.ReactNode;
   scroll?: boolean;
   padded?: boolean;
+  /** Extra bottom inset for scroll content (e.g. tab bar height on tab screens). */
+  scrollBottomInset?: number;
   style?: ViewStyle;
   edges?: ('top' | 'bottom' | 'left' | 'right')[];
 };
 
-export function Screen({ children, scroll = false, padded = true, style, edges = ['top'] }: Props) {
+export function Screen({
+  children,
+  scroll = false,
+  padded = true,
+  scrollBottomInset = 0,
+  style,
+  edges = ['top'],
+}: Props) {
+  const insets = useSafeAreaInsets();
   const inner: ViewStyle = {
     flex: 1,
     paddingHorizontal: padded ? spacing.lg : 0,
     backgroundColor: colors.bg.primary,
+    ...style,
+  };
+
+  const scrollContent: ViewStyle = {
+    paddingHorizontal: padded ? spacing.lg : 0,
+    backgroundColor: colors.bg.primary,
+    paddingBottom: spacing.xxl + insets.bottom + scrollBottomInset,
     ...style,
   };
 
@@ -25,8 +42,9 @@ export function Screen({ children, scroll = false, padded = true, style, edges =
       {scroll ? (
         <ScrollView
           style={{ flex: 1 }}
-          contentContainerStyle={[inner, { paddingBottom: spacing.xxl }]}
+          contentContainerStyle={scrollContent}
           showsVerticalScrollIndicator={false}
+          keyboardShouldPersistTaps="handled"
         >
           {children}
         </ScrollView>
@@ -37,7 +55,7 @@ export function Screen({ children, scroll = false, padded = true, style, edges =
   );
 }
 
-export function useBottomInset() {
+export function useBottomInset(): number {
   const insets = useSafeAreaInsets();
   return insets.bottom;
 }

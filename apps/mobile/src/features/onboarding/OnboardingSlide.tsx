@@ -1,13 +1,11 @@
 import React from 'react';
-import { Image, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { Image, StyleSheet, Text, View } from 'react-native';
 import { colors, spacing, typography } from '../../theme';
 import type { OnboardingSlide as Slide } from './slides';
 
-type Props = { slide: Slide };
+type Props = { slide: Slide; width: number };
 
-export function OnboardingSlide({ slide }: Props) {
-  const { width } = useWindowDimensions();
-
+export function OnboardingSlide({ slide, width }: Props) {
   return (
     <View style={[styles.slide, { width }]}>
       <View style={styles.imageWrap}>

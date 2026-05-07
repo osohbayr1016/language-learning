@@ -31,7 +31,7 @@ export default function HomeScreen() {
   }, [refresh, token]);
 
   return (
-    <Screen scroll>
+    <Screen scroll scrollBottomInset={70}>
       <HomeHeader name={name} streak={streak?.current_streak ?? 0} />
       <PremiumBanner />
       <LessonPath />

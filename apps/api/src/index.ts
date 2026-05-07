@@ -18,17 +18,42 @@ const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 // ── Middleware ──────────────────────────────────────────────
 app.use('*', logger());
 
+function isAllowedOrigin(origin: string, env: Env): boolean {
+  if (!origin) return false;
+  const fromEnv = (env.CORS_ORIGIN ?? '')
+    .split(',')
+    .map((o) => o.trim())
+    .filter(Boolean);
+  const literals = new Set<string>([
+    ...fromEnv,
+    'http://localhost:5173',   // Admin Vite dev
+    'http://localhost:8081',   // Expo web dev
+    'http://localhost:8085',   // Expo web dev (alternate port)
+    'http://localhost:19006',  // Older Expo web port
+    'exp://localhost:8081',
+  ]);
+  if (literals.has(origin)) return true;
+  // Allow per-deploy preview subdomains for any *.pages.dev / *.workers.dev
+  // project we whitelisted (Cloudflare assigns hashed subdomains per deploy).
+  for (const o of fromEnv) {
+    try {
+      const host = new URL(o).host;
+      if (host.endsWith('.pages.dev') || host.endsWith('.workers.dev')) {
+        const project = host.replace(/^[^.]+\./, ''); // strip first label
+        if (origin.endsWith(`.${project}`) || origin.endsWith(`//${project}`)) return true;
+      }
+    } catch {
+      // skip non-URL entries
+    }
+  }
+  return false;
+}
+
 app.use(
   '*',
   cors({
     origin: (origin, c) => {
-      const allowed = [
-        c.env.CORS_ORIGIN,
-        'http://localhost:5173',   // Admin Vite dev
-        'http://localhost:8081',   // Expo dev
-        'exp://localhost:8081',
-      ];
-      return allowed.includes(origin) ? origin : allowed[0];
+      if (isAllowedOrigin(origin, c.env)) return origin;
     },
     allowMethods: ['GET', 'POST', 'PUT', 'DELETE', 'OPTIONS'],
     allowHeaders: ['Content-Type', 'Authorization'],

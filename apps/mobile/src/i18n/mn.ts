@@ -1,6 +1,8 @@
 import { setup } from './strings/setup';
 import { lesson } from './strings/lesson';
 import { insights } from './strings/insights';
+import { study } from './strings/study';
+import { games } from './strings/games';
 
 export const mn = {
   appName: 'Хятад Хэл',
@@ -46,49 +48,16 @@ export const mn = {
   home: {
     hello: 'Сайн уу',
     streakDays: '{n} өдөр дараалан',
-    dueToday: 'Өнөөдрийн давталт',
-    dueWordsCount: '{n} үг хүлээж байна',
+    dueToday: 'Өнөөдөр давтах үгс',
+    dueWordsCount: '{n} үгийн давталт ирлээ',
     noDue: 'Өнөөдөр давтах үг алга — шинэ үг сурцгаая',
     quickActions: 'Шуурхай үйлдэл',
     continueStudy: 'Үргэлжлүүлэн сурах',
     leaderboard: 'Тэргүүлэгчид',
     dailyGoal: 'Өдрийн зорилго',
   },
-  study: {
-    flashcard: 'Картон',
-    learn: 'Сурах горим',
-    write: 'Бичих',
-    writer: 'Ханз бичих',
-    showAnswer: 'Хариуг үзүүлэх',
-    next: 'Дараах',
-    again: 'Ахин',
-    hard: 'Хүнд',
-    good: 'Сайн',
-    easy: 'Хялбар',
-    confidence: 'Та хэр итгэлтэй байна?',
-    confidenceLow: 'Бага',
-    confidenceMid: 'Дунд',
-    confidenceHigh: 'Өндөр',
-    typeAnswer: 'Хариултаа бичээрэй',
-    correct: 'Зөв байна',
-    wrong: 'Буруу',
-    noWords: 'Сурах үг олдсонгүй',
-  },
-  games: {
-    hub: 'Тоглоомууд',
-    match: 'Холбох',
-    matchDesc: 'Хятад үг ↔ Орчуулга холбох',
-    translate: 'Орчуулах',
-    translateDesc: 'Зөв орчуулгыг сонгох',
-    sentence: 'Дутуу үг',
-    sentenceDesc: 'Өгүүлбэрийн дутуу үгийг бөглөх',
-    stroke: 'Дутуу зураас',
-    strokeDesc: 'Ханзны дутуу хэсгийг сонгох',
-    score: 'Оноо',
-    timeLeft: 'Үлдсэн хугацаа',
-    gameOver: 'Тоглоом дууслаа',
-    playAgain: 'Дахин тоглох',
-  },
+  study,
+  games,
   writer: {
     title: 'Ханзаар бичих',
     watch: 'Зураас харах',
