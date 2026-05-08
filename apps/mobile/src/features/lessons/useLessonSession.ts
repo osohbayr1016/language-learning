@@ -40,10 +40,21 @@ export function useLessonSession(lessonId: number) {
 
   useEffect(() => {
     let cancelled = false;
-    if (!token) return;
+    setState({
+      status: 'loading',
+      detail: null,
+      exercises: [],
+      index: 0,
+      results: [],
+      xpEarned: 0,
+      durationSec: 0,
+      error: null,
+    });
     void (async () => {
       try {
-        const res = await api.lessons.get(token, lessonId);
+        const res = token
+          ? await api.lessons.get(token, lessonId)
+          : await api.lessons.publicDetail(lessonId);
         const exercises = buildExercises(res.data.words);
         if (cancelled) return;
         startedAt.current = Date.now();
@@ -53,10 +64,15 @@ export function useLessonSession(lessonId: number) {
           status: 'running',
           detail: res.data,
           exercises,
+          error: null,
         }));
       } catch (e) {
         if (cancelled) return;
-        setState((s) => ({ ...s, status: 'running', error: e instanceof Error ? e.message : 'Алдаа гарлаа' }));
+        setState((s) => ({
+          ...s,
+          status: 'error',
+          error: e instanceof Error ? e.message : 'Алдаа гарлаа',
+        }));
       }
     })();
     return () => {

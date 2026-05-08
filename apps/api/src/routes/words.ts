@@ -10,18 +10,33 @@ words.get('/', async (c) => {
   const limit = Math.min(Number(c.req.query('limit') ?? 50), 200);
   const offset = Number(c.req.query('offset') ?? 0);
   const search = c.req.query('q');
+  const singleCharRaw = c.req.query('single_char');
+  const singleChar =
+    singleCharRaw === '1' || singleCharRaw === 'true' || singleCharRaw === 'yes';
 
   let query = 'SELECT * FROM words WHERE 1=1';
+  let countSql = 'SELECT COUNT(*) AS count FROM words WHERE 1=1';
   const params: (string | number)[] = [];
+  const countParams: (string | number)[] = [];
 
   if (hsk) {
     query += ' AND hsk_level = ?';
+    countSql += ' AND hsk_level = ?';
     params.push(Number(hsk));
+    countParams.push(Number(hsk));
   }
 
   if (search) {
     query += ' AND (hanzi LIKE ? OR pinyin LIKE ? OR meaning_mn LIKE ?)';
-    params.push(`%${search}%`, `%${search}%`, `%${search}%`);
+    countSql += ' AND (hanzi LIKE ? OR pinyin LIKE ? OR meaning_mn LIKE ?)';
+    const p = `%${search}%`;
+    params.push(p, p, p);
+    countParams.push(p, p, p);
+  }
+
+  if (singleChar) {
+    query += ' AND LENGTH(hanzi) = 1';
+    countSql += ' AND LENGTH(hanzi) = 1';
   }
 
   query += ' ORDER BY hsk_level ASC, id ASC LIMIT ? OFFSET ?';
@@ -29,10 +44,7 @@ words.get('/', async (c) => {
 
   const [rows, total] = await Promise.all([
     c.env.DB.prepare(query).bind(...params).all(),
-    c.env.DB.prepare(
-      'SELECT COUNT(*) as count FROM words WHERE 1=1' +
-      (hsk ? ' AND hsk_level = ?' : '')
-    ).bind(...(hsk ? [Number(hsk)] : [])).first<{ count: number }>(),
+    c.env.DB.prepare(countSql).bind(...countParams).first<{ count: number }>(),
   ]);
 
   return c.json({
@@ -54,6 +66,7 @@ words.get('/due', authMiddleware, async (c) => {
     `SELECT w.*, uwp.ease_factor, uwp.interval, uwp.repetitions, uwp.next_review
      FROM user_word_progress uwp JOIN words w ON uwp.word_id = w.id
      WHERE uwp.user_id = ? AND uwp.next_review <= datetime('now')
+       AND (uwp.flashcard_eligible_at IS NULL OR uwp.flashcard_eligible_at <= datetime('now'))
      ORDER BY uwp.next_review ASC LIMIT ?`
   ).bind(sub, limit).all();
 

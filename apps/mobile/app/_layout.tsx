@@ -24,6 +24,16 @@ function RouteGuard() {
     const inOnboarding = segments[0] === "(onboarding)";
     const inSetup = segments[0] === "(setup)";
     const inTabs = segments[0] === "(tabs)";
+    const rootSegment = segments[0] as string | undefined;
+    const inAdmin = rootSegment === "admin";
+
+    if (inAdmin) {
+      if (!isAuthenticated) {
+        router.replace("/(auth)/login");
+        return;
+      }
+      return;
+    }
 
     if (isAuthenticated) {
       if (!inTabs && (inAuth || inOnboarding || inSetup)) {

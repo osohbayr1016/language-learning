@@ -2,6 +2,7 @@ import { Hono } from 'hono';
 import { authMiddleware } from '../middleware/auth';
 import type { Env, Variables } from '../types';
 import type { SkillKey } from '../lib/activity';
+import { syncUserStatsAggregates } from '../lib/userStatsSync';
 
 const insights = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -17,6 +18,7 @@ async function safe<T>(p: Promise<T>, fallback: T): Promise<T> {
 
 insights.get('/summary', async (c) => {
   const { sub } = c.get('user');
+  await syncUserStatsAggregates(c.env.DB, sub);
 
   const [stats, streak] = await Promise.all([
     safe(

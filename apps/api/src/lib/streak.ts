@@ -1,6 +1,8 @@
 export async function updateStreak(db: D1Database, userId: number): Promise<void> {
   const today = new Date().toISOString().split('T')[0];
 
+  await db.prepare('INSERT OR IGNORE INTO user_streaks (user_id) VALUES (?)').bind(userId).run();
+
   const streak = await db.prepare('SELECT * FROM user_streaks WHERE user_id = ?')
     .bind(userId)
     .first<{
@@ -18,10 +20,13 @@ export async function updateStreak(db: D1Database, userId: number): Promise<void
   const newStreak = isConsecutive ? streak.current_streak + 1 : 1;
   const newLongest = Math.max(streak.longest_streak, newStreak);
 
-  await db.prepare(
-    `UPDATE user_streaks SET
-       current_streak = ?, longest_streak = ?,
-       last_activity_date = ?, total_days_studied = total_days_studied + 1
-     WHERE user_id = ?`
-  ).bind(newStreak, newLongest, today, userId).run();
+  await db
+    .prepare(
+      `UPDATE user_streaks SET
+         current_streak = ?, longest_streak = ?,
+         last_activity_date = ?, total_days_studied = total_days_studied + 1
+       WHERE user_id = ?`
+    )
+    .bind(newStreak, newLongest, today, userId)
+    .run();
 }

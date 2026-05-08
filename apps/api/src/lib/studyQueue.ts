@@ -7,6 +7,7 @@ export async function studyQueueCount(db: D1Database, userId: number, limit = DE
       `SELECT w.id FROM user_word_progress uwp
        JOIN words w ON w.id = uwp.word_id
        WHERE uwp.user_id = ? AND uwp.next_review <= datetime('now')
+         AND (uwp.flashcard_eligible_at IS NULL OR uwp.flashcard_eligible_at <= datetime('now'))
        ORDER BY uwp.next_review ASC LIMIT ?`
     )
     .bind(userId, limit)

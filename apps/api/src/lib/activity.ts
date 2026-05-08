@@ -55,16 +55,22 @@ export async function bumpLessonOutcome(
   userId: number,
   isPerfect: boolean
 ): Promise<void> {
-  await db.prepare(
-    `UPDATE user_stats SET
-       lessons_completed = lessons_completed + 1,
-       perfect_lessons = perfect_lessons + ?
-     WHERE user_id = ?`
-  ).bind(isPerfect ? 1 : 0, userId).run();
+  await db.prepare('INSERT OR IGNORE INTO user_stats (user_id) VALUES (?)').bind(userId).run();
+  await db
+    .prepare(
+      `UPDATE user_stats SET
+         lessons_completed = lessons_completed + 1,
+         perfect_lessons = perfect_lessons + ?
+       WHERE user_id = ?`
+    )
+    .bind(isPerfect ? 1 : 0, userId)
+    .run();
 }
 
 export async function bumpGamePlayed(db: D1Database, userId: number): Promise<void> {
-  await db.prepare(
-    `UPDATE user_stats SET games_played = games_played + 1 WHERE user_id = ?`
-  ).bind(userId).run();
+  await db.prepare('INSERT OR IGNORE INTO user_stats (user_id) VALUES (?)').bind(userId).run();
+  await db
+    .prepare('UPDATE user_stats SET games_played = games_played + 1 WHERE user_id = ?')
+    .bind(userId)
+    .run();
 }

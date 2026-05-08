@@ -3,6 +3,7 @@ import { authMiddleware } from '../middleware/auth';
 import type { Env, Variables } from '../types';
 import { bumpDailyActivity, bumpGamePlayed } from '../lib/activity';
 import { updateStreak } from '../lib/streak';
+import { addXpToUserStats } from '../lib/progress';
 
 const games = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -28,10 +29,7 @@ games.post('/session', async (c) => {
     body.duration_seconds, body.words_practiced, body.xp_earned
   ).run();
 
-  // Award XP
-  await c.env.DB.prepare(
-    'UPDATE user_stats SET total_xp = total_xp + ? WHERE user_id = ?'
-  ).bind(body.xp_earned, sub).run();
+  await addXpToUserStats(c.env.DB, sub, body.xp_earned);
 
   await bumpDailyActivity(c.env.DB, sub, body.duration_seconds);
   await bumpGamePlayed(c.env.DB, sub);

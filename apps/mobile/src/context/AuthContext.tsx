@@ -1,16 +1,27 @@
-import React, { createContext, useContext, useEffect, useState } from 'react';
+import React, { createContext, useCallback, useContext, useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import { getItem, removeItem, setItem } from '../lib/storage';
+import { restoreStoredAccessToken } from '../lib/auth/restoreStoredAccessToken';
+import { syncAdminFromServer } from '../lib/auth/syncAdminFromServer';
+import { refreshStoredAdminFlag } from '../lib/auth/refreshStoredAdminFlag';
+import { persistSession } from '../lib/auth/persistSession';
+import {
+  subscribeAccessTokenRefreshed,
+  subscribeSessionCleared,
+} from '../lib/auth/authEvents';
+import {
+  AUTH_ACCESS_TOKEN_KEY,
+  AUTH_REFRESH_TOKEN_KEY,
+} from '../lib/auth/tokenStorageKeys';
 import type { ChineseLevel, LearningReason } from '../features/setup/types';
 
-const TOKEN_KEY = 'auth_token';
-const REFRESH_KEY = 'refresh_token';
 const ONBOARDING_KEY = 'has_seen_onboarding';
 const LEVEL_KEY = 'chinese_level';
 const REASON_KEY = 'learning_reason';
 
 interface AuthState {
   token: string | null;
+  isAdmin: boolean;
   isLoading: boolean;
   isAuthenticated: boolean;
   hasSeenOnboarding: boolean;
@@ -23,6 +34,7 @@ interface AuthContextType extends AuthState {
   signOut: () => Promise<void>;
   completeOnboarding: () => Promise<void>;
   saveSetup: (level: ChineseLevel, reason: LearningReason) => Promise<void>;
+  refreshAdminRole: () => Promise<boolean>;
 }
 
 const AuthContext = createContext<AuthContextType | undefined>(undefined);
@@ -30,12 +42,34 @@ const AuthContext = createContext<AuthContextType | undefined>(undefined);
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [state, setState] = useState<AuthState>({
     token: null,
+    isAdmin: false,
     isLoading: true,
     isAuthenticated: false,
     hasSeenOnboarding: false,
     chineseLevel: null,
     reason: null,
   });
+
+  useEffect(() => {
+    const offRef = subscribeAccessTokenRefreshed((newToken) => {
+      void (async () => {
+        const isAdmin = await syncAdminFromServer(newToken);
+        setState((s) => ({
+          ...s,
+          token: newToken,
+          isAuthenticated: !!newToken,
+          isAdmin,
+        }));
+      })();
+    });
+    const offClr = subscribeSessionCleared(() => {
+      setState((s) => ({ ...s, token: null, isAuthenticated: false, isAdmin: false }));
+    });
+    return () => {
+      offRef();
+      offClr();
+    };
+  }, []);
 
   useEffect(() => {
     void bootstrap();
@@ -45,29 +79,18 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       let chineseLevel: ChineseLevel | null = null;
       let reason: LearningReason | null = null;
       try {
-        token = await getItem(TOKEN_KEY);
-        const refresh = await getItem(REFRESH_KEY);
+        token = await restoreStoredAccessToken();
         const flag = await getItem(ONBOARDING_KEY);
         hasSeenOnboarding = flag === 'true';
         chineseLevel = (await getItem(LEVEL_KEY)) as ChineseLevel | null;
         reason = (await getItem(REASON_KEY)) as LearningReason | null;
-
-        if (!token && refresh) {
-          try {
-            const res = await api.auth.refresh(refresh);
-            token = res.data.access_token;
-            await setItem(TOKEN_KEY, token);
-          } catch {
-            await removeItem(TOKEN_KEY);
-            await removeItem(REFRESH_KEY);
-            token = null;
-          }
-        }
       } catch (e) {
         console.error('Auth bootstrap failed', e);
       }
+      const isAdmin = await syncAdminFromServer(token);
       setState({
         token,
+        isAdmin,
         isLoading: false,
         isAuthenticated: !!token,
         hasSeenOnboarding,
@@ -78,19 +101,24 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
   }, []);
 
   const signIn = async (tokens: { access_token: string; refresh_token: string }) => {
-    await setItem(TOKEN_KEY, tokens.access_token);
-    await setItem(REFRESH_KEY, tokens.refresh_token);
-    setState((s) => ({ ...s, token: tokens.access_token, isAuthenticated: true }));
+    await persistSession(tokens.access_token, tokens.refresh_token);
+    const isAdmin = await syncAdminFromServer(tokens.access_token);
+    setState((s) => ({
+      ...s,
+      token: tokens.access_token,
+      isAuthenticated: true,
+      isAdmin,
+    }));
   };
 
   const signOut = async () => {
-    const refresh = await getItem(REFRESH_KEY);
+    const refresh = await getItem(AUTH_REFRESH_TOKEN_KEY);
     if (refresh) {
       try { await api.auth.logout(refresh); } catch { /* ignore */ }
     }
-    await removeItem(TOKEN_KEY);
-    await removeItem(REFRESH_KEY);
-    setState((s) => ({ ...s, token: null, isAuthenticated: false }));
+    await removeItem(AUTH_ACCESS_TOKEN_KEY);
+    await removeItem(AUTH_REFRESH_TOKEN_KEY);
+    setState((s) => ({ ...s, token: null, isAuthenticated: false, isAdmin: false }));
   };
 
   const completeOnboarding = async () => {
@@ -104,8 +132,16 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setState((s) => ({ ...s, chineseLevel: level, reason }));
   };
 
+  const refreshAdminRole = useCallback(async () => {
+    const isAdmin = await refreshStoredAdminFlag();
+    setState((s) => ({ ...s, isAdmin }));
+    return isAdmin;
+  }, []);
+
   return (
-    <AuthContext.Provider value={{ ...state, signIn, signOut, completeOnboarding, saveSetup }}>
+    <AuthContext.Provider
+      value={{ ...state, signIn, signOut, completeOnboarding, saveSetup, refreshAdminRole }}
+    >
       {children}
     </AuthContext.Provider>
   );

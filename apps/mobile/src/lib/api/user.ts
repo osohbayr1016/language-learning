@@ -20,6 +20,9 @@ export type Profile = {
   email: string;
   display_name: string;
   avatar_url: string | null;
+  premium_until?: string | null;
+  /** D1 `users.is_admin` — 1 = админ */
+  is_admin?: number;
 };
 
 export type Dashboard = {
@@ -43,6 +46,14 @@ export type ProgressBody = {
   results: ProgressResult[];
   xp_earned: number;
   session_type: 'flashcard' | 'learn' | 'write' | 'writer';
+};
+
+export type VocabularyPage = {
+  data: WordWithProgress[];
+  total: number;
+  limit: number;
+  offset: number;
+  has_more: boolean;
 };
 
 export const user = {
@@ -70,6 +81,13 @@ export const user = {
       method: 'POST',
       token,
       body: JSON.stringify(body),
+    }),
+  vocabulary: (token: string, params?: { limit?: number; offset?: number }) =>
+    request<VocabularyPage>(`/api/user/vocabulary${buildQuery(params ?? {})}`, { token }),
+  vocabularyFlashcardNow: (token: string, wordId: number) =>
+    request<{ message: string }>(`/api/user/vocabulary/${wordId}/eligibility`, {
+      method: 'PATCH',
+      token,
     }),
 };
 

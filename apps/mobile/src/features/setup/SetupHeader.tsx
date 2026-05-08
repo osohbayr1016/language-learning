@@ -1,5 +1,5 @@
 import React from 'react';
-import { Pressable, StyleSheet, Text, View } from 'react-native';
+import { Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
@@ -16,8 +16,15 @@ export function SetupHeader({ current, total, onBack, showCounter = true }: Prop
 
   return (
     <View style={styles.row}>
-      <Pressable hitSlop={12} onPress={onBack} style={styles.back}>
-        <Ionicons name="arrow-back" size={26} color={colors.text.secondary} />
+      <Pressable
+        accessibilityRole="button"
+        hitSlop={12}
+        onPress={onBack}
+        style={[styles.back, Platform.OS === 'web' && styles.backWeb]}
+      >
+        <View pointerEvents="none" accessible={false}>
+          <Ionicons name="arrow-back" size={26} color={colors.text.secondary} />
+        </View>
       </Pressable>
       <View style={styles.track}>
         <View style={[styles.fill, { width: `${pct * 100}%` }]} />
@@ -41,6 +48,7 @@ const styles = StyleSheet.create({
     gap: spacing.md,
   },
   back: { padding: 4 },
+  backWeb: { cursor: 'pointer' as const },
   track: {
     flex: 1,
     height: 14,

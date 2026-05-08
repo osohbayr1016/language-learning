@@ -6,6 +6,8 @@ export type ProgressResult = {
   next_review: string;
   response_ms?: number;
   confidence?: number;
+  /** When set (e.g. lesson complete), gates /api/words/due until this time. */
+  flashcard_eligible_at?: string | null;
 };
 
 export function buildProgressStatements(db: D1Database, userId: number, results: ProgressResult[]) {
@@ -13,15 +15,16 @@ export function buildProgressStatements(db: D1Database, userId: number, results:
     db.prepare(
       `INSERT INTO user_word_progress (
          user_id, word_id, ease_factor, interval, repetitions, next_review, last_reviewed,
-         avg_response_ms, confidence_avg
+         avg_response_ms, confidence_avg, flashcard_eligible_at
        )
-       VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?)
+       VALUES (?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP, ?, ?, ?)
        ON CONFLICT(user_id, word_id) DO UPDATE SET
          ease_factor = excluded.ease_factor,
          interval = excluded.interval,
          repetitions = excluded.repetitions,
          next_review = excluded.next_review,
          last_reviewed = CURRENT_TIMESTAMP,
+         flashcard_eligible_at = COALESCE(excluded.flashcard_eligible_at, user_word_progress.flashcard_eligible_at),
          avg_response_ms = COALESCE(
            CASE WHEN excluded.avg_response_ms IS NULL THEN user_word_progress.avg_response_ms
                 WHEN user_word_progress.avg_response_ms IS NULL THEN excluded.avg_response_ms
@@ -38,7 +41,7 @@ export function buildProgressStatements(db: D1Database, userId: number, results:
          )`
     ).bind(
       userId, r.word_id, r.ease_factor, r.interval, r.repetitions, r.next_review,
-      r.response_ms ?? null, r.confidence ?? null
+      r.response_ms ?? null, r.confidence ?? null, r.flashcard_eligible_at ?? null
     )
   );
 }
@@ -49,14 +52,36 @@ export async function bumpStats(
   xp: number,
   reviewCount: number
 ): Promise<void> {
-  await db.prepare(
-    `UPDATE user_stats SET
-       total_xp = total_xp + ?,
-       total_reviews = total_reviews + ?,
-       words_learned = (
-         SELECT COUNT(DISTINCT word_id) FROM user_word_progress
-         WHERE user_id = ? AND repetitions >= 1
+  await db
+    .prepare(
+      `INSERT INTO user_stats (user_id, total_xp, total_reviews, words_learned, words_mastered)
+       VALUES (
+         ?,
+         ?,
+         ?,
+         (SELECT COUNT(DISTINCT word_id) FROM user_word_progress
+          WHERE user_id = ? AND repetitions >= 1),
+         (SELECT COUNT(DISTINCT word_id) FROM user_word_progress
+          WHERE user_id = ? AND repetitions >= 2)
        )
-     WHERE user_id = ?`
-  ).bind(xp, reviewCount, userId, userId).run();
+       ON CONFLICT(user_id) DO UPDATE SET
+         total_xp = user_stats.total_xp + excluded.total_xp,
+         total_reviews = user_stats.total_reviews + excluded.total_reviews,
+         words_learned = excluded.words_learned,
+         words_mastered = excluded.words_mastered`
+    )
+    .bind(userId, xp, reviewCount, userId, userId)
+    .run();
+}
+
+/** Game / misc XP: ensures a user_stats row exists (plain UPDATE can no-op if missing). */
+export async function addXpToUserStats(db: D1Database, userId: number, xp: number): Promise<void> {
+  if (xp <= 0) return;
+  await db
+    .prepare(
+      `INSERT INTO user_stats (user_id, total_xp) VALUES (?, ?)
+       ON CONFLICT(user_id) DO UPDATE SET total_xp = user_stats.total_xp + excluded.total_xp`
+    )
+    .bind(userId, xp)
+    .run();
 }

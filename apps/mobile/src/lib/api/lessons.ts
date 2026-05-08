@@ -12,6 +12,9 @@ export type LessonCompleteBody = {
 
 export const lessons = {
   catalog: () => request<{ data: Chapter[] }>('/api/lessons/catalog'),
+  /** Нэвтрээгүй үед агуулга татах */
+  publicDetail: (id: number) =>
+    request<{ data: LessonDetail }>(`/api/lessons/public/${id}`),
   list: (token: string) =>
     request<{ data: Chapter[] }>('/api/lessons', { token }),
   get: (token: string, id: number) =>

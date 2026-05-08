@@ -1,5 +1,5 @@
 import { useCallback, useState } from 'react';
-import { useRouter } from 'expo-router';
+import { type Href, useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
 import type { SetupAnswers } from './types';
@@ -27,7 +27,11 @@ export function useSetupFlow() {
 
   const goBack = useCallback(() => {
     setError(null);
-    if (step === 0) { router.back(); return; }
+    if (step === 0) {
+      if (router.canGoBack()) router.back();
+      else router.replace('/(auth)/login' as Href);
+      return;
+    }
     setStep((s) => (s - 1) as StepIndex);
   }, [step, router]);
 

@@ -48,7 +48,7 @@ export type ExerciseResult = {
   responseMs: number;
 };
 
-export type LessonStatus = 'loading' | 'running' | 'done';
+export type LessonStatus = 'loading' | 'running' | 'done' | 'error';
 
 export const EXERCISE_TITLES: Record<ExerciseKind, string> = {
   memorize: 'Цээжлэх',

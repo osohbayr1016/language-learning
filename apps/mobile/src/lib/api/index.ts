@@ -7,6 +7,8 @@ import { cartoons } from './cartoons';
 import { audio } from './audio';
 import { lessons } from './lessons';
 import { insights } from './insights';
+import { adminApi } from './admin';
+import { cartoonsAdmin } from './cartoonsAdmin';
 
 export const api = {
   auth,
@@ -15,9 +17,11 @@ export const api = {
   courses,
   games,
   cartoons,
+  cartoonsAdmin,
   audio,
   lessons,
   insights,
+  admin: adminApi,
 };
 
 export type { AuthTokens, LoginBody, RegisterBody } from './auth';

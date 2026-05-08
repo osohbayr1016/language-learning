@@ -1,0 +1,88 @@
+import { StyleSheet } from 'react-native';
+import { colors, spacing, typography } from '../../theme';
+
+export const adminVocabularyStyles = StyleSheet.create({
+  flex: { flex: 1, backgroundColor: colors.bg.primary },
+  /** Column layout so HSK chips and single-char toggle never overlap (esp. Expo web). */
+  filtersHeader: {
+    flexShrink: 0,
+    gap: spacing.sm,
+    paddingTop: spacing.xs,
+    paddingBottom: spacing.sm,
+  },
+  chipRow: {
+    flexGrow: 0,
+    flexShrink: 0,
+    minHeight: 48,
+  },
+  chipRowIn: {
+    flexGrow: 0,
+    gap: spacing.xs,
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.xs,
+    alignItems: 'center',
+    minHeight: 44,
+  },
+  chip: {
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    borderRadius: 999,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.bg.card,
+  },
+  chipOn: { borderColor: colors.brand.primary, backgroundColor: `${colors.brand.primary}22` },
+  chipTxt: { ...typography.body.sm, color: colors.text.secondary },
+  chipTxtOn: { color: colors.brand.primary, fontWeight: '700' },
+  toggleRow: {
+    marginHorizontal: spacing.md,
+    flexShrink: 0,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.border,
+    backgroundColor: colors.bg.card,
+    alignItems: 'center',
+  },
+  toggleRowOn: { borderColor: colors.accent.teal, backgroundColor: `${colors.accent.teal}18` },
+  toggleTxt: { ...typography.body.sm, color: colors.text.primary, fontWeight: '600' },
+  bar: {
+    flexDirection: 'row',
+    gap: spacing.sm,
+    paddingHorizontal: spacing.md,
+    alignItems: 'center',
+    flexShrink: 0,
+  },
+  inp: {
+    flex: 1,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: 10,
+    padding: spacing.sm,
+    color: colors.text.primary,
+    backgroundColor: colors.bg.card,
+  },
+  metaBar: {
+    ...typography.body.sm,
+    color: colors.text.muted,
+    paddingHorizontal: spacing.md,
+    paddingBottom: spacing.xs,
+    flexShrink: 0,
+  },
+  listFill: { flex: 1 },
+  row: {
+    paddingHorizontal: spacing.md,
+    paddingVertical: spacing.sm,
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  hz: { ...typography.heading.sm, color: colors.text.primary },
+  meta: { ...typography.body.sm, color: colors.text.secondary, marginTop: 2 },
+  footer: {
+    ...typography.body.sm,
+    color: colors.text.muted,
+    textAlign: 'center',
+    paddingVertical: spacing.md,
+  },
+});

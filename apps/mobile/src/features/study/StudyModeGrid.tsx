@@ -48,6 +48,14 @@ const MODES: Mode[] = [
     color: colors.accent.pink,
     href: '/study/writer',
   },
+  {
+    key: 'speak',
+    title: mn.study.speak,
+    subtitle: mn.study.speakDesc,
+    icon: 'mic-outline',
+    color: colors.success,
+    href: '/study/speak',
+  },
 ];
 
 export function StudyModeGrid() {

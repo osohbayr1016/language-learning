@@ -1,11 +1,11 @@
-import React from 'react';
-import { StyleSheet, Text, View } from 'react-native';
-import { ToneColoredText, ToneBar } from '../../../components/hanzi';
-import { PronounceButton } from '../../../components/audio/PronounceButton';
-import { parseTones } from '../../../lib/tones';
-import { colors, spacing, typography } from '../../../theme';
-import { mn } from '../../../i18n/mn';
-import type { WordWithProgress } from '../../../lib/types';
+import React from "react";
+import { StyleSheet, Text, View } from "react-native";
+import { ToneColoredText, ToneBar } from "../../../components/hanzi";
+import { PronounceButton } from "../../../components/audio/PronounceButton";
+import { parseTones } from "../../../lib/tones";
+import { colors, spacing, typography } from "../../../theme";
+import { mn } from "../../../i18n/mn";
+import type { WordWithProgress } from "../../../lib/types";
 
 type Props = { word: WordWithProgress };
 
@@ -15,20 +15,30 @@ export function CardFront({ word }: Props) {
 
   return (
     <View style={styles.wrap}>
-      <Text style={styles.hint}>{mn.study.showAnswer}</Text>
       <ToneColoredText hanzi={word.hanzi} tones={tones} size="xl" />
       <View style={styles.toneRow}>
         <ToneBar tone={firstTone} width={80} height={32} />
       </View>
-      <View style={{ marginTop: spacing.lg }}>
+      <View style={styles.listenBlock}>
         <PronounceButton wordId={word.id} size="lg" />
+        <Text style={styles.backHint}>{mn.study.meaningOnBack}</Text>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  wrap: { flex: 1, alignItems: 'center', justifyContent: 'center', gap: spacing.md },
-  hint: { ...typography.body.sm, color: colors.text.muted, position: 'absolute', top: spacing.md },
+  wrap: {
+    flex: 1,
+    alignItems: "center",
+    justifyContent: "center",
+    gap: spacing.md,
+  },
   toneRow: { marginTop: spacing.sm },
+  listenBlock: { marginTop: spacing.lg, alignItems: "center", gap: spacing.sm },
+  backHint: {
+    ...typography.body.sm,
+    color: colors.text.muted,
+    textAlign: "center",
+  },
 });

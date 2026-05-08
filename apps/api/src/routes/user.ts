@@ -2,17 +2,20 @@ import { Hono } from 'hono';
 import { authMiddleware } from '../middleware/auth';
 import type { Env, Variables } from '../types';
 import { updateStreak } from '../lib/streak';
+import { syncUserStatsAggregates } from '../lib/userStatsSync';
 import { buildProgressStatements, bumpStats, type ProgressResult } from '../lib/progress';
 import { studyQueueCount } from '../lib/studyQueue';
+import userVocabularyRoutes from './userVocabulary';
 
 const user = new Hono<{ Bindings: Env; Variables: Variables }>();
 
 user.use('*', authMiddleware);
+user.route('/vocabulary', userVocabularyRoutes);
 
 user.get('/profile', async (c) => {
   const { sub } = c.get('user');
   const profile = await c.env.DB.prepare(
-    'SELECT id, email, display_name, avatar_url, created_at FROM users WHERE id = ?'
+    'SELECT id, email, display_name, avatar_url, premium_until, created_at, is_admin FROM users WHERE id = ?'
   ).bind(sub).first();
   if (!profile) return c.json({ error: 'Хэрэглэгч олдсонгүй' }, 404);
   return c.json({ data: profile });
@@ -45,14 +48,39 @@ user.get('/stats', async (c) => {
 
 user.get('/dashboard', async (c) => {
   const { sub } = c.get('user');
-  const [profile, streak, stats, dueToday] = await Promise.all([
+  await syncUserStatsAggregates(c.env.DB, sub);
+  const [profile, streakRaw, statsRaw, dueToday] = await Promise.all([
     c.env.DB.prepare(
-      'SELECT id, email, display_name, avatar_url FROM users WHERE id = ?'
+      'SELECT id, email, display_name, avatar_url, premium_until FROM users WHERE id = ?'
     ).bind(sub).first(),
     c.env.DB.prepare('SELECT * FROM user_streaks WHERE user_id = ?').bind(sub).first(),
     c.env.DB.prepare('SELECT * FROM user_stats WHERE user_id = ?').bind(sub).first(),
     studyQueueCount(c.env.DB, sub),
   ]);
+
+  const streak = streakRaw
+    ? {
+        current_streak: Number(streakRaw.current_streak ?? 0),
+        longest_streak: Number(streakRaw.longest_streak ?? 0),
+        last_activity_date: streakRaw.last_activity_date ?? null,
+        total_days_studied: Number(streakRaw.total_days_studied ?? 0),
+      }
+    : null;
+
+  const stats = statsRaw
+    ? {
+        total_xp: Number(statsRaw.total_xp ?? 0),
+        words_learned: Number(statsRaw.words_learned ?? 0),
+        words_mastered: Number(statsRaw.words_mastered ?? 0),
+        total_reviews: Number(statsRaw.total_reviews ?? 0),
+      }
+    : {
+        total_xp: 0,
+        words_learned: 0,
+        words_mastered: 0,
+        total_reviews: 0,
+      };
+
   return c.json({
     data: { user: profile, streak, stats, due_today: dueToday },
   });
@@ -66,6 +94,7 @@ user.get('/due-words', async (c) => {
      FROM user_word_progress uwp
      JOIN words w ON uwp.word_id = w.id
      WHERE uwp.user_id = ? AND uwp.next_review <= datetime('now')
+       AND (uwp.flashcard_eligible_at IS NULL OR uwp.flashcard_eligible_at <= datetime('now'))
      ORDER BY uwp.next_review ASC
      LIMIT ?`
   ).bind(sub, limit).all();

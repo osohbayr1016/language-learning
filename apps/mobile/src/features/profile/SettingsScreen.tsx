@@ -3,6 +3,8 @@ import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Card, Screen } from '../../primitives';
 import { useGamification } from '../../context/GamificationContext';
+import { MicrophoneTestPanel } from './MicrophoneTestPanel';
+import { SettingsRoleRefreshCard } from './SettingsRoleRefreshCard';
 import { colors, radius, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
 
@@ -36,6 +38,13 @@ export function SettingsScreen() {
             );
           })}
         </View>
+      </Card>
+
+      <SettingsRoleRefreshCard />
+
+      <Card padding="lg" style={{ marginTop: spacing.md }}>
+        <Text style={styles.section}>{mn.profile.micTest}</Text>
+        <MicrophoneTestPanel />
       </Card>
 
       <Card padding="lg" style={{ marginTop: spacing.md }}>

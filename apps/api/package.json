@@ -13,13 +13,13 @@
     "db:seed": "wrangler d1 execute chinese-learning-db --local --file=./src/db/seed.sql"
   },
   "dependencies": {
-    "hono": "^4.7.10",
+    "@chinese-app/srs": "workspace:*",
     "@chinese-app/types": "workspace:*",
-    "@chinese-app/srs": "workspace:*"
+    "hono": "^4.7.10"
   },
   "devDependencies": {
+    "@cloudflare/workers-types": "^4.20250430.0",
     "typescript": "^5.8.3",
-    "wrangler": "^4.14.1",
-    "@cloudflare/workers-types": "^4.20250430.0"
+    "wrangler": "^4.14.1"
   }
 }

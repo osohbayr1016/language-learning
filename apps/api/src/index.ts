@@ -12,6 +12,8 @@ import gameRoutes from './routes/games';
 import cartoonRoutes from './routes/cartoons';
 import lessonRoutes from './routes/lessons';
 import insightRoutes from './routes/insights';
+/** Explicit `./routes/admin/index` — do not use `./routes/admin`: a sibling `admin.ts` would shadow this folder and drop `/stats`, `/lesson-tree`, chapters, etc. */
+import adminRoutes from './routes/admin/index';
 
 const app = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -28,9 +30,13 @@ function isAllowedOrigin(origin: string, env: Env): boolean {
     ...fromEnv,
     'http://localhost:5173',   // Admin Vite dev
     'http://localhost:8081',   // Expo web dev
+    'http://localhost:8082',   // Expo web (alternate)
     'http://localhost:8085',   // Expo web dev (alternate port)
+    'http://localhost:19000',  // Expo / Metro web
+    'http://localhost:19001',
     'http://localhost:19006',  // Older Expo web port
     'exp://localhost:8081',
+    'exp://localhost:8082',
   ]);
   if (literals.has(origin)) return true;
   // Allow per-deploy preview subdomains for any *.pages.dev / *.workers.dev
@@ -74,6 +80,7 @@ app.route('/api/games', gameRoutes);
 app.route('/api/cartoons', cartoonRoutes);
 app.route('/api/lessons', lessonRoutes);
 app.route('/api/insights', insightRoutes);
+app.route('/api/admin', adminRoutes);
 
 // ── 404 handler ─────────────────────────────────────────────
 app.notFound((c) => c.json({ error: 'Route олдсонгүй' }, 404));

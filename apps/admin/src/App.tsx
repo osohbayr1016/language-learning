@@ -2,7 +2,9 @@ import { useState } from 'react';
 import { LoginView } from './components/LoginView';
 import { Sidebar } from './components/Sidebar';
 import { DashboardView } from './components/DashboardView';
-import { CoursesView } from './components/CoursesView';
+import { LearningPathView } from './components/LearningPathView';
+import { VocabularyAdminView } from './components/VocabularyAdminView';
+import { UsersAdminView } from './components/UsersAdminView';
 import { CartoonsView } from './components/CartoonsView';
 import type { ViewKey } from './views';
 
@@ -32,8 +34,10 @@ export default function App() {
     <div className="app-container">
       <Sidebar current={view} onSelect={setView} onSignOut={signOut} />
       <main className="main-content">
-        {view === 'dashboard' && <DashboardView />}
-        {view === 'courses' && <CoursesView token={token} />}
+        {view === 'dashboard' && <DashboardView token={token} />}
+        {view === 'learningPath' && <LearningPathView token={token} />}
+        {view === 'vocabulary' && <VocabularyAdminView token={token} />}
+        {view === 'users' && <UsersAdminView token={token} />}
         {view === 'cartoons' && <CartoonsView token={token} />}
       </main>
     </div>

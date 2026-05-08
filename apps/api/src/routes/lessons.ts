@@ -10,6 +10,8 @@ import {
   type SkillResults,
 } from '../lib/activity';
 import { publishedLessonTree, safeAll } from '../lib/lessonCatalog';
+import { fetchPublishedLessonDetail } from '../lib/lessonDetail';
+import { computeLessonFlashcardEligibleAt } from '../lib/lessonFlashcardDelay';
 
 const lessons = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -17,6 +19,15 @@ const lessons = new Hono<{ Bindings: Env; Variables: Variables }>();
 lessons.get('/catalog', async (c) => {
   const data = await publishedLessonTree(c.env.DB, null);
   return c.json({ data });
+});
+
+// Public lesson body — нэвтрээгүй хэрэглэгч ч HSK замаар суралцах боломжтой.
+lessons.get('/public/:id', async (c) => {
+  const id = Number(c.req.param('id'));
+  if (!Number.isFinite(id)) return c.json({ error: 'Буруу id' }, 400);
+  const result = await fetchPublishedLessonDetail(c.env.DB, id, null);
+  if (!result.ok) return c.json({ error: 'Хичээл олдсонгүй' }, 404);
+  return c.json({ data: result.data });
 });
 
 lessons.use('*', authMiddleware);
@@ -51,37 +62,14 @@ lessons.get('/', async (c) => {
   return c.json({ data });
 });
 
-// GET /api/lessons/:id — lesson detail with full word rows
+// GET /api/lessons/:id — lesson detail with full word rows + user progress
 lessons.get('/:id', async (c) => {
   const { sub } = c.get('user');
   const id = Number(c.req.param('id'));
-
-  const lesson = await c.env.DB.prepare(
-    `SELECT id, chapter_id, title_mn, subtitle_mn, icon, order_num
-     FROM lessons WHERE id = ? AND is_published = 1`
-  ).bind(id).first();
-
-  if (!lesson) return c.json({ error: 'Хичээл олдсонгүй' }, 404);
-
-  const [wordsRes, myProgress] = await Promise.all([
-    c.env.DB.prepare(
-      `SELECT w.*, lw.order_num,
-              uwp.ease_factor, uwp.interval, uwp.repetitions, uwp.next_review
-       FROM lesson_words lw
-       JOIN words w ON w.id = lw.word_id
-       LEFT JOIN user_word_progress uwp ON uwp.word_id = w.id AND uwp.user_id = ?
-       WHERE lw.lesson_id = ?
-       ORDER BY lw.order_num ASC`
-    ).bind(sub, id).all(),
-    c.env.DB.prepare(
-      `SELECT best_accuracy, attempts, completed_at
-       FROM user_lesson_progress WHERE user_id = ? AND lesson_id = ?`
-    ).bind(sub, id).first(),
-  ]);
-
-  return c.json({
-    data: { ...lesson, words: wordsRes.results ?? [], progress: myProgress ?? null },
-  });
+  if (!Number.isFinite(id)) return c.json({ error: 'Буруу id' }, 400);
+  const result = await fetchPublishedLessonDetail(c.env.DB, id, sub);
+  if (!result.ok) return c.json({ error: 'Хичээл олдсонгүй' }, 404);
+  return c.json({ data: result.data });
 });
 
 // POST /api/lessons/:id/complete — record results, award XP, bump streak
@@ -99,7 +87,9 @@ lessons.post('/:id/complete', async (c) => {
 
   const accuracy = Math.max(0, Math.min(1, body.accuracy));
   const xp = Math.max(0, Math.floor(body.xp_earned));
-  const results = body.results ?? [];
+  const rawResults = body.results ?? [];
+  const eligibleAt = await computeLessonFlashcardEligibleAt(c.env.DB, lessonId);
+  const results = rawResults.map((r) => ({ ...r, flashcard_eligible_at: eligibleAt }));
   const duration = Math.max(0, Math.floor(body.duration_seconds ?? 0));
 
   const stmts = [

@@ -28,7 +28,9 @@ function webGet(key: string): string | null {
 function webSet(key: string, value: string): void {
   const ls = webStorage();
   if (!ls) return;
-  try { ls.setItem(key, value); } catch { /* quota / privacy mode */ }
+  try { ls.setItem(key, value); } catch (e) {
+    console.error('[storage] web setItem failed', key, e);
+  }
 }
 function webRemove(key: string): void {
   const ls = webStorage();
@@ -45,7 +47,9 @@ export async function getItem(key: string): Promise<string | null> {
 export async function setItem(key: string, value: string): Promise<void> {
   if (Platform.OS === 'web') return webSet(key, value);
   if (!secureStore) return;
-  try { await secureStore.setItemAsync(key, value); } catch { /* ignore */ }
+  try { await secureStore.setItemAsync(key, value); } catch (e) {
+    console.error('[storage] SecureStore setItem failed', key, e);
+  }
 }
 
 export async function removeItem(key: string): Promise<void> {

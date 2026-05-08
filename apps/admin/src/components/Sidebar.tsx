@@ -8,7 +8,9 @@ type Props = {
 
 const NAV: { key: ViewKey; label: string }[] = [
   { key: 'dashboard', label: 'Хянах самбар' },
-  { key: 'courses', label: 'Хичээлүүд' },
+  { key: 'learningPath', label: 'Суралцах зам' },
+  { key: 'vocabulary', label: 'Үгийн сан' },
+  { key: 'users', label: 'Хэрэглэгчид' },
   { key: 'cartoons', label: 'Хүүхэлдэйн кино' },
 ];
 
@@ -22,7 +24,10 @@ export function Sidebar({ current, onSelect, onSignOut }: Props) {
             key={n.key}
             href="#"
             className={`nav-link ${current === n.key ? 'active' : ''}`}
-            onClick={(e) => { e.preventDefault(); onSelect(n.key); }}
+            onClick={(e) => {
+              e.preventDefault();
+              onSelect(n.key);
+            }}
           >
             {n.label}
           </a>
@@ -30,7 +35,10 @@ export function Sidebar({ current, onSelect, onSignOut }: Props) {
         <a
           href="#"
           className="nav-link"
-          onClick={(e) => { e.preventDefault(); onSignOut(); }}
+          onClick={(e) => {
+            e.preventDefault();
+            onSignOut();
+          }}
           style={{ color: 'var(--error)', marginTop: 'auto' }}
         >
           Гарах

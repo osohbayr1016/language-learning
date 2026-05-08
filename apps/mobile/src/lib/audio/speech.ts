@@ -1,85 +1,142 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useRef, useState } from 'react';
+import { Platform } from 'react-native';
+import {
+  nativeAbort,
+  nativeEnsurePermission,
+  nativeStart,
+  nativeStop,
+  SPEECH_SUPPORTED,
+} from './speechNative';
+import { useNativeContinuousBindings } from './speechNativeBindings';
+import { armSpeechAutoStop } from './speechAutoStop';
+import {
+  ensureWebMicAccess,
+  startWebContinuousSession,
+  webSpeechAvailable,
+  type WebRecHandle,
+} from './speechWeb';
+import type { SpeechResult, SpeechState } from './speechTypes';
 
-export type SpeechState = 'idle' | 'requesting' | 'listening' | 'processing' | 'error';
-export type SpeechResult = { transcript: string; confidence: number };
+export type { SpeechResult, SpeechState } from './speechTypes';
 
-type EventName = 'start' | 'end' | 'result' | 'error';
-type EventHook = (name: EventName, cb: (event: unknown) => void) => void;
-
-let mod: typeof import('expo-speech-recognition') | null = null;
-let loadError: string | null = null;
-
-try {
-  // Lazy require so Expo Go (which can't link the native module) doesn't crash at import time.
-  mod = require('expo-speech-recognition');
-} catch (e) {
-  loadError = e instanceof Error ? e.message : String(e);
-}
-
-export const SPEECH_SUPPORTED = !!mod?.ExpoSpeechRecognitionModule;
-
-const noopHook: EventHook = () => {};
-const useEvt: EventHook = SPEECH_SUPPORTED
-  ? (mod!.useSpeechRecognitionEvent as unknown as EventHook)
-  : noopHook;
+export const SPEECH_CLIENT_SUPPORTED =
+  SPEECH_SUPPORTED || (Platform.OS === 'web' && webSpeechAvailable());
 
 export async function ensureSpeechPermission(): Promise<boolean> {
-  if (!SPEECH_SUPPORTED || !mod) return false;
-  try {
-    const current = await mod.ExpoSpeechRecognitionModule.getPermissionsAsync();
-    if (current.granted) return true;
-    const next = await mod.ExpoSpeechRecognitionModule.requestPermissionsAsync();
-    return !!next.granted;
-  } catch {
-    return false;
-  }
-}
-
-export function startChineseRecognition(contextual?: string[]): void {
-  if (!SPEECH_SUPPORTED || !mod) return;
-  mod.ExpoSpeechRecognitionModule.start({
-    lang: 'zh-CN',
-    interimResults: false,
-    maxAlternatives: 3,
-    continuous: false,
-    contextualStrings: contextual,
-    requiresOnDeviceRecognition: false,
-  });
-}
-
-export function stopRecognition(): void {
-  if (!SPEECH_SUPPORTED || !mod) return;
-  try { mod.ExpoSpeechRecognitionModule.stop(); } catch { /* ignore */ }
-}
-
-export function abortRecognition(): void {
-  if (!SPEECH_SUPPORTED || !mod) return;
-  try { mod.ExpoSpeechRecognitionModule.abort(); } catch { /* ignore */ }
+  if (SPEECH_SUPPORTED) return nativeEnsurePermission();
+  if (Platform.OS === 'web' && webSpeechAvailable()) return ensureWebMicAccess();
+  return false;
 }
 
 export function useSpeechSession() {
   const [state, setState] = useState<SpeechState>('idle');
   const [result, setResult] = useState<SpeechResult | null>(null);
-  const [errorMessage, setErrorMessage] = useState<string | null>(loadError);
+  const [liveTranscript, setLiveTranscript] = useState('');
+  const [errorMessage, setErrorMessage] = useState<string | null>(null);
+  const webRec = useRef<WebRecHandle | null>(null);
+  const autoTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const nativeCommittedRef = useRef('');
+  const nativeLastPreviewRef = useRef('');
 
-  useEvt('start', () => { setState('listening'); setErrorMessage(null); });
-  useEvt('end', () => { setState((s) => (s === 'error' ? s : 'idle')); });
-  useEvt('result', (event) => {
-    const e = event as { isFinal: boolean; results?: SpeechResult[] };
-    if (!e.isFinal) return;
-    const top = e.results?.[0];
-    if (top) setResult({ transcript: top.transcript, confidence: top.confidence });
-    setState('processing');
-  });
-  useEvt('error', (event) => {
-    const e = event as { error: string; message?: string };
-    setErrorMessage(e.message ?? e.error);
-    setState('error');
-  });
+  const clearAutoStop = useCallback(() => {
+    if (autoTimerRef.current != null) {
+      clearTimeout(autoTimerRef.current);
+      autoTimerRef.current = null;
+    }
+  }, []);
 
-  useEffect(() => () => abortRecognition(), []);
+  useNativeContinuousBindings(
+    clearAutoStop,
+    nativeCommittedRef,
+    nativeLastPreviewRef,
+    setLiveTranscript,
+    setResult,
+    setErrorMessage,
+    setState
+  );
 
-  const reset = () => { setResult(null); setErrorMessage(null); setState('idle'); };
+  useEffect(
+    () => () => {
+      clearAutoStop();
+      webRec.current?.abort();
+      webRec.current = null;
+      nativeAbort();
+    },
+    [clearAutoStop]
+  );
 
-  return { state, result, errorMessage, reset, supported: SPEECH_SUPPORTED };
+  const reset = useCallback(() => {
+    clearAutoStop();
+    nativeCommittedRef.current = '';
+    nativeLastPreviewRef.current = '';
+    setResult(null);
+    setLiveTranscript('');
+    setErrorMessage(null);
+    setState('idle');
+  }, [clearAutoStop]);
+
+  const stop = useCallback(() => {
+    clearAutoStop();
+    if (SPEECH_SUPPORTED) nativeStop();
+    else webRec.current?.stop();
+  }, [clearAutoStop]);
+
+  const start = useCallback(
+    (contextual?: string[]) => {
+      clearAutoStop();
+      setErrorMessage(null);
+      nativeCommittedRef.current = '';
+      nativeLastPreviewRef.current = '';
+      setLiveTranscript('');
+      setResult(null);
+
+      if (SPEECH_SUPPORTED) {
+        nativeAbort();
+        setState('requesting');
+        nativeStart(contextual);
+        armSpeechAutoStop(autoTimerRef, clearAutoStop, nativeStop);
+        return;
+      }
+      if (Platform.OS === 'web' && webSpeechAvailable()) {
+        webRec.current?.abort();
+        setState('requesting');
+        const h = startWebContinuousSession(
+          () => {
+            setState('listening');
+            setErrorMessage(null);
+          },
+          (preview) => setLiveTranscript(preview),
+          (text, confidence) => {
+            setResult({ transcript: text, confidence });
+            setLiveTranscript('');
+            setState('processing');
+          },
+          (msg) => {
+            clearAutoStop();
+            setErrorMessage(msg);
+            setState('error');
+          },
+          () => {
+            clearAutoStop();
+            setState((s) => (s === 'error' || s === 'processing' ? s : 'idle'));
+          }
+        );
+        webRec.current = h;
+        if (!h) setState('error');
+        else armSpeechAutoStop(autoTimerRef, clearAutoStop, () => webRec.current?.stop());
+      }
+    },
+    [clearAutoStop]
+  );
+
+  return {
+    state,
+    result,
+    liveTranscript,
+    errorMessage,
+    reset,
+    supported: SPEECH_CLIENT_SUPPORTED,
+    start,
+    stop,
+  };
 }

@@ -24,6 +24,7 @@ export type WordWithProgress = Word & {
   repetitions: number | null;
   next_review: string | null;
   last_reviewed: string | null;
+  flashcard_eligible_at?: string | null;
 };
 
 export type LessonProgress = {
