@@ -8,6 +8,7 @@ import { GestureHandlerRootView } from "react-native-gesture-handler";
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
 import { AudioProvider } from "../src/context/AudioContext";
 import { GamificationProvider } from "../src/context/GamificationContext";
+import { DisplayPrefsProvider } from "../src/context/DisplayPrefsContext";
 import { AppShell } from "../src/primitives/AppShell";
 import { colors } from "../src/theme";
 
@@ -76,10 +77,12 @@ export default function RootLayout() {
         <AuthProvider>
           <AudioProvider>
             <GamificationProvider>
-              <StatusBar style="dark" />
-              <AppShell>
-                <RouteGuard />
-              </AppShell>
+              <DisplayPrefsProvider>
+                <StatusBar style="dark" />
+                <AppShell>
+                  <RouteGuard />
+                </AppShell>
+              </DisplayPrefsProvider>
             </GamificationProvider>
           </AudioProvider>
         </AuthProvider>

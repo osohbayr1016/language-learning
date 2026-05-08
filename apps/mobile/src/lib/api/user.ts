@@ -82,13 +82,22 @@ export const user = {
       token,
       body: JSON.stringify(body),
     }),
-  vocabulary: (token: string, params?: { limit?: number; offset?: number }) =>
-    request<VocabularyPage>(`/api/user/vocabulary${buildQuery(params ?? {})}`, { token }),
+  vocabulary: (
+    token: string,
+    params?: { limit?: number; offset?: number; textbook_unit?: string }
+  ) => request<VocabularyPage>(`/api/user/vocabulary${buildQuery(params ?? {})}`, { token }),
+  vocabularyWeak: (token: string, params?: { limit?: number }) =>
+    request<{ data: WordWithProgress[] }>(
+      `/api/user/vocabulary/weak${buildQuery(params ?? {})}`,
+      { token }
+    ),
   vocabularyFlashcardNow: (token: string, wordId: number) =>
     request<{ message: string }>(`/api/user/vocabulary/${wordId}/eligibility`, {
       method: 'PATCH',
       token,
     }),
+  vocabularyWordEntry: (token: string, wordId: number) =>
+    request<{ data: WordWithProgress }>(`/api/user/vocabulary/word/${wordId}`, { token }),
 };
 
 export type { Word, WordWithProgress };

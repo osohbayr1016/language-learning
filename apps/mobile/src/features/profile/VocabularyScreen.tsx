@@ -8,6 +8,7 @@ import type { WordWithProgress } from '../../lib/types';
 import { mn } from '../../i18n/mn';
 import { colors, spacing, typography } from '../../theme';
 import { VocabularyWordRow } from './VocabularyWordRow';
+import { VocabularyTextbookFilterRow } from './VocabularyTextbookFilterRow';
 
 export function VocabularyScreen() {
   const { token } = useAuth();
@@ -18,17 +19,24 @@ export function VocabularyScreen() {
   const [loading, setLoading] = useState(true);
   const [loadingMore, setLoadingMore] = useState(false);
   const [refreshing, setRefreshing] = useState(false);
-
+  const [filterUnit, setFilterUnit] = useState('');
+  const [draftUnit, setDraftUnit] = useState('');
   const limit = 40;
 
   const fetchPage = useCallback(
-    async (reset: boolean) => {
+    async (reset: boolean, unitSnapshot?: string) => {
       if (!token) return;
+      const unit = unitSnapshot !== undefined ? unitSnapshot : filterUnit;
       const start = reset ? 0 : offsetRef.current;
       if (reset) setLoading(true);
       else setLoadingMore(true);
       try {
-        const res = await api.user.vocabulary(token, { limit, offset: start });
+        const u = unit.trim();
+        const res = await api.user.vocabulary(token, {
+          limit,
+          offset: start,
+          ...(u ? { textbook_unit: u } : {}),
+        });
         const chunk = res.data ?? [];
         if (reset) {
           setItems(chunk);
@@ -44,18 +52,24 @@ export function VocabularyScreen() {
         setRefreshing(false);
       }
     },
-    [token, limit]
+    [token, limit, filterUnit]
   );
 
   useEffect(() => {
     if (!token) return;
     void fetchPage(true);
-  }, [token, fetchPage]);
+  }, [token, filterUnit, fetchPage]);
 
   const promote = async (wordId: number) => {
     if (!token) return;
     await api.user.vocabularyFlashcardNow(token, wordId);
     void fetchPage(true);
+  };
+
+  const applyUnitFilter = () => {
+    const next = draftUnit.trim();
+    setFilterUnit(next);
+    offsetRef.current = 0;
   };
 
   if (!token) {
@@ -71,6 +85,12 @@ export function VocabularyScreen() {
       <Stack.Screen options={{ title: mn.profile.seenWords }} />
       <Screen>
         <Text style={styles.hint}>{mn.profile.seenWordsHint}</Text>
+        <VocabularyTextbookFilterRow
+          draft={draftUnit}
+          onDraft={setDraftUnit}
+          onApply={() => applyUnitFilter()}
+          disabled={loading && items.length === 0}
+        />
         {loading && items.length === 0 ? (
           <ActivityIndicator style={{ marginTop: spacing.lg }} color={colors.brand.primary} />
         ) : (

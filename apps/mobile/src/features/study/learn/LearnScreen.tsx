@@ -1,7 +1,7 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import { ActivityIndicator, Platform, StyleSheet, View } from 'react-native';
 import { Screen } from '../../../primitives';
-import { useDueWords } from '../../../hooks/useDueWords';
+import { useStudyWords, type StudyWordSource } from '../../../hooks/useStudyWords';
 import { useSrsRating } from '../../../hooks/useSrsRating';
 import { useAdaptiveTimer } from '../../../hooks/useAdaptiveTimer';
 import { useAudio } from '../../../context/AudioContext';
@@ -15,11 +15,14 @@ import { QuestionCard } from './QuestionCard';
 import { AnswerOption } from './AnswerOption';
 import { difficultyForAccuracy, pickDistractors, shuffle } from './distractors';
 import type { WordWithProgress } from '../../../lib/types';
+import { PinyinToggleWeb } from '../PinyinToggleWeb';
 
 const OPTIONS = 4;
 
-export default function LearnScreen() {
-  const { words, loading, error } = useDueWords(15);
+type Props = { source?: StudyWordSource };
+
+export function LearnScreen({ source = 'due' }: Props) {
+  const { words, loading, error } = useStudyWords(source, 15);
   const session = useSrsRating('learn');
   const timer = useAdaptiveTimer();
   const { playWord } = useAudio();
@@ -57,7 +60,17 @@ export default function LearnScreen() {
     );
   }
   if (words.length === 0) {
-    return <StudyEmptyState message={error ? mn.study.wordsLoadError : undefined} />;
+    return (
+      <StudyEmptyState
+        message={
+          error
+            ? mn.study.wordsLoadError
+            : source === 'weak'
+              ? mn.study.weakReviewEmpty
+              : undefined
+        }
+      />
+    );
   }
   if (done) return <SessionDoneScreen xp={xp} total={words.length} correct={correctCount} />;
 
@@ -89,7 +102,12 @@ export default function LearnScreen() {
 
   return (
     <Screen scroll={false}>
-      <StudyHeader title={mn.study.learn} index={idx} total={words.length} />
+      <StudyHeader
+        title={source === 'weak' ? mn.study.weakReviewTitle : mn.study.learn}
+        index={idx}
+        total={words.length}
+        trailing={Platform.OS === 'web' ? <PinyinToggleWeb /> : undefined}
+      />
       <View style={styles.body}>
         <QuestionCard word={current!} promptType={promptType} />
         {options.map((o) => {
@@ -118,3 +136,5 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   body: { flex: 1, paddingTop: spacing.md },
 });
+
+export default LearnScreen;

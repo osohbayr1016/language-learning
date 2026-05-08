@@ -12,6 +12,7 @@ import {
 import { publishedLessonTree, safeAll } from '../lib/lessonCatalog';
 import { fetchPublishedLessonDetail } from '../lib/lessonDetail';
 import { computeLessonFlashcardEligibleAt } from '../lib/lessonFlashcardDelay';
+import { lessonChapterHskLevel, passesHsk1AdvanceGate } from '../lib/hskGate';
 
 const lessons = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -58,8 +59,14 @@ lessons.get('/', async (c) => {
       completed_at: p.completed_at,
     });
   }
-  const data = await publishedLessonTree(c.env.DB, progress);
-  return c.json({ data });
+  const dataRaw = await publishedLessonTree(c.env.DB, progress);
+  const gateOk = await passesHsk1AdvanceGate(c.env.DB, sub);
+  const data = (dataRaw as { hsk_level?: number; lessons?: unknown[] }[]).map((ch) => ({
+    ...ch,
+    locked_below_advance_gate:
+      typeof ch.hsk_level === 'number' && ch.hsk_level >= 2 && !gateOk,
+  }));
+  return c.json({ data, advance_gate_ok: gateOk });
 });
 
 // GET /api/lessons/:id — lesson detail with full word rows + user progress
@@ -67,6 +74,19 @@ lessons.get('/:id', async (c) => {
   const { sub } = c.get('user');
   const id = Number(c.req.param('id'));
   if (!Number.isFinite(id)) return c.json({ error: 'Буруу id' }, 400);
+  const hsk = await lessonChapterHskLevel(c.env.DB, id);
+  if (hsk !== null && hsk >= 2) {
+    const gateOk = await passesHsk1AdvanceGate(c.env.DB, sub);
+    if (!gateOk) {
+      return c.json(
+        {
+          error: 'HSK 1-хийг дуусгана уу эсвэл mock шалгалтад тэнцнэ үү.',
+          code: 'HSK_ADVANCE_GATE',
+        },
+        403
+      );
+    }
+  }
   const result = await fetchPublishedLessonDetail(c.env.DB, id, sub);
   if (!result.ok) return c.json({ error: 'Хичээл олдсонгүй' }, 404);
   return c.json({ data: result.data });
@@ -76,6 +96,21 @@ lessons.get('/:id', async (c) => {
 lessons.post('/:id/complete', async (c) => {
   const { sub } = c.get('user');
   const lessonId = Number(c.req.param('id'));
+  if (!Number.isFinite(lessonId)) return c.json({ error: 'Буруу id' }, 400);
+
+  const hsk = await lessonChapterHskLevel(c.env.DB, lessonId);
+  if (hsk !== null && hsk >= 2) {
+    const gateOk = await passesHsk1AdvanceGate(c.env.DB, sub);
+    if (!gateOk) {
+      return c.json(
+        {
+          error: 'HSK 1-хийг дуусгана уу эсвэл mock шалгалтад тэнцнэ үү.',
+          code: 'HSK_ADVANCE_GATE',
+        },
+        403
+      );
+    }
+  }
 
   const body = await c.req.json<{
     accuracy: number;

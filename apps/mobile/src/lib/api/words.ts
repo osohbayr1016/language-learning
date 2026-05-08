@@ -3,7 +3,14 @@ import type { Word, WordWithProgress } from '../types';
 
 export const words = {
   list: (
-    params: { hsk?: number; limit?: number; offset?: number; q?: string; single_char?: number } = {}
+    params: {
+      hsk?: number;
+      limit?: number;
+      offset?: number;
+      q?: string;
+      single_char?: number;
+      textbook_unit?: string;
+    } = {}
   ) =>
     request<{ data: Word[]; total: number; has_more: boolean }>(
       `/api/words${buildQuery(params)}`

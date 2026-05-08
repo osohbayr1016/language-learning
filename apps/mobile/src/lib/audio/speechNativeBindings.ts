@@ -24,7 +24,7 @@ export function useNativeContinuousBindings(
     if (t) {
       setResult({ transcript: t, confidence: 0 });
       setLiveTranscript('');
-      setState('processing');
+      setState('idle');
     } else {
       setState((s) => (s === 'error' ? s : 'idle'));
     }

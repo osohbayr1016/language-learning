@@ -16,7 +16,7 @@ export const lessons = {
   publicDetail: (id: number) =>
     request<{ data: LessonDetail }>(`/api/lessons/public/${id}`),
   list: (token: string) =>
-    request<{ data: Chapter[] }>('/api/lessons', { token }),
+    request<{ data: Chapter[]; advance_gate_ok?: boolean }>('/api/lessons', { token }),
   get: (token: string, id: number) =>
     request<{ data: LessonDetail }>(`/api/lessons/${id}`, { token }),
   complete: (token: string, id: number, body: LessonCompleteBody) =>

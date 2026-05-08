@@ -63,7 +63,7 @@ export default function SpeakPracticeScreen() {
         </Text>
       ) : null}
       <MandarinSpeechCard
-        key={current.id}
+        key={`speak-${idx}-${current.id}`}
         word={current}
         onEvaluated={() => setRoundDone(true)}
         onScore={(n) => {

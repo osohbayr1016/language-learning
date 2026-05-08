@@ -12,10 +12,11 @@ import { colors, spacing } from '../../theme';
 import { ProfileHeader } from './ProfileHeader';
 import { StatsGrid } from './StatsGrid';
 import { ProfileMenu } from './ProfileMenu';
+import { ProfileShareStreakCard } from './ProfileShareStreakCard';
 
 export default function ProfileScreen() {
   const { token, signOut, isAdmin, refreshAdminRole } = useAuth();
-  const { stats, streak, refresh } = useGamification();
+  const { stats, streak, refresh, dailyGoal } = useGamification();
   const router = useRouter();
   const [profile, setProfile] = useState<Profile | null>(null);
 
@@ -75,6 +76,11 @@ export default function ProfileScreen() {
         </View>
       ) : null}
       <StatsGrid stats={stats} streak={streak} />
+      <ProfileShareStreakCard
+        streak={streak?.current_streak ?? 0}
+        totalXp={stats?.total_xp ?? 0}
+        dailyGoal={dailyGoal}
+      />
       <ProfileMenu
         items={[
           ...(showAdminNav

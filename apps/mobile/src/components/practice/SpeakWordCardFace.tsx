@@ -28,7 +28,13 @@ export function SpeakWordCardFace({
       <PinyinRow pinyin={pinyin} size="md" />
       {exampleAside ? <Text style={styles.exampleHint}>{exampleAside}</Text> : null}
       <Text style={styles.translation}>{word.example_mn ?? word.meaning_mn}</Text>
-      <PronounceButton wordId={word.id} size="md" style={pronounceStyle ?? styles.pronounce} />
+      <PronounceButton
+        wordId={word.id}
+        wordHanzi={word.hanzi}
+        displayText={hanzi}
+        size="md"
+        style={pronounceStyle ?? styles.pronounce}
+      />
     </View>
   );
 }

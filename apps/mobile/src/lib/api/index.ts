@@ -9,6 +9,8 @@ import { lessons } from './lessons';
 import { insights } from './insights';
 import { adminApi } from './admin';
 import { cartoonsAdmin } from './cartoonsAdmin';
+import { grammar } from './grammar';
+import { exams } from './exams';
 
 export const api = {
   auth,
@@ -20,6 +22,8 @@ export const api = {
   cartoonsAdmin,
   audio,
   lessons,
+  grammar,
+  exams,
   insights,
   admin: adminApi,
 };

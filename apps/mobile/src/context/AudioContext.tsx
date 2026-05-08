@@ -2,8 +2,12 @@ import React, { createContext, useContext, useEffect, useRef } from 'react';
 import { Audio } from 'expo-av';
 import { api } from '../lib/api';
 
+type PlayOpts = { speed?: 'normal' | 'slow'; repeat?: number };
+
 type AudioCtx = {
-  playWord: (wordId: number, opts?: { speed?: 'normal' | 'slow'; repeat?: number }) => Promise<void>;
+  playWord: (wordId: number, opts?: PlayOpts) => Promise<void>;
+  /** Бүтэн хятад өгүүлбэр (жишээ өгүүлбэр) — API TTS */
+  playPhrase: (text: string, opts?: PlayOpts) => Promise<void>;
   stop: () => Promise<void>;
 };
 
@@ -27,12 +31,9 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     soundRef.current = null;
   };
 
-  const playOnce = async (wordId: number, speed: 'normal' | 'slow') => {
+  const playOnceFromUri = async (uri: string) => {
     await stop();
-    const { sound } = await Audio.Sound.createAsync(
-      { uri: api.audio.url(wordId, speed) },
-      { shouldPlay: true }
-    );
+    const { sound } = await Audio.Sound.createAsync({ uri }, { shouldPlay: true });
     soundRef.current = sound;
     await new Promise<void>((resolve) => {
       sound.setOnPlaybackStatusUpdate((status) => {
@@ -45,9 +46,10 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
   const playWord: AudioCtx['playWord'] = async (wordId, opts) => {
     const speed = opts?.speed ?? 'normal';
     const repeat = Math.max(1, opts?.repeat ?? 1);
+    const uri = api.audio.url(wordId, speed);
     for (let i = 0; i < repeat; i += 1) {
       try {
-        await playOnce(wordId, speed);
+        await playOnceFromUri(uri);
       } catch (e) {
         console.warn('Audio playback failed', e);
         return;
@@ -55,7 +57,21 @@ export function AudioProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
-  return <Ctx.Provider value={{ playWord, stop }}>{children}</Ctx.Provider>;
+  const playPhrase: AudioCtx['playPhrase'] = async (text, opts) => {
+    const speed = opts?.speed ?? 'normal';
+    const repeat = Math.max(1, opts?.repeat ?? 1);
+    const uri = api.audio.phraseUrl(text, speed);
+    for (let i = 0; i < repeat; i += 1) {
+      try {
+        await playOnceFromUri(uri);
+      } catch (e) {
+        console.warn('Phrase audio failed', e);
+        return;
+      }
+    }
+  };
+
+  return <Ctx.Provider value={{ playWord, playPhrase, stop }}>{children}</Ctx.Provider>;
 }
 
 export function useAudio() {

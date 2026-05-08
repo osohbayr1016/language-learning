@@ -16,6 +16,7 @@ export type Word = {
   example_mn: string | null;
   audio_url: string | null;
   stroke_count: number | null;
+  textbook_unit?: string | null;
 };
 
 export type WordWithProgress = Word & {
@@ -54,6 +55,7 @@ export type Chapter = {
   order_num: number;
   is_published: number;
   lessons: Lesson[];
+  locked_below_advance_gate?: boolean;
 };
 
 export type LessonDetail = {

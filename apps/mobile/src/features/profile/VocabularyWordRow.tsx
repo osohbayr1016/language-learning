@@ -1,5 +1,6 @@
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { WordWithProgress } from '../../lib/types';
+import { formatNextReviewDate } from '../../lib/formatNextReview';
 import { mn } from '../../i18n/mn';
 import { colors, spacing, typography } from '../../theme';
 
@@ -28,6 +29,10 @@ export function VocabularyWordRow({ item, onOpenDetail, onPromote }: Props) {
           <Text style={styles.wait}>
             {mn.profile.flashcardWaiting}: {new Date(item.flashcard_eligible_at!).toLocaleDateString()}
           </Text>
+        ) : item.next_review ? (
+          <Text style={styles.nextRev} numberOfLines={1}>
+            {mn.profile.nextReview}: {formatNextReviewDate(item.next_review) ?? item.next_review}
+          </Text>
         ) : null}
       </Pressable>
       {waiting ? (
@@ -54,6 +59,7 @@ const styles = StyleSheet.create({
   meta: { ...typography.body.sm, color: colors.text.secondary, marginTop: 2 },
   meaning: { ...typography.body.sm, color: colors.text.primary, marginTop: 4 },
   wait: { ...typography.body.sm, color: colors.accent.amber, marginTop: 4 },
+  nextRev: { ...typography.body.sm, color: colors.text.muted, marginTop: 4 },
   promoteBtn: {
     paddingVertical: spacing.xs,
     paddingHorizontal: spacing.sm,

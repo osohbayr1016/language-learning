@@ -39,6 +39,14 @@ words.get('/', async (c) => {
     countSql += ' AND LENGTH(hanzi) = 1';
   }
 
+  const textbookUnit = (c.req.query('textbook_unit') ?? '').trim();
+  if (textbookUnit) {
+    query += ' AND textbook_unit = ?';
+    countSql += ' AND textbook_unit = ?';
+    params.push(textbookUnit);
+    countParams.push(textbookUnit);
+  }
+
   query += ' ORDER BY hsk_level ASC, id ASC LIMIT ? OFFSET ?';
   params.push(limit, offset);
 

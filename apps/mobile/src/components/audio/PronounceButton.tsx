@@ -11,6 +11,10 @@ import { gestureToAction, type GestureKind } from '../../lib/audio/engine';
 
 type Props = {
   wordId: number;
+  /** Гол үгийн ханз; displayText-тэй хамт өгөгдөхөд өгүүлбэрийн дуу сонсогдоно */
+  wordHanzi?: string;
+  /** Картад харуулж буй бүтэн текст (жишээ өгүүлбэр) */
+  displayText?: string;
   size?: 'sm' | 'md' | 'lg';
   color?: string;
   style?: ViewStyle;
@@ -19,18 +23,30 @@ type Props = {
 
 export function PronounceButton({
   wordId,
+  wordHanzi,
+  displayText,
   size = 'md',
   color = colors.accent.purple,
   style,
   showHints = false,
 }: Props) {
-  const { playWord } = useAudio();
+  const { playWord, playPhrase } = useAudio();
   const [active, setActive] = useState<'idle' | 'tap' | 'hold' | 'doubleTap'>('idle');
+
+  const useFullPhrase =
+    typeof displayText === 'string' &&
+    typeof wordHanzi === 'string' &&
+    displayText.trim().length > 0 &&
+    displayText.trim() !== wordHanzi.trim();
 
   const handle = async (kind: GestureKind) => {
     setActive(kind);
     const a = gestureToAction(kind);
-    if (a.kind === 'doubleTap') {
+    const opts =
+      a.kind === 'doubleTap' ? { speed: a.speed, repeat: a.repeat } : { speed: a.speed };
+    if (useFullPhrase) {
+      await playPhrase(displayText!.trim(), opts);
+    } else if (a.kind === 'doubleTap') {
       await playWord(wordId, { speed: a.speed, repeat: a.repeat });
     } else {
       await playWord(wordId, { speed: a.speed });
@@ -60,7 +76,7 @@ export function PronounceButton({
   const iconSize: Record<string, number> = { sm: 18, md: 22, lg: 30 };
 
   return (
-    <View style={style}>
+    <View style={[styles.wrap, style]}>
       <GestureDetector gesture={composed}>
         <Pressable
           accessibilityRole="button"
@@ -87,6 +103,10 @@ export function PronounceButton({
 }
 
 const styles = StyleSheet.create({
+  wrap: {
+    width: '100%',
+    alignItems: 'center',
+  },
   btn: {
     borderRadius: radius.full,
     alignItems: 'center',

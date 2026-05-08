@@ -1,6 +1,7 @@
 import React from "react";
 import { StyleSheet, Text, View } from "react-native";
-import { ToneColoredText, ToneBar } from "../../../components/hanzi";
+import { ToneColoredText, ToneBar, PinyinRow } from "../../../components/hanzi";
+import { useDisplayPrefs } from "../../../context/DisplayPrefsContext";
 import { PronounceButton } from "../../../components/audio/PronounceButton";
 import { parseTones } from "../../../lib/tones";
 import { colors, spacing, typography } from "../../../theme";
@@ -10,12 +11,14 @@ import type { WordWithProgress } from "../../../lib/types";
 type Props = { word: WordWithProgress };
 
 export function CardFront({ word }: Props) {
+  const { showPinyin } = useDisplayPrefs();
   const tones = parseTones(word.tones);
   const firstTone = tones[0] ?? 0;
 
   return (
     <View style={styles.wrap}>
       <ToneColoredText hanzi={word.hanzi} tones={tones} size="xl" />
+      {showPinyin && word.pinyin ? <PinyinRow pinyin={word.pinyin} size="md" /> : null}
       <View style={styles.toneRow}>
         <ToneBar tone={firstTone} width={80} height={32} />
       </View>

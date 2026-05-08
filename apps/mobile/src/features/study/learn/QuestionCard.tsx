@@ -5,6 +5,7 @@ import { PronounceButton } from '../../../components/audio/PronounceButton';
 import { parseTones } from '../../../lib/tones';
 import { Card } from '../../../primitives';
 import { colors, spacing, typography } from '../../../theme';
+import { useDisplayPrefs } from '../../../context/DisplayPrefsContext';
 import type { WordWithProgress } from '../../../lib/types';
 
 type Props = {
@@ -13,6 +14,7 @@ type Props = {
 };
 
 export function QuestionCard({ word, promptType }: Props) {
+  const { showPinyin } = useDisplayPrefs();
   const tones = parseTones(word.tones);
 
   return (
@@ -20,7 +22,7 @@ export function QuestionCard({ word, promptType }: Props) {
       {promptType === 'hanzi-to-mn' ? (
         <View style={styles.center}>
           <ToneColoredText hanzi={word.hanzi} tones={tones} size="lg" />
-          <PinyinRow pinyin={word.pinyin} size="md" />
+          {showPinyin ? <PinyinRow pinyin={word.pinyin} size="md" /> : null}
           <PronounceButton wordId={word.id} size="md" style={{ marginTop: spacing.sm }} />
         </View>
       ) : (

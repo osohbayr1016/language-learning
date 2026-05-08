@@ -33,6 +33,14 @@ const MODES: Mode[] = [
     href: '/study/learn',
   },
   {
+    key: 'weak',
+    title: mn.study.weakReviewTitle,
+    subtitle: mn.study.weakReviewDesc,
+    icon: 'fitness-outline',
+    color: colors.error,
+    href: '/study/weak',
+  },
+  {
     key: 'write',
     title: mn.study.write,
     subtitle: mn.study.writeDesc,
@@ -55,6 +63,22 @@ const MODES: Mode[] = [
     icon: 'mic-outline',
     color: colors.success,
     href: '/study/speak',
+  },
+  {
+    key: 'grammar',
+    title: mn.study.grammarTitle,
+    subtitle: mn.study.grammarDesc,
+    icon: 'library-outline',
+    color: colors.warning,
+    href: '/study/grammar',
+  },
+  {
+    key: 'mock',
+    title: mn.study.mockExamTitle,
+    subtitle: mn.study.mockExamDesc,
+    icon: 'clipboard-outline',
+    color: colors.accent.amber,
+    href: '/study/mock-exam',
   },
 ];
 

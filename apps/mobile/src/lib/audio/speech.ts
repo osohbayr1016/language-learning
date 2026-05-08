@@ -118,7 +118,7 @@ export function useSpeechSession() {
           },
           () => {
             clearAutoStop();
-            setState((s) => (s === 'error' || s === 'processing' ? s : 'idle'));
+            setState((s) => (s === 'error' ? s : 'idle'));
           }
         );
         webRec.current = h;

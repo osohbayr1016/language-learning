@@ -100,6 +100,14 @@ export const mn = {
     flashcardReady: 'Цээжлэх картанд оруулах',
     flashcardWaiting: 'Картанд орно',
     noSeenWords: 'Одоогоор үг байхгүй — хичээл үзээрэй.',
+    nextReview: 'Дахин санах',
+    vocabTextbookFilter: 'Сурах бичгийн бүлэг (яг тааруулна)',
+    vocabTextbookPlaceholder: 'жишээ: Unit 3',
+    vocabApplyFilter: 'Шүүх',
+    shareProgress: 'Хуваалцах',
+    shareCopied: 'Хуулсан',
+    shareProgressMsg:
+      '{appName} — өдрийн зорилго {goal} XP. Онцлох: {streak} өдрийн дараалал. Нийт XP: {xp}.',
   },
   pron: {
     tap: 'Тап: хэвийн хурдтай',
@@ -143,5 +151,17 @@ export const mn = {
     hskColLessons: 'Хичээл',
     pathEmptyHint:
       'Мэдээлэл байхгүй байна: алсын D1 хоосон эсвэл тохиргооны migration хийгээгүй байж болно.',
+    bulkTextbookUnit: 'Сурах бичгийн бүлэг (бүх мөрт хэрэглэнэ)',
+    bulkDupSkip: 'Давхардахыг алгасах',
+    bulkDupFail: 'Давхардалд зогсоох',
+    bulkServerValidate: 'Серверээс шалгах',
+    bulkServerValidateMerged: '(зарим алдааг сервер нэмж олсон)',
+    rejectDuplicateWord: 'Давхар үг байвал цуцлах (409)',
+    bulkDupPolicyTitle: 'Бөөнөөр нэмэх — давхардал',
+    wordExampleZh: 'Жишээ өгүүлбэр (хятад)',
+    wordExamplePinyin: 'Жишээ — pinyin',
+    wordExampleMn: 'Жишээ — монгол',
+    bulkSharedExampleHint: 'Оруулсан жишээг олон-мөрийн зөв мөр бүрэнд ижилхэн хадгалана.',
+    wordExamplePreviewTitle: 'Оруулсан жишээ (бүх нэмэгдэх үг)',
   },
 };

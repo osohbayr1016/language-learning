@@ -11,6 +11,8 @@ import courseRoutes from './routes/courses';
 import gameRoutes from './routes/games';
 import cartoonRoutes from './routes/cartoons';
 import lessonRoutes from './routes/lessons';
+import grammarRoutes from './routes/grammar';
+import examRoutes from './routes/exams';
 import insightRoutes from './routes/insights';
 /** Explicit `./routes/admin/index` — do not use `./routes/admin`: a sibling `admin.ts` would shadow this folder and drop `/stats`, `/lesson-tree`, chapters, etc. */
 import adminRoutes from './routes/admin/index';
@@ -79,6 +81,8 @@ app.route('/api/courses', courseRoutes);
 app.route('/api/games', gameRoutes);
 app.route('/api/cartoons', cartoonRoutes);
 app.route('/api/lessons', lessonRoutes);
+app.route('/api/grammar', grammarRoutes);
+app.route('/api/exams', examRoutes);
 app.route('/api/insights', insightRoutes);
 app.route('/api/admin', adminRoutes);
 

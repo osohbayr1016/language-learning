@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from 'react';
+import React, { useCallback, useLayoutEffect, useRef, useState } from 'react';
 import { StyleSheet, View } from 'react-native';
 import type { Word } from '../../lib/types';
 import {
@@ -13,22 +13,11 @@ import { SayFallback } from '../../features/lessons/exercises/SayFallback';
 import { SpeakMicPanel } from './SpeakMicPanel';
 import { SpeakSuccessCelebration } from './SpeakSuccessCelebration';
 import { SpeakWordCardFace } from './SpeakWordCardFace';
+import { useSpeakWordSessionReset } from './useSpeakWordSessionReset';
 
-type Props = {
-  word: Word;
-  disabled?: boolean;
-  speechPrompt?: SpeechPromptScope;
-  onEvaluated: (passed: boolean) => void;
-  onScore?: (finalPercent: number) => void;
-};
+type Props = { word: Word; disabled?: boolean; speechPrompt?: SpeechPromptScope; onEvaluated: (p: boolean) => void; onScore?: (n: number) => void };
 
-export function MandarinSpeechCard({
-  word,
-  disabled,
-  speechPrompt = 'word',
-  onEvaluated,
-  onScore,
-}: Props) {
+export function MandarinSpeechCard({ word, disabled, speechPrompt = 'word', onEvaluated, onScore }: Props) {
   const { hanzi: target, pinyin: pinyinLine, tones } = getSpeechDisplay(word, speechPrompt);
   const { state, result, liveTranscript, errorMessage, reset, supported, start, stop } =
     useSpeechSession();
@@ -45,7 +34,19 @@ export function MandarinSpeechCard({
   onEvalRef.current = onEvaluated;
   onScoreRef.current = onScore;
 
-  useEffect(() => {
+  const resetRoundUi = useCallback(() => {
+    setSubmitted(false);
+    setPoints(null);
+    setPassedRound(null);
+    setTranscript(null);
+    setBreakdown(null);
+    setFinalLine(null);
+    setCelebrateStamp(0);
+  }, []);
+
+  useSpeakWordSessionReset(word.id, stop, reset, resetRoundUi);
+
+  useLayoutEffect(() => {
     if (!result || submitted) return;
     const ev = scoreMandarinUtterance(result.transcript, target, pinyinLine);
     setPoints(ev.points);
@@ -104,11 +105,6 @@ export function MandarinSpeechCard({
           .join('\n')
       : 'Микрофон дараад өгүүлбэрийг хятадаар хэлээрэй';
 
-  const exampleAside =
-    speechPrompt === 'word' && word.example_zh && word.example_zh !== word.hanzi
-      ? mn.study.speakExampleHint.replace('{s}', word.example_zh)
-      : null;
-
   return (
     <View style={styles.root}>
       <SpeakWordCardFace
@@ -116,7 +112,11 @@ export function MandarinSpeechCard({
         hanzi={target}
         pinyin={pinyinLine}
         tones={tones}
-        exampleAside={exampleAside}
+        exampleAside={
+          speechPrompt === 'word' && word.example_zh && word.example_zh !== word.hanzi
+            ? mn.study.speakExampleHint.replace('{s}', word.example_zh)
+            : null
+        }
       />
 
       {supported ? (

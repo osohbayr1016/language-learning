@@ -50,6 +50,6 @@ export function ListenMcq({ exercise, disabled, onAnswer }: Props) {
 
 const styles = StyleSheet.create({
   root: { flex: 1, justifyContent: 'space-between' },
-  audio: { alignItems: 'center', marginVertical: spacing.lg },
+  audio: { width: '100%', alignItems: 'center', marginVertical: spacing.lg },
   list: { gap: spacing.sm },
 });

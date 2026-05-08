@@ -1,12 +1,12 @@
-import React, { useEffect, useMemo, useState } from "react";
-import { ActivityIndicator, StyleSheet, View } from "react-native";
+import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
+import { ActivityIndicator, Platform, StyleSheet, Text, View } from "react-native";
 import type { ReviewRating } from "@chinese-app/srs";
 import { Screen } from "../../../primitives";
 import { useDueWords } from "../../../hooks/useDueWords";
 import { useSrsRating } from "../../../hooks/useSrsRating";
 import { useAdaptiveTimer } from "../../../hooks/useAdaptiveTimer";
 import { calculateXP } from "@chinese-app/srs";
-import { colors, spacing } from "../../../theme";
+import { colors, spacing, typography } from "../../../theme";
 import { StudyHeader } from "../StudyHeader";
 import { StudyEmptyState } from "../EmptyState";
 import { SessionDoneScreen } from "../SessionDoneScreen";
@@ -17,6 +17,8 @@ import { FlipCard } from "./FlipCard";
 import { CardFront } from "./CardFront";
 import { CardBack } from "./CardBack";
 import type { ConfidenceLevel } from "../../../lib/srs/adaptive";
+import { useFlashcardWebKeys } from "../../../hooks/useFlashcardWebKeys";
+import { PinyinToggleWeb } from "../PinyinToggleWeb";
 
 export default function FlashcardScreen() {
   const { words, loading, error } = useDueWords(15);
@@ -28,6 +30,8 @@ export default function FlashcardScreen() {
   const [confidence, setConfidence] = useState<ConfidenceLevel | null>(null);
   const [correctCount, setCorrectCount] = useState(0);
   const [done, setDone] = useState(false);
+
+  const handleRateRef = useRef<(rating: ReviewRating) => Promise<void>>(async () => {});
 
   const current = words[idx];
 
@@ -45,28 +49,7 @@ export default function FlashcardScreen() {
     [correctCount, words.length],
   );
 
-  if (loading) {
-    return (
-      <Screen>
-        <View style={styles.center}>
-          <ActivityIndicator color={colors.accent.purple} />
-        </View>
-      </Screen>
-    );
-  }
-
-  if (words.length === 0) {
-    return (
-      <StudyEmptyState message={error ? mn.study.wordsLoadError : undefined} />
-    );
-  }
-
-  if (done)
-    return (
-      <SessionDoneScreen xp={xp} total={words.length} correct={correctCount} />
-    );
-
-  const handleRate = async (rating: ReviewRating) => {
+  handleRateRef.current = async (rating: ReviewRating) => {
     if (!current) return;
     const responseMs = timer.stopAndReset();
     session.record(
@@ -89,19 +72,62 @@ export default function FlashcardScreen() {
     }
   };
 
+  const toggleFlip = useCallback(() => {
+    setFlipped((f) => !f);
+  }, []);
+
+  const keysDisabled =
+    loading || words.length === 0 || done || !current;
+
+  useFlashcardWebKeys({
+    flipped,
+    disabled: keysDisabled,
+    onFlip: toggleFlip,
+    onRate: (r) => void handleRateRef.current(r),
+  });
+
+  const handleRate = async (rating: ReviewRating) => {
+    await handleRateRef.current(rating);
+  };
+
+  if (loading) {
+    return (
+      <Screen>
+        <View style={styles.center}>
+          <ActivityIndicator color={colors.accent.purple} />
+        </View>
+      </Screen>
+    );
+  }
+
+  if (words.length === 0) {
+    return (
+      <StudyEmptyState message={error ? mn.study.wordsLoadError : undefined} />
+    );
+  }
+
+  if (done)
+    return (
+      <SessionDoneScreen xp={xp} total={words.length} correct={correctCount} />
+    );
+
   return (
     <Screen scroll={false}>
       <StudyHeader
         title={mn.study.flashcard}
         index={idx}
         total={words.length}
+        trailing={<PinyinToggleWeb />}
       />
+      {Platform.OS === "web" ? (
+        <Text style={styles.keysHint}>{mn.study.webKeysFlashcard}</Text>
+      ) : null}
       <View style={styles.cardArea}>
         <FlipCard
           flipped={flipped}
           onPress={() => setFlipped((f) => !f)}
-          front={<CardFront word={current!} />}
-          back={<CardBack word={current!} />}
+          front={<CardFront word={current} />}
+          back={<CardBack word={current} />}
         />
       </View>
       {flipped ? (
@@ -119,4 +145,9 @@ const styles = StyleSheet.create({
   center: { flex: 1, alignItems: "center", justifyContent: "center" },
   cardArea: { flex: 1, paddingVertical: spacing.lg },
   bottom: { paddingBottom: spacing.lg, gap: spacing.sm },
+  keysHint: {
+    ...typography.body.sm,
+    color: colors.text.muted,
+    marginBottom: spacing.xs,
+  },
 });
