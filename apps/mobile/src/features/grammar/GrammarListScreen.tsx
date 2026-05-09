@@ -2,6 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { safeBack } from '../../lib/navigation/safeBack';
 import { Screen } from '../../primitives';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
@@ -43,7 +44,7 @@ export function GrammarListScreen() {
         <Pressable
           accessibilityRole="button"
           accessibilityLabel={mn.common.back}
-          onPress={() => router.back()}
+          onPress={() => safeBack(router, '/(tabs)/study')}
           style={({ pressed }) => [styles.backBtn, pressed && styles.backBtnPressed]}
           hitSlop={12}
         >

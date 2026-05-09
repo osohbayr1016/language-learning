@@ -1,6 +1,7 @@
 import React from 'react';
 import { ActivityIndicator, Pressable, Text } from 'react-native';
 import { useRouter } from 'expo-router';
+import { safeBack } from '../../lib/navigation/safeBack';
 import { Screen } from '../../primitives';
 import { useAuth } from '../../context/AuthContext';
 import { mn } from '../../i18n/mn';
@@ -21,7 +22,7 @@ export function MockExamScreen() {
   const totalQ = qs.length;
 
   const submitAll = () => void hook.submitAll();
-  const exit = () => router.back();
+  const exit = () => safeBack(router, '/(tabs)/study');
 
   if (!token) {
     return (

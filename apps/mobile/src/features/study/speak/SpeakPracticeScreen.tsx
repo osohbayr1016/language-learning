@@ -1,6 +1,7 @@
 import React, { useMemo, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
+import { safeBack } from '../../../lib/navigation/safeBack';
 import { Button, Screen } from '../../../primitives';
 import { MandarinSpeechCard } from '../../../components/practice/MandarinSpeechCard';
 import { useRandomWords } from '../../../hooks/useRandomWords';
@@ -46,7 +47,7 @@ export default function SpeakPracticeScreen() {
       <Screen scroll>
         <StudyHeader title={mn.study.speak} index={0} total={1} />
         <Text style={styles.err}>{error ?? mn.study.wordsLoadError}</Text>
-        <Button label={mn.common.back} onPress={() => router.back()} />
+        <Button label={mn.common.back} onPress={() => safeBack(router, '/(tabs)/study')} />
       </Screen>
     );
   }

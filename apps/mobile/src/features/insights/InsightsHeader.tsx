@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { safeBack } from '../../lib/navigation/safeBack';
 import { colors, radius, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
 
@@ -11,7 +12,7 @@ export function InsightsHeader() {
     <View style={styles.row}>
       <Pressable
         accessibilityRole="button"
-        onPress={() => router.back()}
+        onPress={() => safeBack(router, '/(tabs)/profile')}
         style={({ pressed }) => [styles.back, pressed && styles.pressed]}
       >
         <Ionicons name="chevron-back" size={22} color={colors.text.primary} />

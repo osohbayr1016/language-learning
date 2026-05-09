@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useState } from 'react';
 import { useRouter } from 'expo-router';
 import { api } from '../../lib/api';
+import { safeBack } from '../../lib/navigation/safeBack';
 import type { AdminChapter, AdminLesson, LessonWordLink } from '../../lib/api/admin';
 import { adminNotify } from './adminNotify';
 
@@ -78,7 +79,7 @@ export function useAdminLessonEditor(opts: {
     if (!token || !Number.isFinite(lid)) return;
     try {
       await api.admin.deleteLesson(token, lid);
-      router.back();
+      safeBack(router, '/admin/learning-path');
     } catch (e) {
       adminNotify('Алдаа', (e as Error).message);
     }

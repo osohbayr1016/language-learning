@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { safeBack } from '../../lib/navigation/safeBack';
 import { Button, Screen } from '../../primitives';
 import { colors, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
@@ -31,7 +32,7 @@ export function SessionDoneScreen({ xp, total, correct }: Props) {
         </View>
         <Button
           label={mn.common.back}
-          onPress={() => router.back()}
+          onPress={() => safeBack(router, '/(tabs)/study')}
           fullWidth
           style={{ marginTop: spacing.lg }}
         />

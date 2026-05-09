@@ -38,9 +38,8 @@ export function CardBack({ word }: Props) {
 
 const styles = StyleSheet.create({
   wrap: {
-    flex: 1,
+    width: "100%",
     alignItems: "center",
-    justifyContent: "center",
     gap: spacing.sm,
   },
   meaning: {
@@ -48,28 +47,39 @@ const styles = StyleSheet.create({
     color: colors.text.primary,
     textAlign: "center",
     marginVertical: spacing.md,
+    paddingHorizontal: spacing.sm,
+    maxWidth: "100%",
+    flexShrink: 1,
   },
   example: {
     backgroundColor: colors.bg.elevated,
     borderRadius: 12,
     padding: spacing.md,
     width: "100%",
+    maxWidth: "100%",
     gap: 4,
     marginTop: spacing.sm,
+    flexShrink: 1,
   },
   exampleZh: {
     ...typography.heading.md,
     color: colors.text.primary,
     textAlign: "center",
+    flexShrink: 1,
+    maxWidth: "100%",
   },
   examplePinyin: {
     ...typography.pinyin.md,
     color: colors.text.secondary,
     textAlign: "center",
+    flexShrink: 1,
+    maxWidth: "100%",
   },
   exampleMn: {
     ...typography.body.md,
     color: colors.text.secondary,
     textAlign: "center",
+    flexShrink: 1,
+    maxWidth: "100%",
   },
 });

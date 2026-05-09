@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { safeBack } from '../../lib/navigation/safeBack';
 import { Screen } from '../../primitives';
 import { api } from '../../lib/api';
 import type { CartoonDetail, CartoonWord } from '../../lib/api/cartoons';
@@ -70,7 +71,7 @@ export default function PlayerScreen() {
   return (
     <Screen padded={false} edges={['top']}>
       <View style={styles.headerRow}>
-        <Pressable onPress={() => router.back()} hitSlop={12} style={styles.back}>
+        <Pressable onPress={() => safeBack(router, '/(tabs)/cartoons')} hitSlop={12} style={styles.back}>
           <Ionicons name="chevron-back" size={28} color={colors.text.primary} />
         </Pressable>
         <Text numberOfLines={1} style={styles.title}>{data.title_mn}</Text>

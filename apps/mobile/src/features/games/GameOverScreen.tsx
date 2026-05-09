@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { safeBack } from '../../lib/navigation/safeBack';
 import { Button, Screen } from '../../primitives';
 import { colors, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
@@ -27,7 +28,7 @@ export function GameOverScreen({ score, xp, durationSeconds, onPlayAgain }: Prop
           <Stat value={`${durationSeconds}s`} label="Хугацаа" color={colors.accent.teal} />
         </View>
         <Button label={mn.games.playAgain} onPress={onPlayAgain} style={{ marginTop: spacing.lg }} />
-        <Button label={mn.common.back} variant="ghost" onPress={() => router.back()} style={{ marginTop: spacing.sm }} />
+        <Button label={mn.common.back} variant="ghost" onPress={() => safeBack(router, '/(tabs)/games')} style={{ marginTop: spacing.sm }} />
       </View>
     </Screen>
   );

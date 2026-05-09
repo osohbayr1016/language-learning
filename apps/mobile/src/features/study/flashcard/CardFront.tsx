@@ -32,9 +32,8 @@ export function CardFront({ word }: Props) {
 
 const styles = StyleSheet.create({
   wrap: {
-    flex: 1,
+    width: "100%",
     alignItems: "center",
-    justifyContent: "center",
     gap: spacing.md,
   },
   toneRow: { marginTop: spacing.sm },

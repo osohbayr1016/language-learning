@@ -1,6 +1,7 @@
 import React, { useCallback, useEffect, useState } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useLocalSearchParams, useRouter } from 'expo-router';
+import { safeBack } from '../../lib/navigation/safeBack';
 import { Screen } from '../../primitives';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
@@ -48,7 +49,7 @@ export function GrammarLessonScreen() {
         else numAns[ex.id] = rawV;
       }
       await api.grammar.complete(token, lessonId, numAns);
-      router.back();
+      safeBack(router, '/study/grammar');
     } finally {
       setSubmitting(false);
     }

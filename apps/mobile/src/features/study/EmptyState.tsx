@@ -2,6 +2,7 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { safeBack } from '../../lib/navigation/safeBack';
 import { Button, Screen } from '../../primitives';
 import { colors, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
@@ -17,7 +18,7 @@ export function StudyEmptyState({ message }: Props) {
       <View style={styles.center}>
         <Ionicons name="checkmark-circle" size={88} color={colors.success} />
         <Text style={styles.title}>{message ?? mn.study.noWords}</Text>
-        <Button label={mn.common.back} onPress={() => router.back()} fullWidth={false} />
+        <Button label={mn.common.back} onPress={() => safeBack(router, '/(tabs)/study')} fullWidth={false} />
       </View>
     </Screen>
   );

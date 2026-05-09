@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
+import { safeBack } from '../../src/lib/navigation/safeBack';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Screen } from '../../src/primitives';
 import { PaymentMethodCard } from '../../src/features/premium/PaymentMethodCard';
@@ -17,7 +18,7 @@ export default function PremiumPaymentMethodsScreen() {
     <Screen scroll scrollBottomInset={24}>
       <PremiumScreenHeader
         title={mn.premium.paymentTitle}
-        onBack={() => router.back()}
+        onBack={() => safeBack(router, '/premium/review')}
         right={
           <Pressable hitSlop={12} onPress={() => {}}>
             <Ionicons name="add-circle-outline" size={26} color={colors.brand.primary} />
@@ -32,7 +33,7 @@ export default function PremiumPaymentMethodsScreen() {
           onSelect={() => setPaymentId(id)}
         />
       ))}
-      <Button label={mn.common.continue} onPress={() => router.back()} />
+      <Button label={mn.common.continue} onPress={() => safeBack(router, '/premium/review')} />
     </Screen>
   );
 }

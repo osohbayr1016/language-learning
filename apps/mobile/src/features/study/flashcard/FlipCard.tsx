@@ -1,5 +1,5 @@
 import React, { useEffect, useRef } from "react";
-import { Animated, Pressable, StyleSheet, ViewStyle } from "react-native";
+import { Animated, Pressable, ScrollView, StyleSheet, ViewStyle } from "react-native";
 import { colors, radius, shadows, spacing } from "../../../theme";
 
 type Props = {
@@ -9,6 +9,21 @@ type Props = {
   back: React.ReactNode;
   style?: ViewStyle;
 };
+
+/** Урт утга орж дамжрахгүй, дээд талын ханз клип хийхгүй. */
+function FaceScroll({ children }: { children: React.ReactNode }) {
+  return (
+    <ScrollView
+      style={styles.faceScroll}
+      contentContainerStyle={styles.faceScrollContent}
+      showsVerticalScrollIndicator
+      nestedScrollEnabled
+      bounces
+    >
+      {children}
+    </ScrollView>
+  );
+}
 
 export function FlipCard({ flipped, onPress, front, back, style }: Props) {
   const rotation = useRef(new Animated.Value(0)).current;
@@ -49,7 +64,7 @@ export function FlipCard({ flipped, onPress, front, back, style }: Props) {
           },
         ]}
       >
-        {front}
+        <FaceScroll>{front}</FaceScroll>
       </Animated.View>
       <Animated.View
         style={[
@@ -61,7 +76,7 @@ export function FlipCard({ flipped, onPress, front, back, style }: Props) {
           },
         ]}
       >
-        {back}
+        <FaceScroll>{back}</FaceScroll>
       </Animated.View>
     </Pressable>
   );
@@ -70,18 +85,27 @@ export function FlipCard({ flipped, onPress, front, back, style }: Props) {
 const styles = StyleSheet.create({
   wrap: {
     flex: 1,
-    minHeight: 300,
+    minHeight: 320,
     backgroundColor: "transparent",
   },
   face: {
     flex: 1,
     backgroundColor: colors.bg.card,
     borderRadius: radius.xl,
-    padding: spacing.xl,
-    alignItems: "center",
-    justifyContent: "center",
+    padding: 0,
     backfaceVisibility: "hidden",
+    overflow: "hidden",
     ...shadows.md,
   },
   absolute: { ...StyleSheet.absoluteFillObject },
+  faceScroll: { flex: 1, width: "100%" },
+  faceScrollContent: {
+    flexGrow: 1,
+    width: "100%",
+    padding: spacing.xl,
+    paddingTop: spacing.xl + 6,
+    paddingBottom: spacing.xl + 4,
+    alignItems: "center",
+    justifyContent: "center",
+  },
 });

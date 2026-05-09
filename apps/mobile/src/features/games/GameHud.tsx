@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { safeBack } from '../../lib/navigation/safeBack';
 import { colors, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
 
@@ -16,7 +17,7 @@ export function GameHud({ title, score, timeLeft, progressLabel }: Props) {
   const router = useRouter();
   return (
     <View style={styles.container}>
-      <Pressable onPress={() => router.back()} hitSlop={12}>
+      <Pressable onPress={() => safeBack(router, '/(tabs)/games')} hitSlop={12}>
         <Ionicons name="close" size={26} color={colors.text.secondary} />
       </Pressable>
       <View style={styles.center}>

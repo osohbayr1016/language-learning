@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
 import { Button, Screen } from '../../primitives';
 import { useDueWords } from '../../hooks/useDueWords';
@@ -23,6 +23,8 @@ export default function WriterScreen() {
   const [mistakes, setMistakes] = useState(0);
   const [completed, setCompleted] = useState<{ strokes: number } | null>(null);
   const [startedAt, setStartedAt] = useState<number>(Date.now());
+  const [advanceBusy, setAdvanceBusy] = useState(false);
+  const advanceLockRef = useRef(false);
 
   const current = words[idx];
   const firstChar = current ? Array.from(current.hanzi)[0] : '';
@@ -51,21 +53,29 @@ export default function WriterScreen() {
   };
 
   const finishCharacter = async () => {
-    const strokes = completed?.strokes ?? current!.stroke_count ?? 1;
-    const score = Math.max(0, Math.round(100 - (mistakes / Math.max(1, strokes)) * 30));
-    const xp = Math.round(score / 10);
-    await save({
-      game_type: 'writer',
-      score,
-      accuracy: score / 100,
-      duration_seconds: Math.round((Date.now() - startedAt) / 1000),
-      words_practiced: 1,
-      xp_earned: xp,
-    });
-    if (idx + 1 >= words.length) {
-      setIdx(0);
-    } else {
-      setIdx((i) => i + 1);
+    if (advanceLockRef.current || advanceBusy) return;
+    advanceLockRef.current = true;
+    setAdvanceBusy(true);
+    try {
+      const strokes = completed?.strokes ?? current!.stroke_count ?? 1;
+      const score = Math.max(0, Math.round(100 - (mistakes / Math.max(1, strokes)) * 30));
+      const xp = Math.round(score / 10);
+      await save({
+        game_type: 'writer',
+        score,
+        accuracy: score / 100,
+        duration_seconds: Math.round((Date.now() - startedAt) / 1000),
+        words_practiced: 1,
+        xp_earned: xp,
+      });
+      if (idx + 1 >= words.length) {
+        setIdx(0);
+      } else {
+        setIdx((i) => i + 1);
+      }
+    } finally {
+      advanceLockRef.current = false;
+      setAdvanceBusy(false);
     }
   };
 
@@ -89,7 +99,13 @@ export default function WriterScreen() {
       {mode === 'quiz' && completed ? (
         <>
           <AccuracyMeter mistakes={mistakes} strokes={completed.strokes} />
-          <Button label={mn.common.next} onPress={finishCharacter} style={{ marginTop: spacing.md }} />
+          <Button
+            label={mn.common.next}
+            onPress={() => void finishCharacter()}
+            loading={advanceBusy}
+            disabled={advanceBusy}
+            style={{ marginTop: spacing.md }}
+          />
         </>
       ) : null}
     </Screen>

@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { safeBack } from '../../lib/navigation/safeBack';
 import { ProgressBar } from '../../primitives';
 import { colors, spacing, typography } from '../../theme';
 
@@ -18,7 +19,7 @@ export function StudyHeader({ title, index, total, trailing }: Props) {
   return (
     <View style={styles.container}>
       <View style={styles.row}>
-        <Pressable onPress={() => router.back()} hitSlop={12}>
+        <Pressable onPress={() => safeBack(router, '/(tabs)/study')} hitSlop={12}>
           <Ionicons name="close" size={26} color={colors.text.secondary} />
         </Pressable>
         <Text style={styles.title} numberOfLines={1}>

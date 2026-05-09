@@ -1,5 +1,6 @@
 import React, { useState } from 'react';
 import { useRouter } from 'expo-router';
+import { safeBack } from '../../src/lib/navigation/safeBack';
 import { Button, Screen } from '../../src/primitives';
 import { PremiumPlanCard } from '../../src/features/premium/PremiumPlanCard';
 import { PremiumScreenHeader } from '../../src/features/premium/PremiumScreenHeader';
@@ -25,7 +26,7 @@ export default function PremiumReviewScreen() {
   return (
     <Screen scroll scrollBottomInset={24}>
       <ProcessingOverlay visible={busy} />
-      <PremiumScreenHeader title={mn.premium.reviewTitle} onBack={() => router.back()} />
+      <PremiumScreenHeader title={mn.premium.reviewTitle} onBack={() => safeBack(router, '/premium')} />
       <PremiumPlanCard billing={billing} showSaveBadge={billing === 'yearly'} />
       <SelectedPaymentSummary
         id={paymentId}
