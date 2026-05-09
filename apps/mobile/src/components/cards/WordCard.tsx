@@ -27,7 +27,7 @@ export function WordCard({ word, onPress, showAudio = true, compact = false }: P
         <View style={styles.right}>
           <Pill label={`HSK ${word.hsk_level}`} color={hskColor} />
           {showAudio ? (
-            <PronounceButton wordId={word.id} size="sm" style={{ marginTop: spacing.sm }} />
+            <PronounceButton wordId={word.id} meaningMn={word.meaning_mn} size="sm" style={{ marginTop: spacing.sm }} />
           ) : null}
         </View>
       </View>

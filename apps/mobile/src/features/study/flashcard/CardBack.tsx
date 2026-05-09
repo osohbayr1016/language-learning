@@ -30,7 +30,7 @@ export function CardBack({ word }: Props) {
         </View>
       ) : null}
       <View style={{ marginTop: spacing.md }}>
-        <PronounceButton wordId={word.id} size="md" />
+        <PronounceButton wordId={word.id} meaningMn={word.meaning_mn} size="md" />
       </View>
     </View>
   );

@@ -23,7 +23,7 @@ export function QuestionCard({ word, promptType }: Props) {
         <View style={styles.center}>
           <ToneColoredText hanzi={word.hanzi} tones={tones} size="lg" />
           {showPinyin ? <PinyinRow pinyin={word.pinyin} size="md" /> : null}
-          <PronounceButton wordId={word.id} size="md" style={{ marginTop: spacing.sm }} />
+          <PronounceButton wordId={word.id} meaningMn={word.meaning_mn} size="md" style={{ marginTop: spacing.sm }} />
         </View>
       ) : (
         <View style={styles.center}>

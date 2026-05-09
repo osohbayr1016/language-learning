@@ -21,10 +21,11 @@ function uniqueBases(): string[] {
 }
 
 /** Вэб дээр request() эсвэл буруу суурь → хоосон; шууд fetch нь илүү найдвартай. */
-async function fetchPublicWordsViaFetch(limit: number, hsk?: number): Promise<Word[]> {
+async function fetchPublicWordsViaFetch(limit: number, hsk?: number, singleChar?: boolean): Promise<Word[]> {
   const n = Math.max(limit, 30);
   const sp = new URLSearchParams({ limit: String(n) });
   if (hsk != null) sp.set('hsk', String(hsk));
+  if (singleChar) sp.set('single_char', '1');
 
   for (const base of uniqueBases()) {
     const url = `${base}/api/words?${sp.toString()}`;
@@ -44,11 +45,12 @@ async function fetchPublicWordsViaFetch(limit: number, hsk?: number): Promise<Wo
 /** Auth queue first; дараа нь public list; эцэст нь шууд fetch fallback (вэб SPA/суурь алдааг давах). */
 export async function fetchStudyWords(
   token: string | null,
-  limit: number
+  limit: number,
+  mode?: 'writer'
 ): Promise<WordWithProgress[]> {
   if (token) {
     try {
-      const res = await api.words.due(token, limit);
+      const res = await api.words.due(token, limit, mode === 'writer' ? { mode: 'writer' } : undefined);
       const due = res.data ?? [];
       if (due.length > 0) return due.slice(0, limit);
     } catch {
@@ -57,23 +59,24 @@ export async function fetchStudyWords(
   }
 
   let rows: WordWithProgress[] = [];
+  const singleChar = mode === 'writer' ? 1 : undefined;
   try {
-    const pub = await api.words.list({ limit: Math.max(limit, 30), hsk: 1 });
+    const pub = await api.words.list({ limit: Math.max(limit, 30), hsk: 1, single_char: singleChar });
     rows = asProgress(pub.data);
   } catch {
     rows = [];
   }
   if (rows.length === 0) {
     try {
-      const any = await api.words.list({ limit: Math.max(limit, 30) });
+      const any = await api.words.list({ limit: Math.max(limit, 30), single_char: singleChar });
       rows = asProgress(any.data);
     } catch {
       rows = [];
     }
   }
   if (rows.length === 0) {
-    let raw = await fetchPublicWordsViaFetch(limit, 1);
-    if (raw.length === 0) raw = await fetchPublicWordsViaFetch(limit, undefined);
+    let raw = await fetchPublicWordsViaFetch(limit, 1, singleChar != null);
+    if (raw.length === 0) raw = await fetchPublicWordsViaFetch(limit, undefined, singleChar != null);
     rows = asProgress(raw);
   }
 

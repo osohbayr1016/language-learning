@@ -30,6 +30,7 @@ export function SpeakWordCardFace({
       <Text style={styles.translation}>{word.example_mn ?? word.meaning_mn}</Text>
       <PronounceButton
         wordId={word.id}
+        meaningMn={word.meaning_mn}
         wordHanzi={word.hanzi}
         displayText={hanzi}
         size="md"

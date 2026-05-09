@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { authMiddleware, adminMiddleware } from '../middleware/auth';
 import type { Env, Variables } from '../types';
+import { fetchDueWordsQueue } from '../lib/dueWordsQueue';
 
 const words = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -64,36 +65,14 @@ words.get('/', async (c) => {
   });
 });
 
-// GET /api/words/due — protected SRS queue (must be registered BEFORE /:id)
+// GET /api/words/due — protected SRS + lesson-path vocabulary (optional mode=writer)
 words.get('/due', authMiddleware, async (c) => {
   const { sub } = c.get('user');
   const limit = Number(c.req.query('limit') ?? 20);
+  const writerOnly = (c.req.query('mode') ?? '') === 'writer';
 
-  // Step 1: fetch overdue words
-  const overdueResult = await c.env.DB.prepare(
-    `SELECT w.*, uwp.ease_factor, uwp.interval, uwp.repetitions, uwp.next_review
-     FROM user_word_progress uwp JOIN words w ON uwp.word_id = w.id
-     WHERE uwp.user_id = ? AND uwp.next_review <= datetime('now')
-       AND (uwp.flashcard_eligible_at IS NULL OR uwp.flashcard_eligible_at <= datetime('now'))
-     ORDER BY uwp.next_review ASC LIMIT ?`
-  ).bind(sub, limit).all();
-
-  const overdueCount = overdueResult.results?.length ?? 0;
-
-  // Step 2: fill remaining slots with new words
-  const newWordsResult = await c.env.DB.prepare(
-    `SELECT w.*, NULL as ease_factor, 0 as interval, 0 as repetitions, NULL as next_review
-     FROM words w
-     WHERE w.id NOT IN (
-       SELECT word_id FROM user_word_progress WHERE user_id = ?
-     )
-     AND w.hsk_level <= 3
-     ORDER BY w.hsk_level ASC, w.id ASC
-     LIMIT ?`
-  ).bind(sub, Math.max(0, limit - overdueCount)).all();
-
-  const combined = [...(overdueResult.results ?? []), ...(newWordsResult.results ?? [])];
-  return c.json({ data: combined });
+  const data = await fetchDueWordsQueue(c.env.DB, sub, limit, { writerOnly });
+  return c.json({ data });
 });
 
 // GET /api/words/:id — public

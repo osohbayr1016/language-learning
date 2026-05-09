@@ -17,11 +17,11 @@ export const words = {
     ),
   get: (id: number) =>
     request<{ data: Word }>(`/api/words/${id}`),
-  due: (token: string, limit = 20) =>
-    request<{ data: WordWithProgress[] }>(
-      `/api/words/due${buildQuery({ limit })}`,
-      { token }
-    ),
+  due: (token: string, limit = 20, opts?: { mode?: 'writer' }) => {
+    const q: Record<string, string | number> = { limit };
+    if (opts?.mode === 'writer') q.mode = 'writer';
+    return request<{ data: WordWithProgress[] }>(`/api/words/due${buildQuery(q)}`, { token });
+  },
   update: (token: string, id: number, body: Partial<Word>) =>
     request<{ message: string }>(`/api/words/${id}`, {
       method: 'PUT',

@@ -6,7 +6,10 @@
     "dev": "turbo run dev",
     "build": "turbo run build",
     "lint": "turbo run lint",
-    "type-check": "turbo run type-check"
+    "type-check": "turbo run type-check",
+    "preview:web": "pnpm --filter @chinese-app/web preview",
+    "serve:web": "pnpm --filter @chinese-app/web serve",
+    "release:web": "pnpm --filter @chinese-app/web release"
   },
   "devDependencies": {
     "turbo": "^2.5.3",

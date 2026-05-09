@@ -23,7 +23,7 @@ export function CardFront({ word }: Props) {
         <ToneBar tone={firstTone} width={80} height={32} />
       </View>
       <View style={styles.listenBlock}>
-        <PronounceButton wordId={word.id} size="lg" />
+        <PronounceButton wordId={word.id} meaningMn={word.meaning_mn} size="lg" />
         <Text style={styles.backHint}>{mn.study.meaningOnBack}</Text>
       </View>
     </View>

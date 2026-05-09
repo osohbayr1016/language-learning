@@ -20,7 +20,7 @@ export function VocabSheet({ word, onClose }: Props) {
           <ToneColoredText hanzi={word.hanzi} tones={parseTones(word.tones)} size="lg" />
           <PinyinRow pinyin={word.pinyin} size="lg" />
           <Text style={styles.meaning}>{word.meaning_mn}</Text>
-          <PronounceButton wordId={word.id} size="lg" showHints style={styles.btn} />
+          <PronounceButton wordId={word.id} meaningMn={word.meaning_mn} size="lg" showHints style={styles.btn} />
           {word.example_zh ? (
             <View style={styles.example}>
               <Text style={styles.exampleZh}>{word.example_zh}</Text>

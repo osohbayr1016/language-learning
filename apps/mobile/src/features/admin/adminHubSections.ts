@@ -1,22 +1,8 @@
-import type { ComponentProps } from 'react';
-import type { Href } from 'expo-router';
-import { Ionicons } from '@expo/vector-icons';
 import type { AdminStats } from '../../lib/api/admin';
 import { mn } from '../../i18n/mn';
 import { colors } from '../../theme';
-
-type IonName = ComponentProps<typeof Ionicons>['name'];
-
-export type HubRowDef = {
-  key: string;
-  label: string;
-  hint: string;
-  href: Href;
-  icon: IonName;
-  tint: string;
-};
-
-export type HubSectionDef = { title: string; items: HubRowDef[] };
+import { buildAdminStudyModeHubItems } from './adminStudyModeHubItems';
+import type { HubSectionDef } from './adminHubTypes';
 
 function hskWordCountsLine(w: Record<string, number> | undefined): string {
   if (!w) return '';
@@ -26,7 +12,7 @@ function hskWordCountsLine(w: Record<string, number> | undefined): string {
 export function buildAdminHubSections(stats: AdminStats | null): HubSectionDef[] {
   const a = mn.admin;
   const dashHint = stats
-    ? `${stats.users} хэрэглэгч · ${stats.words} үг · ${stats.lessons_total} хичээл`
+    ? `${stats.users} ${a.hubStatsUsers} · ${stats.words} үг · ${stats.lessons_total} хичээл · ${a.hubStatsLink}`
     : a.dashHint;
   const pathHint = stats
     ? `${stats.chapters_total} бүлэг · ${stats.lessons_total} хичээл · ${stats.lesson_word_links} слот`
@@ -34,6 +20,7 @@ export function buildAdminHubSections(stats: AdminStats | null): HubSectionDef[]
   const vocHint = stats
     ? `${stats.words} үг · HSK ${hskWordCountsLine(stats.words_by_hsk)}`
     : a.vocHint;
+
   return [
     {
       title: a.hubSectionStats,
@@ -43,22 +30,35 @@ export function buildAdminHubSections(stats: AdminStats | null): HubSectionDef[]
           label: a.dashboard,
           hint: dashHint,
           href: '/admin/dashboard',
-          icon: 'speedometer-outline',
+          icon: 'analytics-outline',
           tint: colors.brand.secondary,
         },
       ],
     },
     {
-      title: a.hubSectionContent,
+      title: a.hubSectionCourses,
       items: [
+        {
+          key: 'hsk1',
+          label: a.hsk1LessonsList,
+          hint: a.hsk1LessonsListHint,
+          href: '/admin/hsk1-lessons',
+          icon: 'list-circle-outline',
+          tint: colors.brand.primary,
+        },
         {
           key: 'path',
           label: a.learningPath,
           hint: pathHint,
           href: '/admin/learning-path',
           icon: 'git-branch-outline',
-          tint: colors.brand.primary,
+          tint: colors.hsk[2],
         },
+      ],
+    },
+    {
+      title: a.hubSectionWords,
+      items: [
         {
           key: 'voc',
           label: a.vocabulary,
@@ -68,20 +68,29 @@ export function buildAdminHubSections(stats: AdminStats | null): HubSectionDef[]
           tint: colors.hsk[3],
         },
         {
-          key: 'cart',
-          label: a.cartoons,
-          hint: a.cartHint,
-          href: '/admin/cartoons',
-          icon: 'film-outline',
-          tint: colors.accent.amber,
-        },
-        {
           key: 'hanzi',
           label: a.newHanziWord,
           hint: a.hanziHint,
           href: '/admin/words',
           icon: 'create-outline',
           tint: colors.accent.teal,
+        },
+      ],
+    },
+    {
+      title: a.hubSectionStudyModes,
+      items: buildAdminStudyModeHubItems(),
+    },
+    {
+      title: a.hubSectionMedia,
+      items: [
+        {
+          key: 'cart',
+          label: a.cartoons,
+          hint: a.cartHint,
+          href: '/admin/cartoons',
+          icon: 'film-outline',
+          tint: colors.accent.amber,
         },
       ],
     },
@@ -100,3 +109,5 @@ export function buildAdminHubSections(stats: AdminStats | null): HubSectionDef[]
     },
   ];
 }
+
+export type { HubRowDef, HubSectionDef } from './adminHubTypes';

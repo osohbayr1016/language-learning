@@ -8,6 +8,7 @@ import { api } from '../../lib/api';
 import type { AdminStats } from '../../lib/api/admin';
 import { colors, spacing, typography } from '../../theme';
 import { AdminHubRow } from './AdminHubRow';
+import { AdminHubStatsStrip } from './AdminHubStatsStrip';
 import { buildAdminHubSections } from './adminHubSections';
 
 export function AdminHubScreen() {
@@ -45,6 +46,7 @@ export function AdminHubScreen() {
     <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
       <Text style={styles.title}>{mn.admin.hubTitle}</Text>
       <Text style={styles.intro}>{mn.admin.hubIntro}</Text>
+      <AdminHubStatsStrip stats={hubStats} />
 
       {sections.map((sec) => (
         <View key={sec.title} style={styles.section}>

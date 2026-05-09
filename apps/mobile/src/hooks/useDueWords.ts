@@ -3,7 +3,7 @@ import { useAuth } from '../context/AuthContext';
 import type { WordWithProgress } from '../lib/types';
 import { fetchStudyWords } from '../lib/study/fetchStudyWords';
 
-export function useDueWords(limit = 20) {
+export function useDueWords(limit = 20, mode?: 'writer') {
   const { token } = useAuth();
   const [words, setWords] = useState<WordWithProgress[]>([]);
   const [loading, setLoading] = useState(true);
@@ -13,7 +13,7 @@ export function useDueWords(limit = 20) {
     setLoading(true);
     setError(null);
     try {
-      const next = await fetchStudyWords(token, limit);
+      const next = await fetchStudyWords(token, limit, mode);
       setWords(next);
     } catch (e) {
       setError((e as Error).message);
@@ -21,7 +21,7 @@ export function useDueWords(limit = 20) {
     } finally {
       setLoading(false);
     }
-  }, [token, limit]);
+  }, [token, limit, mode]);
 
   useEffect(() => { void refresh(); }, [refresh]);
 

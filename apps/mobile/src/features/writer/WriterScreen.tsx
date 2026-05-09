@@ -13,7 +13,7 @@ import { CharacterPicker } from './CharacterPicker';
 import { AccuracyMeter } from './AccuracyMeter';
 
 export default function WriterScreen() {
-  const { words, loading, error } = useDueWords(8);
+  const { words, loading, error } = useDueWords(8, 'writer');
   const { save } = useGameSession();
   const { width } = useWindowDimensions();
   const canvasSize = Math.min(width - spacing.lg * 2, 320);

@@ -4,6 +4,7 @@ import { useRouter } from 'expo-router';
 import { Screen } from '../../primitives';
 import { colors, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
+import { useAuth } from '../../context/AuthContext';
 import { useLessonSession } from './useLessonSession';
 import { LessonHeader } from './LessonHeader';
 import { LoadingScreen } from './LoadingScreen';
@@ -23,6 +24,7 @@ type Props = { lessonId: number };
 
 export function LessonScreen({ lessonId }: Props) {
   const router = useRouter();
+  const { isAdmin } = useAuth();
   const { state, current, submit, advance, finalize, accuracy } = useLessonSession(lessonId);
   const [banner, setBanner] = useState<{ correct: boolean } | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
@@ -92,6 +94,9 @@ export function LessonScreen({ lessonId }: Props) {
           progress={progress}
           onClose={() => setLeaveOpen(true)}
           onMore={() => setMoreOpen(true)}
+          onAdminEdit={
+            isAdmin ? () => router.push(`/admin/lesson/${lessonId}` as never) : undefined
+          }
         />
       </View>
 

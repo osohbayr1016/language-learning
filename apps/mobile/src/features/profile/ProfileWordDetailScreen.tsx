@@ -96,7 +96,7 @@ export function ProfileWordDetailScreen() {
             <ToneBar tone={firstTone} width={80} height={32} />
           </View>
           <View style={styles.listen}>
-            <PronounceButton wordId={word.id} size="lg" />
+            <PronounceButton wordId={word.id} meaningMn={word.meaning_mn} size="lg" />
           </View>
           <Text style={styles.py}>{word.pinyin}</Text>
           <Text style={styles.mean}>{word.meaning_mn}</Text>

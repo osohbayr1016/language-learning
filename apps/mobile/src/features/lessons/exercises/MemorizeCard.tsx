@@ -20,7 +20,7 @@ export function MemorizeCard({ exercise, disabled, onAnswer }: Props) {
         <ToneColoredText hanzi={w.hanzi} tones={w.tones} size="lg" />
         <PinyinRow pinyin={w.pinyin} size="lg" />
         <Text style={styles.meaning}>{w.meaning_mn}</Text>
-        <PronounceButton wordId={w.id} size="lg" style={{ marginTop: spacing.lg }} showHints />
+        <PronounceButton wordId={w.id} meaningMn={w.meaning_mn} size="lg" style={{ marginTop: spacing.lg }} showHints />
       </View>
       <Button
         label="Цээжиллээ"

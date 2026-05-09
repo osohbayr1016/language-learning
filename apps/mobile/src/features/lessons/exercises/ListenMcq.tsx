@@ -23,7 +23,7 @@ export function ListenMcq({ exercise, disabled, onAnswer }: Props) {
   return (
     <View style={styles.root}>
       <View style={styles.audio}>
-        <PronounceButton wordId={exercise.word.id} size="lg" showHints />
+        <PronounceButton wordId={exercise.word.id} meaningMn={exercise.word.meaning_mn} size="lg" showHints />
       </View>
       <View style={styles.list}>
         {exercise.options.map((opt) => {

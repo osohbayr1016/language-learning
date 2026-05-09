@@ -3,16 +3,23 @@ const path = require('path');
 
 const projectRoot = __dirname;
 const workspaceRoot = path.resolve(projectRoot, '../..');
+const rootNodeModules = path.resolve(workspaceRoot, 'node_modules');
 
 const config = getDefaultConfig(projectRoot);
 
 // 1. Watch all files within the monorepo
 config.watchFolders = [workspaceRoot];
 
-// 2. Let Metro know where to resolve packages and in what order
+// 2. pnpm + node-linker=hoisted: deps live in repo root — check root first
 config.resolver.nodeModulesPaths = [
+  rootNodeModules,
   path.resolve(projectRoot, 'node_modules'),
-  path.resolve(workspaceRoot, 'node_modules'),
 ];
+
+// 3. Web / SSR bundling still resolves from package dir — force hoisted native modules
+config.resolver.extraNodeModules = {
+  ...(config.resolver.extraNodeModules ?? {}),
+  'expo-speech': path.join(rootNodeModules, 'expo-speech'),
+};
 
 module.exports = config;

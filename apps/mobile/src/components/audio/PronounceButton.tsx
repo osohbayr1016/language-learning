@@ -1,16 +1,19 @@
 import React, { useState } from 'react';
-import { Pressable, StyleSheet, Text, View, ViewStyle } from 'react-native';
+import { Pressable, Text, View, ViewStyle } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import {
   Gesture,
   GestureDetector,
 } from 'react-native-gesture-handler';
 import { useAudio } from '../../context/AudioContext';
-import { colors, radius, spacing, typography } from '../../theme';
+import { colors } from '../../theme';
 import { gestureToAction, type GestureKind } from '../../lib/audio/engine';
+import { pronounceButtonStyles as styles } from './pronounceButtonStyles';
 
 type Props = {
   wordId: number;
+  /** Монгол орчуулгыг төхөөрөмжөөр унших */
+  meaningMn?: string;
   /** Гол үгийн ханз; displayText-тэй хамт өгөгдөхөд өгүүлбэрийн дуу сонсогдоно */
   wordHanzi?: string;
   /** Картад харуулж буй бүтэн текст (жишээ өгүүлбэр) */
@@ -23,6 +26,7 @@ type Props = {
 
 export function PronounceButton({
   wordId,
+  meaningMn,
   wordHanzi,
   displayText,
   size = 'md',
@@ -30,7 +34,7 @@ export function PronounceButton({
   style,
   showHints = false,
 }: Props) {
-  const { playWord, playPhrase } = useAudio();
+  const { playWord, playPhrase, playMeaningMn } = useAudio();
   const [active, setActive] = useState<'idle' | 'tap' | 'hold' | 'doubleTap'>('idle');
 
   const useFullPhrase =
@@ -75,61 +79,45 @@ export function PronounceButton({
   const dim: Record<string, number> = { sm: 36, md: 48, lg: 64 };
   const iconSize: Record<string, number> = { sm: 18, md: 22, lg: 30 };
 
+  const mnTrim = typeof meaningMn === 'string' ? meaningMn.trim() : '';
+
   return (
     <View style={[styles.wrap, style]}>
-      <GestureDetector gesture={composed}>
-        <Pressable
-          accessibilityRole="button"
-          accessibilityLabel="Дуудлага сонсох"
-          style={[
-            styles.btn,
-            { width: dim[size], height: dim[size], backgroundColor: color },
-            active === 'hold' && styles.holdGlow,
-          ]}
-        >
-          <Ionicons
-            name={active === 'hold' ? 'play' : 'volume-high'}
-            size={iconSize[size]}
-            color={colors.text.primary}
-          />
-          {active === 'hold' ? <Text style={styles.badge}>удаан</Text> : null}
-        </Pressable>
-      </GestureDetector>
+      <View style={styles.row}>
+        <GestureDetector gesture={composed}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Дуудлага сонсох"
+            style={[
+              styles.btn,
+              { width: dim[size], height: dim[size], backgroundColor: color },
+              active === 'hold' && styles.holdGlow,
+            ]}
+          >
+            <Ionicons
+              name={active === 'hold' ? 'play' : 'volume-high'}
+              size={iconSize[size]}
+              color={colors.text.primary}
+            />
+            {active === 'hold' ? <Text style={styles.badge}>удаан</Text> : null}
+          </Pressable>
+        </GestureDetector>
+        {mnTrim ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel="Орчуулга сонсох"
+            onPress={() => { void playMeaningMn(mnTrim); }}
+            style={[styles.mnBtn, { minHeight: dim[size] }]}
+          >
+            <Text style={styles.mnBtnText}>MN</Text>
+          </Pressable>
+        ) : null}
+      </View>
       {showHints ? (
-        <Text style={styles.hint}>тап · удаан барих · 2 дарах</Text>
+        <Text style={styles.hint}>
+          {mnTrim ? 'тап · удаан барих · 2 дарах · MN орчуулга' : 'тап · удаан барих · 2 дарах'}
+        </Text>
       ) : null}
     </View>
   );
 }
-
-const styles = StyleSheet.create({
-  wrap: {
-    width: '100%',
-    alignItems: 'center',
-  },
-  btn: {
-    borderRadius: radius.full,
-    alignItems: 'center',
-    justifyContent: 'center',
-  },
-  holdGlow: {
-    shadowColor: colors.warning,
-    shadowOffset: { width: 0, height: 0 },
-    shadowOpacity: 0.6,
-    shadowRadius: 12,
-    elevation: 6,
-  },
-  badge: {
-    position: 'absolute',
-    bottom: -18,
-    ...typography.body.sm,
-    color: colors.warning,
-    fontWeight: '600',
-  },
-  hint: {
-    ...typography.body.sm,
-    color: colors.text.muted,
-    marginTop: spacing.sm,
-    textAlign: 'center',
-  },
-});

@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { colors, radius, spacing, typography } from '../../theme';
-import type { HubRowDef } from './adminHubSections';
+import type { HubRowDef } from './adminHubTypes';
 
 type Props = { item: HubRowDef; onPress: () => void; showDivider: boolean };
 

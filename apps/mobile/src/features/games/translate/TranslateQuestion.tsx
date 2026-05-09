@@ -21,7 +21,7 @@ export function TranslateQuestion({ word, direction }: Props) {
         <View style={styles.center}>
           <ToneColoredText hanzi={word.hanzi} tones={tones} size="lg" />
           <PinyinRow pinyin={word.pinyin} size="md" />
-          <PronounceButton wordId={word.id} size="md" style={{ marginTop: spacing.sm }} />
+          <PronounceButton wordId={word.id} meaningMn={word.meaning_mn} size="md" style={{ marginTop: spacing.sm }} />
         </View>
       ) : (
         <View style={styles.center}>
