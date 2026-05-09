@@ -7,7 +7,11 @@
     "android": "expo start --android",
     "ios": "expo start --ios",
     "web": "expo start --web",
-    "type-check": "tsc --noEmit"
+    "type-check": "tsc --noEmit",
+    "doctor": "expo-doctor",
+    "eas:build:ios": "eas build --platform ios --profile production",
+    "eas:build:android": "eas build --platform android --profile production",
+    "eas:build:preview": "eas build --profile preview"
   },
   "dependencies": {
     "@chinese-app/srs": "workspace:*",
@@ -42,6 +46,8 @@
   },
   "devDependencies": {
     "@types/react": "~19.1.0",
+    "eas-cli": "^18.11.0",
+    "expo-doctor": "^1.18.21",
     "typescript": "~5.9.2"
   },
   "private": true

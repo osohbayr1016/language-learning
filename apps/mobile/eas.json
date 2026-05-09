@@ -1,0 +1,35 @@
+{
+  "cli": {
+    "version": ">=16.0.0",
+    "appVersionSource": "local"
+  },
+  "build": {
+    "development": {
+      "developmentClient": true,
+      "distribution": "internal",
+      "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "preview": {
+      "distribution": "internal",
+      "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+      "android": {
+        "buildType": "apk"
+      }
+    },
+    "production": {
+      "installCommand": "cd ../.. && pnpm install --frozen-lockfile",
+      "android": {
+        "buildType": "app-bundle"
+      },
+      "env": {
+        "EXPO_PUBLIC_API_URL": "https://chinese-learning-api.osohoo691016.workers.dev"
+      }
+    }
+  },
+  "submit": {
+    "production": {}
+  }
+}
