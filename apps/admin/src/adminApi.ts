@@ -24,12 +24,6 @@ export const adminApi = {
       if (params?.offset) q.set('offset', String(params.offset));
       return req<{ data: unknown[] }>(`/api/admin/users?${q}`, { token });
     },
-    extendPremium: (token: string, userId: number, extend_months = 1) =>
-      req<{ message: string }>(`/api/admin/users/${userId}`, {
-        method: 'PATCH',
-        token,
-        body: JSON.stringify({ extend_months }),
-      }),
   },
 
   chapters: {

@@ -8,7 +8,6 @@ export type AdminUserRow = {
   email: string;
   display_name: string;
   is_admin: number;
-  premium_until: string | null;
   created_at: string;
 };
 
@@ -38,11 +37,6 @@ export const adminApi = {
   ...adminPaths,
   users: (token: string, params: { limit?: number; offset?: number } = {}) =>
     request<{ data: AdminUserRow[] }>(`/api/admin/users${buildQuery(params)}`, { token }),
-  extendPremium: (token: string, userId: number, extend_months = 1) =>
-    request<{ message: string; data?: { premium_until: string } }>(
-      `/api/admin/users/${userId}`,
-      { method: 'PATCH', token, body: JSON.stringify({ extend_months }) }
-    ),
   validateWordsBulk: (
     token: string,
     body: { words: AdminCreateWordBody[]; hsk_level?: number; textbook_unit?: string | null }

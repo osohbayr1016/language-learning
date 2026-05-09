@@ -3,7 +3,6 @@ import {
   ActivityIndicator,
   Alert,
   FlatList,
-  Pressable,
   StyleSheet,
   Text,
   View,
@@ -17,7 +16,6 @@ export default function AdminUsersScreen() {
   const { token } = useAuth();
   const [rows, setRows] = useState<AdminUserRow[]>([]);
   const [loading, setLoading] = useState(true);
-  const [busyId, setBusyId] = useState<number | null>(null);
 
   const load = useCallback(async () => {
     if (!token) {
@@ -41,20 +39,6 @@ export default function AdminUsersScreen() {
     void load();
   }, [load]);
 
-  const extendOne = async (id: number) => {
-    if (!token) return;
-    setBusyId(id);
-    try {
-      await api.admin.extendPremium(token, id, 1);
-      await load();
-      Alert.alert('Амжилттай', 'Premium 1 сараар сунгагдлаа');
-    } catch (e) {
-      Alert.alert('Алдаа', (e as Error).message);
-    } finally {
-      setBusyId(null);
-    }
-  };
-
   if (loading) {
     return (
       <View style={styles.center}>
@@ -72,22 +56,12 @@ export default function AdminUsersScreen() {
         onRefresh={() => void load()}
         renderItem={({ item }) => (
           <View style={styles.row}>
-            <View style={styles.rowMain}>
-              <Text style={styles.email} numberOfLines={1}>
-                {item.email}
-              </Text>
-              <Text style={styles.meta} numberOfLines={1}>
-                {item.display_name} · admin:{item.is_admin ? 'тийм' : 'үгүй'}
-              </Text>
-              <Text style={styles.meta}>Premium: {item.premium_until ?? '—'}</Text>
-            </View>
-            <Pressable
-              style={styles.smallBtn}
-              disabled={busyId === item.id}
-              onPress={() => void extendOne(item.id)}
-            >
-              <Text style={styles.smallBtnTxt}>+1 сар</Text>
-            </Pressable>
+            <Text style={styles.email} numberOfLines={1}>
+              {item.email}
+            </Text>
+            <Text style={styles.meta} numberOfLines={1}>
+              {item.display_name} · админ:{item.is_admin ? 'тийм' : 'үгүй'}
+            </Text>
           </View>
         )}
       />
@@ -99,22 +73,11 @@ const styles = StyleSheet.create({
   root: { flex: 1, backgroundColor: colors.bg.primary },
   center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
   row: {
-    flexDirection: 'row',
-    alignItems: 'center',
     paddingHorizontal: spacing.md,
     paddingVertical: spacing.sm,
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
-    gap: spacing.sm,
   },
-  rowMain: { flex: 1, minWidth: 0 },
   email: { ...typography.heading.sm, color: colors.text.primary },
   meta: { ...typography.body.sm, color: colors.text.secondary, marginTop: 2 },
-  smallBtn: {
-    paddingVertical: spacing.xs,
-    paddingHorizontal: spacing.sm,
-    backgroundColor: colors.accent.teal,
-    borderRadius: 8,
-  },
-  smallBtnTxt: { ...typography.body.sm, color: '#fff', fontWeight: '700' },
 });

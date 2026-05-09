@@ -8,14 +8,12 @@ type Row = {
   email: string;
   display_name: string;
   is_admin: number;
-  premium_until: string | null;
 };
 
 export function UsersAdminView({ token }: Props) {
   const [rows, setRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [busyId, setBusyId] = useState<number | null>(null);
 
   const load = () => {
     setLoading(true);
@@ -29,18 +27,6 @@ export function UsersAdminView({ token }: Props) {
   useEffect(() => {
     load();
   }, [token]);
-
-  const extend = async (id: number) => {
-    setBusyId(id);
-    try {
-      await adminApi.users.extendPremium(token, id, 1);
-      load();
-    } catch (e) {
-      setError((e as Error).message);
-    } finally {
-      setBusyId(null);
-    }
-  };
 
   return (
     <div>
@@ -61,8 +47,6 @@ export function UsersAdminView({ token }: Props) {
                   <th>И-мэйл</th>
                   <th>Нэр</th>
                   <th>Админ</th>
-                  <th>Premium</th>
-                  <th />
                 </tr>
               </thead>
               <tbody>
@@ -72,17 +56,6 @@ export function UsersAdminView({ token }: Props) {
                     <td>{u.email}</td>
                     <td>{u.display_name}</td>
                     <td>{u.is_admin ? 'Тийм' : 'Үгүй'}</td>
-                    <td>{u.premium_until ?? '—'}</td>
-                    <td>
-                      <button
-                        type="button"
-                        className="btn-small"
-                        disabled={busyId === u.id}
-                        onClick={() => void extend(u.id)}
-                      >
-                        +1 сар
-                      </button>
-                    </td>
                   </tr>
                 ))}
               </tbody>

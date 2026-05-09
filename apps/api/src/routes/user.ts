@@ -15,7 +15,7 @@ user.route('/vocabulary', userVocabularyRoutes);
 user.get('/profile', async (c) => {
   const { sub } = c.get('user');
   const profile = await c.env.DB.prepare(
-    'SELECT id, email, display_name, avatar_url, premium_until, created_at, is_admin FROM users WHERE id = ?'
+    'SELECT id, email, display_name, avatar_url, created_at, is_admin FROM users WHERE id = ?'
   ).bind(sub).first();
   if (!profile) return c.json({ error: 'Хэрэглэгч олдсонгүй' }, 404);
   return c.json({ data: profile });
@@ -51,7 +51,7 @@ user.get('/dashboard', async (c) => {
   await syncUserStatsAggregates(c.env.DB, sub);
   const [profile, streakRaw, statsRaw, dueToday] = await Promise.all([
     c.env.DB.prepare(
-      'SELECT id, email, display_name, avatar_url, premium_until FROM users WHERE id = ?'
+      'SELECT id, email, display_name, avatar_url FROM users WHERE id = ?'
     ).bind(sub).first(),
     c.env.DB.prepare('SELECT * FROM user_streaks WHERE user_id = ?').bind(sub).first(),
     c.env.DB.prepare('SELECT * FROM user_stats WHERE user_id = ?').bind(sub).first(),

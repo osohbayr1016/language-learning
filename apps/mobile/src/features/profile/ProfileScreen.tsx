@@ -1,5 +1,5 @@
 import React, { useCallback, useEffect, useState } from 'react';
-import { Alert, Platform, Text, View } from 'react-native';
+import { Alert, Platform } from 'react-native';
 import { type Href, useRouter, useFocusEffect } from 'expo-router';
 import { Screen } from '../../primitives';
 import { useAuth } from '../../context/AuthContext';
@@ -8,7 +8,6 @@ import { api } from '../../lib/api';
 import type { Profile } from '../../lib/api/user';
 import { isTruthyAdmin } from '../../lib/auth/isTruthyAdmin';
 import { mn } from '../../i18n/mn';
-import { colors, spacing } from '../../theme';
 import { ProfileHeader } from './ProfileHeader';
 import { StatsGrid } from './StatsGrid';
 import { ProfileMenu } from './ProfileMenu';
@@ -68,13 +67,6 @@ export default function ProfileScreen() {
         email={profile?.email ?? ''}
         avatar={profile?.avatar_url}
       />
-      {profile?.premium_until ? (
-        <View style={{ paddingHorizontal: spacing.md, paddingBottom: spacing.sm }}>
-          <Text style={{ fontSize: 13, color: colors.text.secondary }}>
-            {mn.profile.premiumUntil}: {new Date(profile.premium_until).toLocaleDateString()}
-          </Text>
-        </View>
-      ) : null}
       <StatsGrid stats={stats} streak={streak} />
       <ProfileShareStreakCard
         streak={streak?.current_streak ?? 0}

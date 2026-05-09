@@ -6,8 +6,11 @@ import { Button, Screen } from '../../../primitives';
 import { MandarinSpeechCard } from '../../../components/practice/MandarinSpeechCard';
 import { useRandomWords } from '../../../hooks/useRandomWords';
 import { StudyHeader } from '../StudyHeader';
-import { mn } from '../../../i18n/mn';
 import { colors, spacing } from '../../../theme';
+
+const SPEAK_TITLE = 'Speak';
+const SPEAK_DESC = 'Use the mic to say the target phrase in Mandarin (web and device).';
+const SPEAK_SESSION_AVG = 'Session average ({count} items): {avg}/100';
 
 export default function SpeakPracticeScreen() {
   const router = useRouter();
@@ -22,6 +25,10 @@ export default function SpeakPracticeScreen() {
   const [sessionCount, setSessionCount] = useState(0);
   const current = pool[idx] ?? null;
   const sessionAvg = sessionCount > 0 ? Math.round(sessionSum / sessionCount) : null;
+  const sessionAvgLabel =
+    sessionAvg !== null
+      ? SPEAK_SESSION_AVG.replace('{count}', String(sessionCount)).replace('{avg}', String(sessionAvg))
+      : null;
 
   const next = () => {
     if (idx + 1 >= pool.length) {
@@ -45,27 +52,22 @@ export default function SpeakPracticeScreen() {
   if (error || !current) {
     return (
       <Screen scroll>
-        <StudyHeader title={mn.study.speak} index={0} total={1} />
-        <Text style={styles.err}>{error ?? mn.study.wordsLoadError}</Text>
-        <Button label={mn.common.back} onPress={() => safeBack(router, '/(tabs)/study')} />
+        <StudyHeader title={SPEAK_TITLE} index={0} total={1} />
+        <Text style={styles.err}>{error ?? 'Could not load words.'}</Text>
+        <Button label="Back" onPress={() => safeBack(router, '/(tabs)/study')} />
       </Screen>
     );
   }
 
   return (
     <Screen scroll scrollBottomInset={24}>
-      <StudyHeader title={mn.study.speak} index={idx} total={pool.length} />
-      <Text style={styles.sub}>{mn.study.speakDesc}</Text>
-      {sessionAvg !== null ? (
-        <Text style={styles.sessionAvg}>
-          {mn.study.speakSessionAvg
-            .replace('{count}', String(sessionCount))
-            .replace('{avg}', String(sessionAvg))}
-        </Text>
-      ) : null}
+      <StudyHeader title={SPEAK_TITLE} index={idx} total={pool.length} />
+      <Text style={styles.sub}>{SPEAK_DESC}</Text>
+      {sessionAvgLabel ? <Text style={styles.sessionAvg}>{sessionAvgLabel}</Text> : null}
       <MandarinSpeechCard
         key={`speak-${idx}-${current.id}`}
         word={current}
+        hideMongolian
         onEvaluated={() => setRoundDone(true)}
         onScore={(n) => {
           setSessionSum((s) => s + n);
@@ -74,7 +76,7 @@ export default function SpeakPracticeScreen() {
       />
       {roundDone ? (
         <View style={styles.footer}>
-          <Button label={mn.common.next} onPress={next} />
+          <Button label="Next" onPress={next} />
         </View>
       ) : null}
     </Screen>

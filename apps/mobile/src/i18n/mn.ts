@@ -3,7 +3,6 @@ import { lesson } from './strings/lesson';
 import { insights } from './strings/insights';
 import { study } from './strings/study';
 import { games } from './strings/games';
-import { premium } from './strings/premium';
 
 export const mn = {
   appName: 'Хятад Хэл',
@@ -81,7 +80,6 @@ export const mn = {
     adminNeedRole:
       'Энэ хэсэгт сервер дээр таны бүртгэлд админ эрх (users.is_admin = 1) байх ёстой. Эрх олгосны дараа «Эрх шалгах» дарна уу.',
     adminCheckRole: 'Эрх шалгах',
-    premiumUntil: 'Premium хүртэл',
     signOut: 'Гарах',
     signOutConfirm: 'Та гарахдаа итгэлтэй байна уу?',
     micTest: 'Микрофон шалгах',
@@ -117,7 +115,6 @@ export const mn = {
   },
   lesson,
   insights,
-  premium,
   admin: {
     hubTitle: 'Админ самбар',
     hubIntro: 'Курс, үг, сурах горимуудад нэг дороос орох.',
@@ -147,7 +144,7 @@ export const mn = {
     pathHint: 'HSK бүлэг, хичээл, картанд орох хүлээлт',
     vocHint: 'Үг хайх, засах, устгах',
     cartHint: 'Видео оруулах, үг цагтай холбох',
-    usersHint: 'Жагсаалт, premium сунгалт',
+    usersHint: 'Жагсаалт',
     hanziHint:
       'Нэг ханз оруул — Writer горим зөвхөн эдгээр үгийг татаж, зураасны дарааллыг апп тооцно.',
     dashboard: 'Хянах самбар',

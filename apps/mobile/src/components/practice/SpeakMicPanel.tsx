@@ -13,6 +13,9 @@ type Props = {
   liveTranscript: string;
   outcome: string;
   errorMessage: string | null;
+  /** Override default MN helper while mic is live. */
+  listeningHint?: string;
+  liveTranscriptLabel?: string;
 };
 
 export function SpeakMicPanel({
@@ -24,7 +27,12 @@ export function SpeakMicPanel({
   liveTranscript,
   outcome,
   errorMessage,
+  listeningHint,
+  liveTranscriptLabel,
 }: Props) {
+  const hintWhileListening =
+    listeningHint ?? mn.study.speakListeningHint;
+  const liveLbl = liveTranscriptLabel ?? mn.study.speakLiveLabel;
   return (
     <View style={styles.micWrap}>
       <Pressable
@@ -44,7 +52,7 @@ export function SpeakMicPanel({
       </Pressable>
       <Text style={styles.helper}>
         {activeMic
-          ? `${mn.study.speakListeningHint}${liveTranscript ? `\n${mn.study.speakLiveLabel} «${liveTranscript}»` : ''}`
+          ? `${hintWhileListening}${liveTranscript ? `\n${liveLbl} «${liveTranscript}»` : ''}`
           : outcome}
       </Text>
       {errorMessage ? <Text style={styles.error}>{errorMessage}</Text> : null}

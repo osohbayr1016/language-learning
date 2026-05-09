@@ -12,6 +12,8 @@ type Props = {
   tones: string | null;
   exampleAside: string | null;
   pronounceStyle?: ViewStyle;
+  /** When false, hide Mongolian gloss and the MN audio shortcut on pronounce controls. */
+  showMongolianMeaning?: boolean;
 };
 
 export function SpeakWordCardFace({
@@ -21,16 +23,19 @@ export function SpeakWordCardFace({
   tones,
   exampleAside,
   pronounceStyle,
+  showMongolianMeaning = true,
 }: Props) {
   return (
     <View style={styles.card}>
       <ToneColoredText hanzi={hanzi} tones={tones ?? undefined} size="md" />
       <PinyinRow pinyin={pinyin} size="md" />
       {exampleAside ? <Text style={styles.exampleHint}>{exampleAside}</Text> : null}
-      <Text style={styles.translation}>{word.example_mn ?? word.meaning_mn}</Text>
+      {showMongolianMeaning ? (
+        <Text style={styles.translation}>{word.example_mn ?? word.meaning_mn}</Text>
+      ) : null}
       <PronounceButton
         wordId={word.id}
-        meaningMn={word.meaning_mn}
+        meaningMn={showMongolianMeaning ? word.meaning_mn : undefined}
         wordHanzi={word.hanzi}
         displayText={hanzi}
         size="md"

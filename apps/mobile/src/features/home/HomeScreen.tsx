@@ -1,5 +1,4 @@
 import React, { useEffect, useState } from 'react';
-import { useRouter } from 'expo-router';
 import { Screen } from '../../primitives';
 import { useGamification } from '../../context/GamificationContext';
 import { useAuth } from '../../context/AuthContext';
@@ -10,11 +9,9 @@ import { DailyGoalCard } from './DailyGoalCard';
 import { QuickActions } from './QuickActions';
 import { ExploreRow } from './ExploreRow';
 import { LeaderboardPreview } from './LeaderboardPreview';
-import { PremiumBanner } from './PremiumBanner';
 import { Hsk1JourneySummaryCard } from './Hsk1JourneySummaryCard';
 
 export default function HomeScreen() {
-  const router = useRouter();
   const { stats, streak, dueToday, dailyGoal, refresh } = useGamification();
   const { token } = useAuth();
   const [name, setName] = useState('Сурагч');
@@ -35,7 +32,6 @@ export default function HomeScreen() {
   return (
     <Screen scroll scrollBottomInset={70}>
       <HomeHeader name={name} streak={streak?.current_streak ?? 0} />
-      <PremiumBanner onPress={() => router.push('/premium')} />
       <Hsk1JourneySummaryCard />
       <DueTodayCard dueCount={dueToday} />
       <DailyGoalCard totalXp={stats?.total_xp ?? 0} goal={dailyGoal} />

@@ -20,7 +20,6 @@ export type Profile = {
   email: string;
   display_name: string;
   avatar_url: string | null;
-  premium_until?: string | null;
   /** D1 `users.is_admin` — 1 = админ */
   is_admin?: number;
 };

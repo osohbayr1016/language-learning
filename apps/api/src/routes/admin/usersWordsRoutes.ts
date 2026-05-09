@@ -11,41 +11,11 @@ usersWords.get('/users', async (c) => {
   const limit = Math.min(Math.max(Math.trunc(Number(c.req.query('limit') ?? 50)), 1), 200);
   const offset = Math.max(Math.trunc(Number(c.req.query('offset') ?? 0)), 0);
   const q = await c.env.DB.prepare(
-    `SELECT id, email, display_name, is_admin, premium_until, created_at
+    `SELECT id, email, display_name, is_admin, created_at
      FROM users ORDER BY id DESC LIMIT ${limit} OFFSET ${offset}`
   ).all();
   const list = Array.isArray(q?.results) ? q.results : [];
   return c.json({ data: list });
-});
-
-usersWords.patch('/users/:id', async (c) => {
-  const id = Number(c.req.param('id'));
-  if (!Number.isFinite(id)) return c.json({ error: 'Буруу id' }, 400);
-  const body = await c.req.json<{ extend_months?: number; premium_until?: string | null }>();
-  const exists = await c.env.DB.prepare('SELECT id, premium_until FROM users WHERE id = ?')
-    .bind(id)
-    .first<{ id: number; premium_until: string | null }>();
-  if (!exists) return c.json({ error: 'Хэрэглэгч олдсонгүй' }, 404);
-
-  if (body.premium_until !== undefined) {
-    await c.env.DB.prepare('UPDATE users SET premium_until = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
-      .bind(body.premium_until, id)
-      .run();
-    return c.json({ message: 'Шинэчлэгдлээ' });
-  }
-
-  const months = Math.min(Math.max(Number(body.extend_months ?? 1), 1), 24);
-  const now = new Date();
-  const cur = exists.premium_until ? new Date(exists.premium_until) : null;
-  const base =
-    cur && !Number.isNaN(cur.getTime()) && cur.getTime() > now.getTime() ? cur : now;
-  const next = new Date(base);
-  next.setMonth(next.getMonth() + months);
-  const iso = next.toISOString();
-  await c.env.DB.prepare('UPDATE users SET premium_until = ?, updated_at = CURRENT_TIMESTAMP WHERE id = ?')
-    .bind(iso, id)
-    .run();
-  return c.json({ message: 'Premium сунгагдлаа', data: { premium_until: iso } });
 });
 
 type BulkOut =
