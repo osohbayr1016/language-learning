@@ -37,6 +37,8 @@ export function StudyHero() {
 
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={`${mn.study.recommended}: ${p.title}`}
       onPress={() => router.push(p.href as never)}
       style={({ pressed }) => [styles.card, pressed && styles.pressed]}
     >

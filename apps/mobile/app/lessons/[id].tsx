@@ -1,8 +1,12 @@
 import React from 'react';
-import { useLocalSearchParams } from 'expo-router';
+import { Redirect, useLocalSearchParams } from 'expo-router';
 import { LessonScreen } from '../../src/features/lessons/LessonScreen';
 
 export default function LessonRoute() {
   const { id } = useLocalSearchParams<{ id: string }>();
-  return <LessonScreen lessonId={Number(id)} />;
+  const lessonId = Number(id);
+  if (!Number.isFinite(lessonId) || lessonId <= 0) {
+    return <Redirect href="/study" />;
+  }
+  return <LessonScreen lessonId={lessonId} />;
 }

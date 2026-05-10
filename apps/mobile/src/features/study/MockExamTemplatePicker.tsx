@@ -13,8 +13,13 @@ type Props = {
 };
 
 export function MockExamTemplatePicker({ templates, onPick, onBack }: Props) {
-  const hsk1 = templates.filter((x) => x.hsk_level === 1);
-  const rows = (hsk1.length ? hsk1 : templates).slice().sort((a, b) => a.id - b.id);
+  const byLevel = new Map<number, typeof templates>();
+  for (const t of templates) {
+    const ls = byLevel.get(t.hsk_level) ?? [];
+    ls.push(t);
+    byLevel.set(t.hsk_level, ls);
+  }
+  const sections = [...byLevel.entries()].sort((a, b) => a[0] - b[0]);
 
   return (
     <View style={styles.pickerWrap}>
@@ -32,13 +37,20 @@ export function MockExamTemplatePicker({ templates, onPick, onBack }: Props) {
       ) : null}
       <Text style={styles.h1}>{mn.study.mockExamPickTitle}</Text>
       <Text style={styles.p}>{mn.study.mockExamPickHint}</Text>
-      {rows.map((t) => (
-        <Pressable key={t.id} style={styles.tplRow} onPress={() => onPick(t.id)}>
-          <Text style={styles.tplTitle}>{t.title}</Text>
-          <Text style={styles.tplMeta}>
-            {t.total_questions} асуултаар · {t.duration_minutes} мин
-          </Text>
-        </Pressable>
+      {sections.map(([lvl, rows]) => (
+        <View key={lvl} style={{ width: '100%' }}>
+          <Text style={[styles.tplMeta, { marginTop: 12, marginBottom: 8, fontWeight: '600' }]}>HSK {lvl}</Text>
+          {[...rows]
+            .sort((a, b) => a.id - b.id)
+            .map((t) => (
+              <Pressable key={t.id} style={styles.tplRow} onPress={() => onPick(t.id)}>
+                <Text style={styles.tplTitle}>{t.title}</Text>
+                <Text style={styles.tplMeta}>
+                  {t.total_questions} асуултаар · {t.duration_minutes} мин
+                </Text>
+              </Pressable>
+            ))}
+        </View>
       ))}
     </View>
   );

@@ -1,11 +1,16 @@
-import React from 'react';
+import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { Button, Screen } from '../../primitives';
 import { useGamification } from '../../context/GamificationContext';
+import { useAuth } from '../../context/AuthContext';
+import { api } from '../../lib/api';
 import { colors, radius, spacing, typography } from '../../theme';
+import { mn } from '../../i18n/mn';
 import { MetricRing } from './MetricRing';
 import { computeSkills } from './skills';
+import { pickNextLessonInChapter } from './pickNextLessonInChapter';
 import type { Exercise, ExerciseResult } from './types';
 
 type Props = {
@@ -15,6 +20,8 @@ type Props = {
   xpEarned: number;
   accuracy: number;
   onContinue: () => void;
+  chapterId?: number;
+  currentOrderNum?: number;
 };
 
 function formatDuration(sec: number): string {
@@ -30,9 +37,37 @@ export function LessonDoneScreen({
   xpEarned,
   accuracy,
   onContinue,
+  chapterId,
+  currentOrderNum,
 }: Props) {
   const { streak } = useGamification();
+  const { token } = useAuth();
+  const router = useRouter();
   const skills = computeSkills(exercises, results);
+  const [nextLesson, setNextLesson] = useState<{ id: number; title_mn: string } | null>(null);
+
+  useEffect(() => {
+    if (!token || chapterId == null || currentOrderNum == null) return;
+    let cancelled = false;
+    void api.lessons
+      .list(token)
+      .then((res) => {
+        if (cancelled) return;
+        const next = pickNextLessonInChapter(res.data, chapterId, currentOrderNum);
+        setNextLesson(next ? { id: next.id, title_mn: next.title_mn } : null);
+      })
+      .catch(() => {
+        if (!cancelled) setNextLesson(null);
+      });
+    return () => {
+      cancelled = true;
+    };
+  }, [token, chapterId, currentOrderNum]);
+
+  const goNext = () => {
+    if (!nextLesson) return;
+    router.replace(`/lessons/${nextLesson.id}` as never);
+  };
 
   return (
     <Screen scroll>
@@ -67,7 +102,20 @@ export function LessonDoneScreen({
         <MetricRing label="Зураас" value={skills.stroke} icon="brush" color={colors.accent.pink} />
       </View>
 
-      <Button label="ҮРГЭЛЖЛҮҮЛЭХ" onPress={onContinue} style={{ marginTop: spacing.xl }} />
+      <View style={styles.btns}>
+        {nextLesson ? (
+          <Button
+            label={`${mn.lesson.continueNextPrefix} ${nextLesson.title_mn}`}
+            onPress={goNext}
+            accessibilityLabel={`${mn.lesson.continueNextPrefix} ${nextLesson.title_mn}`}
+          />
+        ) : null}
+        <Button
+          label={nextLesson ? mn.lesson.backToStudy : 'ҮРГЭЛЖЛҮҮЛЭХ'}
+          variant={nextLesson ? 'secondary' : 'primary'}
+          onPress={onContinue}
+        />
+      </View>
     </Screen>
   );
 }
@@ -93,4 +141,5 @@ const styles = StyleSheet.create({
     marginBottom: spacing.md,
   },
   grid: { flexDirection: 'row', flexWrap: 'wrap', justifyContent: 'space-between', rowGap: spacing.md },
+  btns: { marginTop: spacing.xl, gap: spacing.md },
 });

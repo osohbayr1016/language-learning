@@ -12,6 +12,7 @@ const NAV: { key: ViewKey; label: string }[] = [
   { key: 'vocabulary', label: 'Үгийн сан' },
   { key: 'users', label: 'Хэрэглэгчид' },
   { key: 'cartoons', label: 'Хүүхэлдэйн кино' },
+  { key: 'examImport', label: 'HSK импорт · PDF · дуу' },
 ];
 
 export function Sidebar({ current, onSelect, onSignOut }: Props) {

@@ -6,7 +6,7 @@ import {
   type WebStudyKeyEvt,
 } from '../lib/webStudyKeys';
 
-/** Вэб: 1–4 сонголт, сум зүүн/баруун, Enter (сүүлийн асуултад илгээх). */
+/** Вэб: 1–9 сонголт (эхний N), сум зүүн/баруун, Enter (сүүлийн асуултад илгээх). */
 export function useMockExamWebKeys(args: {
   examOptions: string[];
   onPick: (v: string) => void;
@@ -37,7 +37,7 @@ export function useMockExamWebKeys(args: {
         return;
       }
       const k = e.key;
-      if (k && k >= '1' && k <= '4' && examOptions.length) {
+      if (k && k.length === 1 && k >= '1' && k <= '9' && examOptions.length) {
         e.preventDefault();
         const idx = Math.min(Number(k) - 1, examOptions.length - 1);
         const v = examOptions[idx];

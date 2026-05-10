@@ -1,18 +1,15 @@
-import { useState } from 'react';
+import { useCallback, useState } from 'react';
 import { LoginView } from './components/LoginView';
-import { Sidebar } from './components/Sidebar';
-import { DashboardView } from './components/DashboardView';
-import { LearningPathView } from './components/LearningPathView';
-import { VocabularyAdminView } from './components/VocabularyAdminView';
-import { UsersAdminView } from './components/UsersAdminView';
-import { CartoonsView } from './components/CartoonsView';
-import type { ViewKey } from './views';
+import { AdminAppShell } from './AdminAppShell';
 
 const TOKEN_KEY = 'admin_token';
 
 export default function App() {
   const [token, setToken] = useState<string | null>(localStorage.getItem(TOKEN_KEY));
-  const [view, setView] = useState<ViewKey>('dashboard');
+  const clearSession = useCallback(() => {
+    localStorage.removeItem(TOKEN_KEY);
+    setToken(null);
+  }, []);
 
   if (!token) {
     return (
@@ -25,21 +22,5 @@ export default function App() {
     );
   }
 
-  const signOut = () => {
-    localStorage.removeItem(TOKEN_KEY);
-    setToken(null);
-  };
-
-  return (
-    <div className="app-container">
-      <Sidebar current={view} onSelect={setView} onSignOut={signOut} />
-      <main className="main-content">
-        {view === 'dashboard' && <DashboardView token={token} />}
-        {view === 'learningPath' && <LearningPathView token={token} />}
-        {view === 'vocabulary' && <VocabularyAdminView token={token} />}
-        {view === 'users' && <UsersAdminView token={token} />}
-        {view === 'cartoons' && <CartoonsView token={token} />}
-      </main>
-    </div>
-  );
+  return <AdminAppShell token={token} onForbidden={clearSession} />;
 }

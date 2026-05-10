@@ -12,6 +12,10 @@ export function sectionalScores<
   listening: number;
   reading: number;
   total: number;
+  listening_correct: number;
+  listening_total: number;
+  reading_correct: number;
+  reading_total: number;
 } {
   let lHits = 0;
   let lTot = 0;
@@ -29,10 +33,18 @@ export function sectionalScores<
   const capL = SECTION_SCORE_CAPS.listening;
   const capR = SECTION_SCORE_CAPS.reading;
 
-  const listening = lTot > 0 ? Math.round((lHits / lTot) * capL) : capL;
-  const reading = rTot > 0 ? Math.round((rHits / rTot) * capR) : capR;
+  const listening = lTot > 0 ? Math.round((lHits / lTot) * capL) : 0;
+  const reading = rTot > 0 ? Math.round((rHits / rTot) * capR) : 0;
   const total = Math.min(capL + capR, listening + reading);
-  return { listening, reading, total };
+  return {
+    listening,
+    reading,
+    total,
+    listening_correct: lHits,
+    listening_total: lTot,
+    reading_correct: rHits,
+    reading_total: rTot,
+  };
 }
 
 export function examAnswerOk(type: string, userRaw: unknown, correct: string): boolean {
@@ -44,5 +56,6 @@ export function examAnswerOk(type: string, userRaw: unknown, correct: string): b
   }
   if (type === 'picture_match')
     return u.toLowerCase() === c.toLowerCase();
+  if (type === 'paper_mcq') return u.trim() === c.trim();
   return u === c;
 }

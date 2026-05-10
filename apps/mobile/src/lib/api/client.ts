@@ -46,6 +46,12 @@ async function fetchAccessTokenWithRefresh(refreshToken: string): Promise<string
   return access;
 }
 
+async function clearStoredSession(): Promise<void> {
+  await removeItem(AUTH_ACCESS_TOKEN_KEY);
+  await removeItem(AUTH_REFRESH_TOKEN_KEY);
+  emitSessionCleared();
+}
+
 async function doFetch(
   path: string,
   rest: RequestInit,
@@ -95,11 +101,12 @@ export async function request<T>(
         emitAccessTokenRefreshed(newAccess);
         token = newAccess;
         ({ res, text } = await doFetch(path, rest, token));
+        if (res.status === 401) await clearStoredSession();
       } catch {
-        await removeItem(AUTH_ACCESS_TOKEN_KEY);
-        await removeItem(AUTH_REFRESH_TOKEN_KEY);
-        emitSessionCleared();
+        await clearStoredSession();
       }
+    } else {
+      await clearStoredSession();
     }
   }
 

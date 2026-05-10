@@ -32,7 +32,7 @@ export const mn = {
     weakPassword: 'Нууц үг доод тал нь 8 тэмдэгт байх ёстой',
   },
   onboarding: {
-    s1: 'Хүүхэлдэйн кино үзээд хятад хэл сурцгаая',
+    s1: 'Хичээл, тоглоом, контентоор хятад хэлээ өдөр бүр сайжруулцгаая',
     s2: 'Тоглоом тоглож үг цээжлээрэй',
     s3: 'Өдөр бүр алгасахгүй сурахад чинь туслана',
     start: 'Эхлэх',
@@ -52,6 +52,7 @@ export const mn = {
     dueWordsCount: '{n} үгийн давталт ирлээ',
     noDue: 'Өнөөдөр давтах үг алга — шинэ үг сурцгаая',
     quickActions: 'Шуурхай үйлдэл',
+    moreShortcuts: 'Өөр хэсгүүд',
     continueStudy: 'Үргэлжлүүлэн сурах',
     leaderboard: 'Тэргүүлэгчид',
     dailyGoal: 'Өдрийн зорилго',
@@ -71,6 +72,10 @@ export const mn = {
     watch: 'Үзэх',
     vocab: 'Сурах үгс',
     tapWord: 'Дэлгэцэн дээрх үг дээр дарж дуудлагыг сонсоорой',
+    emptyHeadline: 'Удахгүй нэмэгдэнэ',
+    emptyBody:
+      'Одоогоор энд контент байхгүй байна. Хичээлийн хэсгээс үргэлжлүүлэн суралцаарай — хүүхэлдэйг туршилтаар нэмж байна.',
+    emptyCta: 'Сурах хэсэг рүү',
   },
   profile: {
     edit: 'Профайл засах',
@@ -139,6 +144,29 @@ export const mn = {
     smSpeak: 'Дуутай давтах — хятад дуу серверийн TTS; орчуулгыг апп уншина.',
     smGrammar: 'Дүрмийн агуулга нь курс/скриптээр; энд бүлэг, хичээлийн удирдлага.',
     smMock: 'Шалгалтын агуулга тусдаа; суралцах замаар хичээлүүдийг бэлэн болгоно.',
+    smExamPdfImport: 'HSK шалгалт — PDF импорт',
+    smExamPdfImportHint:
+      'Шалгалт + хариултын PDF, сонсон дуу (WAV эсвэл MP3); Manchester/Confucius HSK2 хэлбэр. PDF текст — Expo вэб дээр.',
+    examPdfImportNavTitle: 'HSK PDF импорт',
+    examPdfImportTitleField: 'Гарчиг',
+    examPdfImportDuration: 'Хугацаа (мин)',
+    examPdfImportPublish: 'Нийтлэх',
+    examPdfImportPublishHint:
+      'Идэвхгүй бол «Дүрмийн шалгалт» жагсаалтад үл гарна (загвар серверт хадгалагдсан).',
+    examPdfImportExamPdf: 'Шалгалтын PDF',
+    examPdfImportAnswerPdf: 'Хариултын PDF',
+    examPdfImportWavs: (listenQ: number) =>
+      `Сонсох WAV/MP3 (${listenQ} асуулт — дараалал таарна)`,
+    examPdfImportParse: 'Текст гаргаж шалгах',
+    examPdfImportReapplyWav: 'Дуу дахин холбох',
+    examPdfImportPreview: 'Урьдчилан харах',
+    examPdfImportAnswerKey: 'түлхүүр',
+    examPdfImportSubmit: 'Серверт импортлох',
+    examPdfImportNeedLogin: 'Нэвтэрсний дараа дахин оролдоно уу.',
+    examPdfImportWebPdfNote:
+      'PDF-аас текст гаргалт зөвхөн вэб (pnpm web → localhost:8081) дээр. Утас дээр WAV/MP3 оруулга ажиллана.',
+    examPdfImportDoneTitle: 'Амжилттай',
+    examPdfImportDoneBody: 'Шалгалтын загвар серверт бүртгэгдлээ.',
     hubSectionContent: 'Курс ба медиа',
     dashHint: 'Тоо статистик: үг, хичээл, дуусгалт',
     pathHint: 'HSK бүлэг, хичээл, картанд орох хүлээлт',

@@ -24,8 +24,12 @@ export function AnswerOption({ word, show, state, onPress }: Props) {
 
   const tones = parseTones(word.tones);
 
+  const label = show === 'hanzi' ? word.hanzi : word.meaning_mn;
+
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
       onPress={onPress}
       disabled={state !== 'idle'}
       style={[styles.btn, stateStyles[state]]}

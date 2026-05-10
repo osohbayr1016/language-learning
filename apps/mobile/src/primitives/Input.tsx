@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { forwardRef, useState } from 'react';
 import {
   StyleSheet,
   Text,
@@ -17,17 +17,20 @@ type Props = TextInputProps & {
   containerStyle?: ViewStyle;
 };
 
-export function Input({
-  label,
-  leftIcon,
-  rightIcon,
-  error,
-  containerStyle,
-  onFocus,
-  onBlur,
-  style,
-  ...rest
-}: Props) {
+export const Input = forwardRef<TextInput, Props>(function Input(
+  {
+    label,
+    leftIcon,
+    rightIcon,
+    error,
+    containerStyle,
+    onFocus,
+    onBlur,
+    style,
+    ...rest
+  },
+  ref,
+) {
   const [focused, setFocused] = useState(false);
 
   return (
@@ -42,6 +45,7 @@ export function Input({
       >
         {leftIcon ? <View style={styles.iconLeft}>{leftIcon}</View> : null}
         <TextInput
+          ref={ref}
           {...rest}
           placeholderTextColor={colors.text.muted}
           style={[styles.input, style]}
@@ -53,7 +57,7 @@ export function Input({
       {error ? <Text style={styles.error}>{error}</Text> : null}
     </View>
   );
-}
+});
 
 const styles = StyleSheet.create({
   label: {

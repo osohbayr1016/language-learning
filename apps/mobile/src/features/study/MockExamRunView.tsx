@@ -5,6 +5,7 @@ import type { ExamQuestion } from '../../lib/api/exams';
 import { mn } from '../../i18n/mn';
 import { mockExamStyles as styles } from './mockExamStyles';
 import { mockExamOptionStrings, mockExamPromptText } from './mockExamPrompt';
+import { MockExamAudioButton } from './MockExamAudioButton';
 import { confirmQuitMockExam } from './mockExamQuitDialog';
 import { colors, spacing, typography } from '../../theme';
 import { useMockExamWebKeys } from '../../hooks/useMockExamWebKeys';
@@ -66,11 +67,12 @@ export function MockExamRunView({
           <Text style={styles.quitLink}>{mn.study.mockExamExit}</Text>
         </Pressable>
       </View>
+      {cur.section === 'listening' && cur.audio_url ? <MockExamAudioButton uri={cur.audio_url} /> : null}
       <Text style={styles.prompt}>{mockExamPromptText(cur)}</Text>
       <View style={styles.opts}>
-        {opts.map((o) => (
+        {opts.map((o, i) => (
           <Pressable
-            key={o}
+            key={`${cur.id}-${i}`}
             style={[styles.opt, ansForCur === o && styles.optOn]}
             onPress={() => onPick(o)}
           >

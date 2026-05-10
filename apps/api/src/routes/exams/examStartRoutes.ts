@@ -52,10 +52,15 @@ export function registerExamStartRoutes(app: Hono<{ Bindings: Env; Variables: Va
     if (!Number.isFinite(tid)) return c.json({ error: 'Буруу template' }, 400);
 
     const tmpl = (await c.env.DB.prepare(
-      `SELECT id, duration_minutes FROM exam_templates WHERE id = ? AND is_published = 1`
+      `SELECT id, duration_minutes, max_score, passing_score FROM exam_templates WHERE id = ? AND is_published = 1`
     )
       .bind(tid)
-      .first()) as { id?: number; duration_minutes?: number } | null;
+      .first()) as {
+      id?: number;
+      duration_minutes?: number;
+      max_score?: number;
+      passing_score?: number;
+    } | null;
 
     if (!tmpl?.id) return c.json({ error: 'Шаблон олдсонгүй' }, 404);
 
@@ -85,7 +90,7 @@ export function registerExamStartRoutes(app: Hono<{ Bindings: Env; Variables: Va
           .prepare(
             `SELECT id, template_id, section, part_num, question_num,
                     question_type, audio_text, question_text,
-                    question_pinyin, options, order_num
+                    question_pinyin, options, order_num, audio_key
              FROM exam_questions WHERE template_id = ? ORDER BY order_num ASC`
           )
           .bind(tid)
@@ -93,11 +98,16 @@ export function registerExamStartRoutes(app: Hono<{ Bindings: Env; Variables: Va
       ).results ?? []
     ) as QRow[];
 
+    const origin = new URL(c.req.url);
+    const apiOrigin = `${origin.protocol}//${origin.host}`;
+
     return c.json({
       data: {
         session_id: sessionIdResolved,
         duration_minutes: tmpl.duration_minutes ?? 35,
-        questions: qs.map(omitExamQuestionAnswer),
+        max_score: Math.max(1, Number(tmpl.max_score) || 200),
+        passing_score: Math.max(0, Number(tmpl.passing_score) ?? 120),
+        questions: qs.map((q) => omitExamQuestionAnswer(q, apiOrigin)),
       },
     });
   });

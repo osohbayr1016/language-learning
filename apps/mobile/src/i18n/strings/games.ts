@@ -2,7 +2,7 @@ export const games = {
   hub: 'Тоглоомууд',
   hubSub: 'Тоглож сур, оноо хий',
   recommended: 'Санал болгох тоглоом',
-  startNow: 'ТОГЛОХ',
+  startNow: 'Тоглох',
   match: 'Холбох',
   matchDesc: 'Хятад үг ↔ Орчуулга холбож тоглоорой',
   translate: 'Орчуулах',

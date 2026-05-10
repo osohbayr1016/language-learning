@@ -1,6 +1,6 @@
 import React, { useCallback, useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
-import { Stack, useRouter, type Href } from 'expo-router';
+import { useRouter, type Href } from 'expo-router';
 import { Screen } from '../../primitives';
 import { useAuth } from '../../context/AuthContext';
 import { api } from '../../lib/api';
@@ -9,6 +9,7 @@ import { mn } from '../../i18n/mn';
 import { colors, spacing, typography } from '../../theme';
 import { VocabularyWordRow } from './VocabularyWordRow';
 import { VocabularyTextbookFilterRow } from './VocabularyTextbookFilterRow';
+import { ProfileScreenBackBar } from './ProfileScreenBackBar';
 
 export function VocabularyScreen() {
   const { token } = useAuth();
@@ -81,45 +82,47 @@ export function VocabularyScreen() {
   }
 
   return (
-    <>
-      <Stack.Screen options={{ title: mn.profile.seenWords }} />
-      <Screen>
-        <Text style={styles.hint}>{mn.profile.seenWordsHint}</Text>
-        <VocabularyTextbookFilterRow
-          draft={draftUnit}
-          onDraft={setDraftUnit}
-          onApply={() => applyUnitFilter()}
-          disabled={loading && items.length === 0}
+    <Screen>
+      <ProfileScreenBackBar
+        title={mn.profile.seenWords}
+        fallback="/(tabs)/profile"
+        style={{ paddingBottom: spacing.sm }}
+      />
+      <Text style={styles.hint}>{mn.profile.seenWordsHint}</Text>
+      <VocabularyTextbookFilterRow
+        draft={draftUnit}
+        onDraft={setDraftUnit}
+        onApply={() => applyUnitFilter()}
+        disabled={loading && items.length === 0}
+      />
+      {loading && items.length === 0 ? (
+        <ActivityIndicator style={{ marginTop: spacing.lg }} color={colors.brand.primary} />
+      ) : (
+        <FlatList
+          data={items}
+          keyExtractor={(w) => String(w.id)}
+          refreshing={refreshing}
+          onRefresh={() => {
+            setRefreshing(true);
+            void fetchPage(true);
+          }}
+          onEndReached={() => {
+            if (hasMore && !loadingMore && !loading) void fetchPage(false);
+          }}
+          ListEmptyComponent={<Text style={styles.muted}>{mn.profile.noSeenWords}</Text>}
+          ListFooterComponent={
+            loadingMore ? <ActivityIndicator color={colors.brand.primary} style={{ padding: spacing.md }} /> : null
+          }
+          renderItem={({ item }) => (
+            <VocabularyWordRow
+              item={item}
+              onOpenDetail={(wid) => router.push(`/profile/word/${wid}` as Href)}
+              onPromote={(wid) => void promote(wid)}
+            />
+          )}
         />
-        {loading && items.length === 0 ? (
-          <ActivityIndicator style={{ marginTop: spacing.lg }} color={colors.brand.primary} />
-        ) : (
-          <FlatList
-            data={items}
-            keyExtractor={(w) => String(w.id)}
-            refreshing={refreshing}
-            onRefresh={() => {
-              setRefreshing(true);
-              void fetchPage(true);
-            }}
-            onEndReached={() => {
-              if (hasMore && !loadingMore && !loading) void fetchPage(false);
-            }}
-            ListEmptyComponent={<Text style={styles.muted}>{mn.profile.noSeenWords}</Text>}
-            ListFooterComponent={
-              loadingMore ? <ActivityIndicator color={colors.brand.primary} style={{ padding: spacing.md }} /> : null
-            }
-            renderItem={({ item }) => (
-              <VocabularyWordRow
-                item={item}
-                onOpenDetail={(wid) => router.push(`/profile/word/${wid}` as Href)}
-                onPromote={(wid) => void promote(wid)}
-              />
-            )}
-          />
-        )}
-      </Screen>
-    </>
+      )}
+    </Screen>
   );
 }
 

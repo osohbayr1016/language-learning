@@ -63,7 +63,12 @@ export function LessonScreen({ lessonId }: Props) {
       <Screen edges={['top', 'bottom']} padded={false}>
         <View style={styles.errorWrap}>
           <Text style={styles.errorText}>{state.error ?? mn.common.error}</Text>
-          <Pressable style={styles.errorBtn} onPress={() => router.replace('/(tabs)/home')}>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={mn.common.back}
+            style={styles.errorBtn}
+            onPress={() => router.replace('/(tabs)/home')}
+          >
             <Text style={styles.errorBtnLabel}>{mn.common.back}</Text>
           </Pressable>
         </View>
@@ -79,6 +84,8 @@ export function LessonScreen({ lessonId }: Props) {
         durationSec={state.durationSec}
         xpEarned={state.xpEarned}
         accuracy={accuracy}
+        chapterId={state.detail?.chapter_id}
+        currentOrderNum={state.detail?.order_num}
         onContinue={() => router.replace('/(tabs)/home')}
       />
     );

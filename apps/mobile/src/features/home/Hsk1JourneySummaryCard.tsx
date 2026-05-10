@@ -50,7 +50,12 @@ export function Hsk1JourneySummaryCard() {
       <Card padding="lg" style={styles.card}>
         <Text style={styles.title}>{mn.study.courseEmptyTitle}</Text>
         <Text style={styles.sub}>{mn.study.courseEmpty}</Text>
-        <Pressable onPress={() => router.push(hrefStudyTab)} style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={mn.study.hsk1JourneyContinue}
+          onPress={() => router.push(hrefStudyTab)}
+          style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}
+        >
           <Text style={styles.ctaText}>{mn.study.hsk1JourneyContinue}</Text>
           <Ionicons name="chevron-forward" size={18} color={colors.text.inverse} />
         </Pressable>
@@ -74,6 +79,8 @@ export function Hsk1JourneySummaryCard() {
         </View>
       </View>
       <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={mn.study.hsk1JourneyContinue}
         onPress={onContinue}
         style={({ pressed }) => [styles.cta, pressed && styles.ctaPressed]}
       >

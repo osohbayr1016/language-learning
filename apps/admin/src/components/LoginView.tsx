@@ -13,7 +13,13 @@ export function LoginView({ onLogin }: { onLogin: (token: string) => void }) {
     setLoading(true);
     try {
       const res = await adminApi.login({ email, password });
-      onLogin(res.data.access_token);
+      const access = res.data.access_token;
+      const prof = await adminApi.profile(access);
+      if (Number(prof.data?.is_admin) !== 1) {
+        setError('Admin эрх шаардлагатай (is_admin)');
+        return;
+      }
+      onLogin(access);
     } catch (err) {
       setError((err as Error).message);
     } finally {

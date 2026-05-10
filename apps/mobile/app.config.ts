@@ -50,7 +50,7 @@ export default (): ExpoConfig => ({
     favicon: './assets/favicon.png',
   },
   plugins: [
-    'expo-router',
+    ['expo-router', { sitemap: false }],
     'expo-font',
     [
       'expo-av',
@@ -76,7 +76,6 @@ export default (): ExpoConfig => ({
   },
   extra: {
     apiUrl: 'https://chinese-learning-api.osohoo691016.workers.dev',
-    router: {},
     eas: {
       projectId: 'f37b493b-0499-4d37-a234-6b2abefdc319',
     },

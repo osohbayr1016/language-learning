@@ -33,4 +33,6 @@ export const lesson = {
   micHint: 'Микрофон дээр дарж дээрх өгүүлбэрийг хэлээрэй',
   micListening: 'Сонсож байна... зогсооход дарна уу',
   speechMatch: 'Таны хэлсэн: {n}% таарсан',
+  continueNextPrefix: 'Дараах →',
+  backToStudy: 'Судлах хэсэг рүү',
 };

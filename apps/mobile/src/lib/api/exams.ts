@@ -22,6 +22,7 @@ export type ExamQuestion = {
   question_pinyin?: string;
   options: unknown[];
   order_num?: number;
+  audio_url?: string;
 };
 
 export const exams = {
@@ -36,6 +37,8 @@ export const exams = {
       data: {
         session_id: number;
         duration_minutes: number;
+        max_score: number;
+        passing_score: number;
         questions: ExamQuestion[];
       };
     }>(`/api/exams/templates/${templateId}/start`, { method: 'POST', token }),
@@ -56,7 +59,13 @@ export const exams = {
         reading_score: number;
         total_score: number;
         passing_score: number;
+        max_score: number;
         passed: boolean;
+        duration_seconds: number;
+        listening_correct: number;
+        listening_total: number;
+        reading_correct: number;
+        reading_total: number;
       };
     }>(`/api/exams/sessions/${sessionId}/submit`, {
       method: 'POST',

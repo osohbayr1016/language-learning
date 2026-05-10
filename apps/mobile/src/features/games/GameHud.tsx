@@ -10,14 +10,29 @@ type Props = {
   title: string;
   score: number;
   timeLeft?: number | null;
+  /** Алхам болгон секундээр тоологч — тоглоомын хугацаа харагдуулах */
+  elapsedSeconds?: number | null;
   progressLabel?: string;
+  /** Дүрмийн дундуур шинээр эхлүүлэх */
+  onRestart?: () => void;
 };
 
-export function GameHud({ title, score, timeLeft, progressLabel }: Props) {
+function formatElapsed(totalSec: number): string {
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+export function GameHud({ title, score, timeLeft, elapsedSeconds, progressLabel, onRestart }: Props) {
   const router = useRouter();
   return (
     <View style={styles.container}>
-      <Pressable onPress={() => safeBack(router, '/(tabs)/games')} hitSlop={12}>
+      <Pressable
+        accessibilityRole="button"
+        accessibilityLabel={mn.common.back}
+        onPress={() => safeBack(router, '/(tabs)/games')}
+        hitSlop={12}
+      >
         <Ionicons name="close" size={26} color={colors.text.secondary} />
       </Pressable>
       <View style={styles.center}>
@@ -25,6 +40,23 @@ export function GameHud({ title, score, timeLeft, progressLabel }: Props) {
         {progressLabel ? <Text style={styles.progress}>{progressLabel}</Text> : null}
       </View>
       <View style={styles.right}>
+        {elapsedSeconds !== undefined && elapsedSeconds !== null ? (
+          <View style={styles.chip}>
+            <Ionicons name="timer-outline" size={14} color={colors.text.secondary} />
+            <Text style={styles.chipText}>{formatElapsed(elapsedSeconds)}</Text>
+          </View>
+        ) : null}
+        {onRestart ? (
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={mn.games.playAgain}
+            onPress={onRestart}
+            hitSlop={12}
+            style={styles.restartBtn}
+          >
+            <Ionicons name="refresh" size={22} color={colors.text.secondary} />
+          </Pressable>
+        ) : null}
         {timeLeft !== undefined && timeLeft !== null ? (
           <View style={styles.chip}>
             <Ionicons name="time-outline" size={14} color={colors.warning} />
@@ -56,4 +88,5 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg.elevated,
   },
   chipText: { ...typography.body.sm, fontWeight: '700' },
+  restartBtn: { padding: 4, justifyContent: 'center' },
 });

@@ -9,6 +9,7 @@ import { colors } from '../../theme';
 import { mockExamStyles as styles } from './mockExamStyles';
 import { MockExamTemplatePicker } from './MockExamTemplatePicker';
 import { MockExamRunView } from './MockExamRunView';
+import { MockExamResultsView } from './MockExamResultsView';
 import { useMockExamSession } from './useMockExamSession';
 
 export function MockExamScreen() {
@@ -89,14 +90,7 @@ export function MockExamScreen() {
   if (result) {
     return (
       <Screen edges={['top']} scroll>
-        <Text style={styles.h1}>{mn.common.done}</Text>
-        <Text style={styles.p}>
-          Оноо: {result.total} / 200 (тэнцэх: {result.line})
-        </Text>
-        <Text style={styles.p}>{result.passed ? 'Тэнцсэн!' : 'Дахин оролдоорой'}</Text>
-        <Pressable style={styles.doneExit} onPress={exit}>
-          <Text style={styles.doneExitTx}>{mn.study.mockExamDoneExit}</Text>
-        </Pressable>
+        <MockExamResultsView result={result} onClose={exit} />
       </Screen>
     );
   }

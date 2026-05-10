@@ -1,3 +1,7 @@
+import { sansFontFamily } from './fontFamily';
+
+const F = sansFontFamily ? ({ fontFamily: sansFontFamily } as const) : {};
+
 export const colors = {
   bg: {
     primary: '#FFFFFF',
@@ -77,26 +81,26 @@ export const radius = {
 
 export const typography = {
   hanzi: {
-    xl: { fontSize: 88, fontWeight: '300' as const, letterSpacing: 4 },
-    lg: { fontSize: 64, fontWeight: '300' as const, letterSpacing: 2 },
-    md: { fontSize: 40, fontWeight: '400' as const },
-    sm: { fontSize: 28, fontWeight: '400' as const },
+    xl: { fontSize: 88, fontWeight: '300' as const, letterSpacing: 4, ...F },
+    lg: { fontSize: 64, fontWeight: '300' as const, letterSpacing: 2, ...F },
+    md: { fontSize: 40, fontWeight: '400' as const, ...F },
+    sm: { fontSize: 28, fontWeight: '400' as const, ...F },
   },
   pinyin: {
-    lg: { fontSize: 22, letterSpacing: 2 },
-    md: { fontSize: 18, letterSpacing: 1 },
-    sm: { fontSize: 14, letterSpacing: 0.5 },
+    lg: { fontSize: 22, letterSpacing: 2, ...F },
+    md: { fontSize: 18, letterSpacing: 1, ...F },
+    sm: { fontSize: 14, letterSpacing: 0.5, ...F },
   },
   heading: {
-    xl: { fontSize: 30, fontWeight: '800' as const },
-    lg: { fontSize: 24, fontWeight: '800' as const },
-    md: { fontSize: 18, fontWeight: '700' as const },
-    sm: { fontSize: 15, fontWeight: '700' as const },
+    xl: { fontSize: 30, fontWeight: '800' as const, ...F },
+    lg: { fontSize: 24, fontWeight: '800' as const, ...F },
+    md: { fontSize: 18, fontWeight: '700' as const, ...F },
+    sm: { fontSize: 15, fontWeight: '700' as const, ...F },
   },
   body: {
-    lg: { fontSize: 16, lineHeight: 24 },
-    md: { fontSize: 14, lineHeight: 21 },
-    sm: { fontSize: 12, lineHeight: 18 },
+    lg: { fontSize: 16, lineHeight: 24, ...F },
+    md: { fontSize: 14, lineHeight: 21, ...F },
+    sm: { fontSize: 12, lineHeight: 18, ...F },
   },
 };
 

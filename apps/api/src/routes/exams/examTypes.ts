@@ -9,4 +9,5 @@ export type QRow = {
   question_pinyin: string;
   options: string;
   order_num?: number;
+  audio_key?: string | null;
 };

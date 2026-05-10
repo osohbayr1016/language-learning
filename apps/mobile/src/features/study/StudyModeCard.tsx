@@ -15,6 +15,8 @@ type Props = {
 export function StudyModeCard({ title, subtitle, icon, color, onPress }: Props) {
   return (
     <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={title}
       onPress={onPress}
       style={({ pressed }) => [
         styles.card,

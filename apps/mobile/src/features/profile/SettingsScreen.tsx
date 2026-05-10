@@ -5,6 +5,7 @@ import { Card, Screen } from '../../primitives';
 import { useGamification } from '../../context/GamificationContext';
 import { MicrophoneTestPanel } from './MicrophoneTestPanel';
 import { SettingsRoleRefreshCard } from './SettingsRoleRefreshCard';
+import { ProfileScreenBackBar } from './ProfileScreenBackBar';
 import { colors, radius, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
 
@@ -15,10 +16,7 @@ export function SettingsScreen() {
 
   return (
     <Screen scroll>
-      <View style={styles.headerRow}>
-        <Text style={styles.heading}>{mn.profile.settings}</Text>
-      </View>
-
+      <ProfileScreenBackBar title={mn.profile.settings} fallback="/(tabs)/profile" style={{ marginBottom: spacing.lg }} />
       <Card padding="lg">
         <Text style={styles.section}>{mn.home.dailyGoal}</Text>
         <Text style={styles.hint}>Өдөрт хичнээн XP цуглуулах вэ?</Text>
@@ -67,8 +65,6 @@ export function SettingsScreen() {
 }
 
 const styles = StyleSheet.create({
-  headerRow: { marginBottom: spacing.lg, marginTop: spacing.sm },
-  heading: { ...typography.heading.xl, color: colors.text.primary },
   section: { ...typography.heading.md, color: colors.text.primary, marginBottom: spacing.xs },
   hint: { ...typography.body.md, color: colors.text.secondary, marginBottom: spacing.md },
   row: { flexDirection: 'row', gap: spacing.sm, flexWrap: 'wrap' },

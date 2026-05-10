@@ -13,13 +13,11 @@ type Item = {
   href: string;
 };
 
+/** Нүүр дээр давхардахгүйгээр зөвхөн таб / төв хаб руу — тоглоом тус бүр Games табнаас. */
 const ITEMS: Item[] = [
-  { key: 'cartoons', title: mn.tabs.cartoons, icon: 'play-circle', color: colors.accent.pink, href: '/(tabs)/cartoons' },
+  { key: 'study', title: mn.tabs.study, icon: 'book', color: colors.accent.blue, href: '/(tabs)/study' },
   { key: 'games', title: mn.tabs.games, icon: 'game-controller', color: colors.accent.purple, href: '/(tabs)/games' },
-  { key: 'match', title: mn.games.match, icon: 'grid', color: colors.accent.blue, href: '/games/match' },
-  { key: 'translate', title: mn.games.translate, icon: 'language', color: colors.accent.teal, href: '/games/translate' },
-  { key: 'sentence', title: mn.games.sentence, icon: 'reader', color: colors.accent.amber, href: '/games/sentence' },
-  { key: 'stroke', title: mn.games.stroke, icon: 'brush', color: colors.accent.green, href: '/games/stroke' },
+  { key: 'cartoons', title: mn.tabs.cartoons, icon: 'play-circle', color: colors.accent.pink, href: '/(tabs)/cartoons' },
 ];
 
 export function ExploreRow() {
@@ -27,11 +25,13 @@ export function ExploreRow() {
 
   return (
     <View style={styles.section}>
-      <Text style={styles.title}>Үргэлжлүүлэх</Text>
+      <Text style={styles.title}>{mn.home.moreShortcuts}</Text>
       <ScrollView horizontal showsHorizontalScrollIndicator={false} contentContainerStyle={styles.scroller}>
         {ITEMS.map((it) => (
           <Pressable
             key={it.key}
+            accessibilityRole="button"
+            accessibilityLabel={it.title}
             style={({ pressed }) => [styles.tile, pressed && styles.pressed]}
             onPress={() => router.push(it.href as never)}
           >

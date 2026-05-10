@@ -30,6 +30,8 @@ export function QuickActions() {
         {ACTIONS.map((a) => (
           <Pressable
             key={a.key}
+            accessibilityRole="button"
+            accessibilityLabel={a.label}
             style={({ pressed }) => [styles.tile, pressed && styles.pressed]}
             onPress={() => router.push(a.href as never)}
           >

@@ -1,43 +1,50 @@
 import React from 'react';
 import { Image, StyleSheet, Text, View } from 'react-native';
 import { colors, spacing, typography } from '../../theme';
+import type { OnboardingStrings } from './onboardingCopy';
+import { SpeakPhraseButton } from './SpeakPhraseButton';
 import type { OnboardingSlide as Slide } from './slides';
 
-type Props = { slide: Slide; width: number };
+type Props = { slide: Slide; strings: OnboardingStrings };
 
-export function OnboardingSlide({ slide, width }: Props) {
+export function OnboardingSlide({ slide, strings }: Props) {
+  const caption = strings[slide.copyKey];
   return (
-    <View style={[styles.slide, { width }]}>
+    <View style={styles.slide}>
       <View style={styles.imageWrap}>
         <Image source={slide.image} style={styles.image} resizeMode="contain" />
       </View>
       <View style={styles.text}>
-        <Text style={styles.hanzi}>{slide.hanzi}</Text>
+        <View style={styles.hanziRow}>
+          <Text style={styles.hanzi}>{slide.hanzi}</Text>
+          <SpeakPhraseButton hanzi={slide.hanzi} accessibilityLabel={strings.speakHanzi} />
+        </View>
         <Text style={styles.pinyin}>{slide.pinyin}</Text>
-        <Text style={styles.title}>{slide.title}</Text>
+        <Text style={styles.title}>{caption}</Text>
       </View>
     </View>
   );
 }
 
 const styles = StyleSheet.create({
-  slide: { flex: 1, alignItems: 'center', paddingTop: spacing.xxl },
+  slide: { alignItems: 'center', paddingTop: spacing.lg },
   imageWrap: {
     width: '85%',
-    height: 320,
+    height: 280,
     alignItems: 'center',
     justifyContent: 'center',
   },
   image: { width: '100%', height: '100%' },
-  text: { alignItems: 'center', paddingHorizontal: spacing.xl, marginTop: spacing.xl },
+  text: { alignItems: 'center', paddingHorizontal: spacing.xl, marginTop: spacing.lg },
+  hanziRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
   hanzi: {
     ...typography.hanzi.md,
     color: colors.text.primary,
-    marginBottom: spacing.xs,
   },
   pinyin: {
     ...typography.pinyin.md,
     color: colors.accent.purple,
+    marginTop: spacing.xs,
     marginBottom: spacing.lg,
     fontWeight: '600',
   },

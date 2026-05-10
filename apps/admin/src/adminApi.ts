@@ -14,6 +14,10 @@ export const adminApi = {
       body: JSON.stringify(body),
     }),
 
+  /** Confirms JWT is valid and `users.is_admin` — same check as `/api/admin/*` middleware. */
+  profile: (token: string) =>
+    req<{ data: { is_admin?: number } }>('/api/user/profile', { token }),
+
   stats: (token: string) => req<{ data: AdminStats }>('/api/admin/stats', { token }),
   lessonTree: (token: string) => req<{ data: AdminChapter[] }>('/api/admin/lesson-tree', { token }),
 
@@ -145,6 +149,50 @@ export const adminApi = {
     const res = await fetch(
       `${API_URL}/api/cartoons/upload?filename=${encodeURIComponent(file.name)}&kind=${kind}`,
       { method: 'POST', headers: { 'Content-Type': file.type, Authorization: `Bearer ${token}` }, body: file }
+    );
+    const data = await res.json();
+    if (!res.ok) throw new Error(data?.error || 'Upload failed');
+    return data.data;
+  },
+
+  importExam: (
+    token: string,
+    body: {
+      title: string;
+      hsk_level?: number;
+      duration_minutes?: number;
+      passing_score?: number;
+      max_score?: number;
+      is_published?: boolean;
+      questions: Record<string, unknown>[];
+    }
+  ) =>
+    req<{ data: { template_id: number } }>('/api/admin/exams/import', {
+      method: 'POST',
+      token,
+      body: JSON.stringify(body),
+    }),
+
+  uploadExamAudio: async (token: string, file: File): Promise<{ key: string }> => {
+    const lowered = file.name.toLowerCase();
+    const inferred =
+      file.type?.trim()?.startsWith('audio/')
+        ? file.type
+        : lowered.endsWith('.mp3')
+          ? 'audio/mpeg'
+          : lowered.endsWith('.wav') || lowered.endsWith('.wave')
+            ? 'audio/wav'
+            : 'audio/wav';
+    const res = await fetch(
+      `${API_URL}/api/admin/exams/upload-audio?filename=${encodeURIComponent(file.name)}`,
+      {
+        method: 'POST',
+        headers: {
+          'Content-Type': inferred,
+          Authorization: `Bearer ${token}`,
+        },
+        body: file,
+      }
     );
     const data = await res.json();
     if (!res.ok) throw new Error(data?.error || 'Upload failed');

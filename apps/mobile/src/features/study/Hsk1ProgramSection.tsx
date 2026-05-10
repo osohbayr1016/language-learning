@@ -20,7 +20,12 @@ type StepProps = {
 
 function FundStep({ icon, label, hint, onPress }: StepProps) {
   return (
-    <Pressable onPress={onPress} style={({ pressed }) => [styles.step, pressed && styles.stepPressed]}>
+    <Pressable
+      accessibilityRole="button"
+      accessibilityLabel={label}
+      onPress={onPress}
+      style={({ pressed }) => [styles.step, pressed && styles.stepPressed]}
+    >
       <Ionicons name={icon} size={20} color={colors.brand.primary} />
       <View style={styles.stepText}>
         <Text style={styles.stepLabel}>{label}</Text>

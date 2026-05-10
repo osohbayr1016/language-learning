@@ -1,5 +1,6 @@
 import { Tabs } from 'expo-router';
 import { Ionicons } from '@expo/vector-icons';
+import { Text } from 'react-native';
 import { colors } from '../../src/theme';
 import { mn } from '../../src/i18n/mn';
 
@@ -28,7 +29,7 @@ export default function TabsLayout() {
           paddingBottom: 12,
           paddingTop: 8,
         },
-        tabBarLabelStyle: { fontSize: 11, fontWeight: '600' },
+        tabBarLabelStyle: { fontSize: 11 },
       }}
     >
       {ROUTES.map((r) => (
@@ -37,6 +38,9 @@ export default function TabsLayout() {
           name={r.name}
           options={{
             title: r.label,
+            tabBarLabel: ({ focused, color }) => (
+              <Text style={{ fontSize: 11, fontWeight: focused ? '800' : '600', color }}>{r.label}</Text>
+            ),
             tabBarIcon: ({ color, focused }) => (
               <Ionicons name={focused ? r.activeIcon : r.icon} size={24} color={color} />
             ),

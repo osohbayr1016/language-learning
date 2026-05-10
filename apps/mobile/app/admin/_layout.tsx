@@ -32,6 +32,10 @@ export default function AdminLayout() {
     >
       <Stack.Screen name="index" options={{ title: 'Админ' }} />
       <Stack.Screen name="dashboard" options={{ title: 'Хянах самбар' }} />
+      <Stack.Screen
+        name="exam-import"
+        options={{ title: mn.admin.examPdfImportNavTitle }}
+      />
       <Stack.Screen name="hsk1-lessons" options={{ title: 'HSK 1 хичээлүүд' }} />
       <Stack.Screen name="learning-path" options={{ title: 'Суралцах зам' }} />
       <Stack.Screen name="vocabulary" options={{ title: 'Үгийн сан' }} />

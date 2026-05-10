@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ToneColoredText } from '../../../components/hanzi';
 import { parseTones } from '../../../lib/tones';
-import { colors, radius, spacing, typography } from '../../../theme';
+import { colors, radius, shadows, spacing, typography } from '../../../theme';
 import type { MatchCard } from './cards';
 import type { Word } from '../../../lib/types';
 
@@ -26,6 +26,7 @@ export function MatchTile({ card, word, state, onPress }: Props) {
 
   return (
     <Pressable
+      accessibilityRole="button"
       disabled={state === 'matched' || state === 'wrong'}
       onPress={onPress}
       style={[styles.tile, styleByState[state]]}
@@ -50,7 +51,7 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  idle: { backgroundColor: colors.bg.card, borderColor: colors.border },
+  idle: { backgroundColor: colors.bg.card, borderColor: colors.border, ...shadows.sm },
   selected: { backgroundColor: colors.bg.elevated, borderColor: colors.accent.purple },
   matched: { backgroundColor: 'rgba(16, 185, 129, 0.16)', borderColor: colors.success, opacity: 0.7 },
   wrong: { backgroundColor: 'rgba(239, 68, 68, 0.16)', borderColor: colors.error },

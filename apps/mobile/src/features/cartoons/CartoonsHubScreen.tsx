@@ -1,5 +1,6 @@
 import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, FlatList, StyleSheet, Text, View } from 'react-native';
+import { ActivityIndicator, FlatList, Pressable, StyleSheet, Text, View } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Screen } from '../../primitives';
 import { api } from '../../lib/api';
 import type { Cartoon } from '../../lib/api/cartoons';
@@ -8,6 +9,7 @@ import { colors, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
 
 export default function CartoonsHubScreen() {
+  const router = useRouter();
   const [items, setItems] = useState<Cartoon[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -34,7 +36,18 @@ export default function CartoonsHubScreen() {
       {loading ? (
         <ActivityIndicator color={colors.accent.purple} style={{ marginTop: spacing.xl }} />
       ) : error || items.length === 0 ? (
-        <Text style={styles.muted}>Хүүхэлдэйн кино нэмэгдээгүй байна</Text>
+        <View style={styles.emptyWrap}>
+          <Text style={styles.emptyTitle}>{mn.cartoons.emptyHeadline}</Text>
+          <Text style={styles.emptyBody}>{mn.cartoons.emptyBody}</Text>
+          <Pressable
+            accessibilityRole="button"
+            accessibilityLabel={mn.cartoons.emptyCta}
+            style={({ pressed }) => [styles.emptyCta, pressed && styles.emptyCtaPressed]}
+            onPress={() => router.push('/(tabs)/study')}
+          >
+            <Text style={styles.emptyCtaText}>{mn.cartoons.emptyCta}</Text>
+          </Pressable>
+        </View>
       ) : (
         <FlatList
           data={items}
@@ -52,5 +65,21 @@ const styles = StyleSheet.create({
   headerRow: { marginBottom: spacing.lg, marginTop: spacing.sm },
   heading: { ...typography.heading.xl, color: colors.text.primary },
   subheading: { ...typography.body.md, color: colors.text.secondary, marginTop: 4 },
-  muted: { ...typography.body.lg, color: colors.text.muted, textAlign: 'center', marginTop: spacing.xl },
+  emptyWrap: {
+    alignItems: 'center',
+    paddingHorizontal: spacing.lg,
+    paddingVertical: spacing.xl,
+    gap: spacing.md,
+  },
+  emptyTitle: { ...typography.heading.md, color: colors.text.primary, textAlign: 'center' },
+  emptyBody: { ...typography.body.md, color: colors.text.secondary, textAlign: 'center', lineHeight: 22 },
+  emptyCta: {
+    marginTop: spacing.sm,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.xl,
+    borderRadius: 999,
+    backgroundColor: colors.brand.primary,
+  },
+  emptyCtaPressed: { opacity: 0.9 },
+  emptyCtaText: { ...typography.body.md, fontWeight: '700' as const, color: colors.text.inverse },
 });

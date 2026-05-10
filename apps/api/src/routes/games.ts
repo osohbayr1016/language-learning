@@ -58,6 +58,7 @@ games.get('/leaderboard', async (c) => {
      FROM user_stats s
      JOIN users u ON s.user_id = u.id
      LEFT JOIN user_streaks st ON st.user_id = u.id
+     WHERE COALESCE(u.is_admin, 0) = 0
      ORDER BY s.total_xp DESC
      LIMIT 20`
   ).all();

@@ -76,5 +76,13 @@ export function buildAdminStudyModeHubItems(): HubRowDef[] {
       icon: 'clipboard-outline',
       tint: colors.accent.amber,
     },
+    {
+      key: 'sm-exam-pdf',
+      label: a.smExamPdfImport,
+      hint: a.smExamPdfImportHint,
+      href: '/admin/exam-import' as Href,
+      icon: 'document-text-outline',
+      tint: colors.brand.secondary,
+    },
   ];
 }

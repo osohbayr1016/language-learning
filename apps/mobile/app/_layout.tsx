@@ -4,6 +4,7 @@ import * as SplashScreen from "expo-splash-screen";
 import { StatusBar } from "expo-status-bar";
 import { useEffect } from "react";
 import { GestureHandlerRootView } from "react-native-gesture-handler";
+import { Platform } from "react-native";
 
 import { AuthProvider, useAuth } from "../src/context/AuthContext";
 import { AudioProvider } from "../src/context/AudioContext";
@@ -15,7 +16,7 @@ import { colors } from "../src/theme";
 SplashScreen.preventAutoHideAsync();
 
 function RouteGuard() {
-  const { isAuthenticated, isLoading, hasSeenOnboarding } = useAuth();
+  const { isAuthenticated, isLoading, hasSeenOnboarding, isAdmin } = useAuth();
   const segments = useSegments();
   const router = useRouter();
 
@@ -30,7 +31,11 @@ function RouteGuard() {
 
     if (inAdmin) {
       if (!isAuthenticated) {
-        router.replace("/(auth)/login");
+        router.replace("/(auth)/login?reason=protected");
+        return;
+      }
+      if (!isAdmin) {
+        router.replace("/(tabs)/home");
         return;
       }
       return;
@@ -44,10 +49,10 @@ function RouteGuard() {
       if (!hasSeenOnboarding && !inOnboarding) {
         router.replace("/(onboarding)");
       } else if (hasSeenOnboarding && !inAuth && !inOnboarding && !inSetup) {
-        router.replace("/(auth)/login");
+        router.replace("/(auth)/login?reason=protected");
       }
     }
-  }, [isAuthenticated, isLoading, hasSeenOnboarding, segments, router]);
+  }, [isAuthenticated, isLoading, hasSeenOnboarding, isAdmin, segments, router]);
 
   return <Slot />;
 }
@@ -55,6 +60,19 @@ function RouteGuard() {
 export default function RootLayout() {
   useEffect(() => {
     SplashScreen.hideAsync();
+  }, []);
+
+  useEffect(() => {
+    if (Platform.OS !== "web") return;
+    const g = globalThis as typeof globalThis & {
+      document?: { getElementById: (id: string) => HTMLElement | null };
+      setTimeout?: typeof setTimeout;
+    };
+    const node = g.document?.getElementById("web-boot-splash");
+    if (!node) return;
+    const el = node as unknown as { style: { opacity: string }; remove: () => void };
+    el.style.opacity = "0";
+    (g.setTimeout ?? setTimeout)(() => el.remove(), 220);
   }, []);
 
   const navTheme = {

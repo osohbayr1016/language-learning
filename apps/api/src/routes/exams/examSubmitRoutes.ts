@@ -17,7 +17,8 @@ export function registerExamSubmitRoute(app: Hono<{ Bindings: Env; Variables: Va
 
     const sessRaw = (await c.env.DB.prepare(
       `SELECT s.user_id AS uid, s.template_id AS tid, s.status,
-              COALESCE(t.passing_score, 120) AS passing_score
+              COALESCE(t.passing_score, 120) AS passing_score,
+              COALESCE(t.max_score, 200) AS max_score
        FROM user_exam_sessions s JOIN exam_templates t ON t.id = s.template_id
        WHERE s.id = ?`
     )
@@ -27,6 +28,7 @@ export function registerExamSubmitRoute(app: Hono<{ Bindings: Env; Variables: Va
       tid?: number;
       status?: string;
       passing_score?: number;
+      max_score?: number;
     } | null;
 
     if (!sessRaw || sessRaw.uid !== sub) return c.json({ error: 'Олдсонгүй' }, 404);
@@ -34,6 +36,7 @@ export function registerExamSubmitRoute(app: Hono<{ Bindings: Env; Variables: Va
 
     const tpl = sessRaw.tid;
     const passLineVal = sessRaw.passing_score ?? 120;
+    const maxScoreVal = Math.max(1, Number(sessRaw.max_score) || 200);
 
     const body = await c.req
       .json<{ answers?: { question_id: number; answer: unknown }[]; duration_seconds?: number }>()
@@ -105,7 +108,13 @@ export function registerExamSubmitRoute(app: Hono<{ Bindings: Env; Variables: Va
         reading_score: sectional.reading,
         total_score: sectional.total,
         passing_score: passLineVal,
+        max_score: maxScoreVal,
         passed: sectional.total >= passLineVal,
+        duration_seconds: Math.max(0, Math.floor(body.duration_seconds ?? 0)),
+        listening_correct: sectional.listening_correct,
+        listening_total: sectional.listening_total,
+        reading_correct: sectional.reading_correct,
+        reading_total: sectional.reading_total,
       },
     });
   });

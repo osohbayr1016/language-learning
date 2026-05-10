@@ -1,24 +1,36 @@
-import React, { useRef, useState } from 'react';
-import { FlatList, LayoutChangeEvent, StyleSheet, View } from 'react-native';
+import React, { useCallback, useRef, useState } from 'react';
+import { LayoutChangeEvent, Platform, Pressable, StyleSheet, Text, View } from 'react-native';
 import { useRouter } from 'expo-router';
 import { Button, Screen } from '../../primitives';
 import { useAuth } from '../../context/AuthContext';
-import { mn } from '../../i18n/mn';
-import { spacing } from '../../theme';
-import { slides, type OnboardingSlide as Slide } from './slides';
-import { OnboardingSlide as SlideView } from './OnboardingSlide';
+import { colors, spacing, typography } from '../../theme';
+import { OnboardingCarousel, type OnboardingCarouselHandle } from './OnboardingCarousel';
+import { useOnboardingStrings } from './OnboardingLocaleContext';
+import { OnboardingTopBar } from './OnboardingTopBar';
 import { Pagination } from './Pagination';
+import { slides } from './slides';
+
+const webFocus =
+  Platform.OS === 'web'
+    ? ({
+        outlineStyle: 'solid' as const,
+        outlineWidth: 2,
+        outlineColor: colors.brand.secondary,
+        outlineOffset: 2,
+      } as const)
+    : null;
 
 export default function OnboardingScreen() {
   const { completeOnboarding } = useAuth();
   const router = useRouter();
   const [current, setCurrent] = useState(0);
   const [containerW, setContainerW] = useState(0);
-  const listRef = useRef<FlatList<Slide>>(null);
+  const carouselRef = useRef<OnboardingCarouselHandle>(null);
+  const t = useOnboardingStrings(current + 1, slides.length);
 
   const handleNext = async () => {
     if (current < slides.length - 1) {
-      listRef.current?.scrollToIndex({ index: current + 1, animated: true });
+      carouselRef.current?.scrollTo(current + 1);
       return;
     }
     await completeOnboarding();
@@ -30,46 +42,44 @@ export default function OnboardingScreen() {
     router.replace('/(auth)/login');
   };
 
-  const onViewable = useRef(({ viewableItems }: { viewableItems: { index: number | null }[] }) => {
-    const i = viewableItems[0]?.index;
-    if (typeof i === 'number') setCurrent(i);
-  }).current;
-
   const onLayout = (e: LayoutChangeEvent) => {
     const w = Math.round(e.nativeEvent.layout.width);
     if (w && w !== containerW) setContainerW(w);
   };
 
+  const onIndexChange = useCallback((i: number) => {
+    setCurrent(i);
+  }, []);
+
   return (
     <Screen padded={false} edges={['top', 'bottom']}>
       <View style={styles.container} onLayout={onLayout}>
-        {containerW > 0 && (
-          <FlatList
-            ref={listRef}
-            data={slides}
-            keyExtractor={(it) => it.id}
-            renderItem={({ item }) => <SlideView slide={item} width={containerW} />}
-            horizontal
-            pagingEnabled
-            showsHorizontalScrollIndicator={false}
-            onViewableItemsChanged={onViewable}
-            viewabilityConfig={{ viewAreaCoveragePercentThreshold: 50 }}
-            getItemLayout={(_, index) => ({
-              length: containerW,
-              offset: containerW * index,
-              index,
-            })}
-          />
-        )}
-
+        <OnboardingTopBar step={current + 1} total={slides.length} />
+        <OnboardingCarousel
+          ref={carouselRef}
+          width={containerW}
+          slides={slides}
+          strings={t}
+          onIndexChange={onIndexChange}
+        />
         <View style={styles.bottom}>
           <Pagination count={slides.length} current={current} />
           <Button
-            label={current === slides.length - 1 ? mn.onboarding.start : mn.common.next}
+            label={current === slides.length - 1 ? t.start : t.next}
             onPress={handleNext}
-            style={{ marginBottom: spacing.sm }}
+            accessibilityLabel={current === slides.length - 1 ? t.start : t.next}
+            style={{ marginBottom: spacing.md }}
           />
-          <Button label={mn.common.skip} variant="ghost" onPress={handleSkip} />
+          <View style={styles.skipWrap}>
+            <Pressable
+              accessibilityRole="button"
+              accessibilityLabel={t.skip}
+              onPress={handleSkip}
+              style={({ focused }) => [styles.skipBtn, focused && webFocus]}
+            >
+              <Text style={styles.skipText}>{t.skip}</Text>
+            </Pressable>
+          </View>
         </View>
       </View>
     </Screen>
@@ -78,5 +88,18 @@ export default function OnboardingScreen() {
 
 const styles = StyleSheet.create({
   container: { flex: 1, justifyContent: 'space-between' },
-  bottom: { paddingHorizontal: spacing.lg, paddingBottom: spacing.lg },
+  bottom: {
+    paddingHorizontal: spacing.lg,
+    paddingBottom: spacing.lg,
+    zIndex: 2,
+    backgroundColor: colors.bg.primary,
+  },
+  skipWrap: { alignItems: 'center' },
+  skipBtn: { paddingVertical: spacing.sm, paddingHorizontal: spacing.md },
+  skipText: {
+    ...typography.body.md,
+    color: colors.text.muted,
+    fontWeight: '600',
+    textDecorationLine: 'underline',
+  },
 });

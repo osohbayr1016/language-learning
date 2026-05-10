@@ -2,7 +2,7 @@ import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { api } from '../../lib/api';
 import type { ExamQuestion, ExamTemplate } from '../../lib/api/exams';
 
-type Result = { total: number; passed: boolean; line: number } | null;
+type Result = import('./MockExamResultsView').MockExamResultPayload | null;
 
 export function useMockExamSession(token: string | null | undefined) {
   const [templates, setTemplates] = useState<ExamTemplate[]>([]);
@@ -17,12 +17,7 @@ export function useMockExamSession(token: string | null | undefined) {
   const autoStartOnce = useRef(false);
   const t0 = useRef(Date.now());
 
-  const selectable = useMemo(() => {
-    const hsk1 = templates.filter((x) => x.hsk_level === 1);
-    const base = (hsk1.length ? hsk1 : templates).slice();
-    base.sort((a, b) => a.id - b.id);
-    return base;
-  }, [templates]);
+  const selectable = useMemo(() => [...templates].sort((a, b) => a.hsk_level - b.hsk_level || a.id - b.id), [templates]);
 
   useEffect(() => {
     autoStartOnce.current = false;
@@ -49,6 +44,8 @@ export function useMockExamSession(token: string | null | undefined) {
     };
   }, [token]);
 
+  const sessionMetaBySid = useRef<Map<number, { max: number; durationMin: number }>>(new Map());
+
   const begin = useCallback(
     async (templateId: number) => {
       if (!token) return;
@@ -56,7 +53,11 @@ export function useMockExamSession(token: string | null | undefined) {
       setStartFailed(false);
       try {
         const s = await api.exams.start(token, templateId);
-        setSid(s.data.session_id);
+        const sess = s.data.session_id;
+        const mx = s.data.max_score;
+        const dm = Math.max(1, Number(s.data.duration_minutes) || 55);
+        sessionMetaBySid.current.set(sess, { max: mx > 0 ? mx : 200, durationMin: dm });
+        setSid(sess);
         setQs(s.data.questions ?? []);
         setIdx(0);
         setAns({});
@@ -93,7 +94,30 @@ export function useMockExamSession(token: string | null | undefined) {
       duration_seconds: Math.round((Date.now() - t0.current) / 1000),
     };
     const r = await api.exams.submit(token, sid, body);
-    setResult({ total: r.data.total_score, passed: r.data.passed, line: r.data.passing_score });
+    const meta = sessionMetaBySid.current.get(sid);
+    sessionMetaBySid.current.delete(sid);
+    const maxScore =
+      meta?.max != null && meta.max > 0
+        ? meta.max
+        : r.data.max_score > 0
+          ? r.data.max_score
+          : 200;
+    const d = r.data;
+    const durationLimitMin = meta?.durationMin ?? 55;
+    setResult({
+      total: d.total_score,
+      passed: d.passed,
+      line: d.passing_score,
+      max: maxScore,
+      listeningScore: d.listening_score,
+      readingScore: d.reading_score,
+      durationSeconds: typeof d.duration_seconds === 'number' ? d.duration_seconds : body.duration_seconds,
+      durationLimitMin,
+      listeningCorrect: d.listening_correct ?? 0,
+      listeningTotal: d.listening_total ?? 0,
+      readingCorrect: d.reading_correct ?? 0,
+      readingTotal: d.reading_total ?? 0,
+    });
   };
 
   return {

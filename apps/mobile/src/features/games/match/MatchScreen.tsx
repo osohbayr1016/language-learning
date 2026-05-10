@@ -25,6 +25,7 @@ export default function MatchScreen() {
   const [matchedPairs, setMatchedPairs] = useState(0);
   const [start, setStart] = useState<number>(Date.now());
   const [done, setDone] = useState(false);
+  const [, bumpTick] = useState(0);
 
   useEffect(() => {
     if (words.length > 0) {
@@ -33,12 +34,30 @@ export default function MatchScreen() {
     }
   }, [words]);
 
+  useEffect(() => {
+    if (loading || done || deck.length === 0) return;
+    const id = setInterval(() => bumpTick((x) => x + 1), 1000);
+    return () => clearInterval(id);
+  }, [loading, done, deck.length]);
+
   const wordsById = useMemo(
     () => Object.fromEntries(words.map((w) => [w.id, w])),
     [words]
   );
 
   const total = words.length;
+  const elapsedSeconds =
+    !loading && deck.length > 0 && !done ? Math.max(0, Math.floor((Date.now() - start) / 1000)) : null;
+
+  const restartMidRound = () => {
+    if (words.length === 0) return;
+    setDeck(buildMatchDeck(words));
+    setMatchedPairs(0);
+    setScore(0);
+    setSelected(null);
+    setWrong([]);
+    setStart(Date.now());
+  };
 
   const finish = async () => {
     const elapsed = Math.max(1, Math.round((Date.now() - start) / 1000));
@@ -72,6 +91,8 @@ export default function MatchScreen() {
           setDeck(buildMatchDeck(words));
           setMatchedPairs(0);
           setScore(0);
+          setSelected(null);
+          setWrong([]);
           setStart(Date.now());
           setDone(false);
         }}
@@ -110,6 +131,8 @@ export default function MatchScreen() {
       <GameHud
         title={mn.games.match}
         score={score}
+        elapsedSeconds={elapsedSeconds}
+        onRestart={restartMidRound}
         progressLabel={`${matchedPairs}/${total}`}
       />
       <View style={styles.grid}>

@@ -1,6 +1,7 @@
 import React from 'react';
 import {
   ActivityIndicator,
+  Platform,
   Pressable,
   StyleSheet,
   Text,
@@ -15,6 +16,8 @@ type Size = 'sm' | 'md' | 'lg';
 
 type Props = {
   label: string;
+  /** Defaults to `label`; use for clearer screen-reader phrasing when needed. */
+  accessibilityLabel?: string;
   onPress?: () => void;
   variant?: Variant;
   size?: Size;
@@ -26,8 +29,19 @@ type Props = {
   style?: ViewStyle;
 };
 
+const webFocusRing =
+  Platform.OS === 'web'
+    ? ({
+        outlineStyle: 'solid' as const,
+        outlineWidth: 2,
+        outlineColor: colors.brand.secondary,
+        outlineOffset: 3,
+      } as const)
+    : null;
+
 export function Button({
   label,
+  accessibilityLabel,
   onPress,
   variant = 'primary',
   size = 'md',
@@ -64,15 +78,24 @@ export function Button({
   };
 
   const textStyles: Record<Variant, TextStyle> = {
-    primary: { color: colors.text.inverse, textTransform: 'uppercase', letterSpacing: 1 },
-    secondary: { color: colors.text.secondary, textTransform: 'uppercase', letterSpacing: 1 },
-    ghost: { color: colors.text.muted, textTransform: 'uppercase', letterSpacing: 1 },
-    danger: { color: colors.text.inverse, textTransform: 'uppercase', letterSpacing: 1 },
+    primary: { color: colors.text.inverse, letterSpacing: 0.2 },
+    secondary: { color: colors.text.secondary, letterSpacing: 0.2 },
+    ghost: { color: colors.text.muted, letterSpacing: 0.2 },
+    danger: { color: colors.text.inverse, letterSpacing: 0.2 },
   };
 
   return (
     <Pressable
-      style={({ pressed }) => [base, variants[variant], pressed && !disabled && styles.pressed, style]}
+      accessibilityRole="button"
+      accessibilityLabel={accessibilityLabel ?? label}
+      accessibilityState={{ disabled: disabled || loading }}
+      style={({ pressed, focused }) => [
+        base,
+        variants[variant],
+        pressed && !disabled && styles.pressed,
+        focused && webFocusRing,
+        style,
+      ]}
       onPress={onPress}
       disabled={disabled || loading}
     >
