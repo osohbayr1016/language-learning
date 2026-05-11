@@ -2,7 +2,6 @@ import { Pressable, StyleSheet, Text, View, type ViewStyle } from 'react-native'
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter, type Href } from 'expo-router';
 import { mn } from '../../i18n/mn';
-import { safeBack } from '../../lib/navigation/safeBack';
 import { colors, radius, spacing, typography } from '../../theme';
 
 type Props = { title: string; fallback: Href; style?: ViewStyle };
@@ -14,7 +13,7 @@ export function ProfileScreenBackBar({ title, fallback, style }: Props) {
       <Pressable
         accessibilityRole="button"
         accessibilityLabel={mn.common.back}
-        onPress={() => safeBack(router, fallback)}
+        onPress={() => router.replace(fallback)}
         style={({ pressed }) => [styles.backBtn, pressed && styles.backBtnPressed]}
       >
         <Ionicons name="chevron-back" size={22} color={colors.text.primary} />

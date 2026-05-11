@@ -1,8 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { useRouter } from 'expo-router';
-import { safeBack } from '../../lib/navigation/safeBack';
+import { type Href, useRouter } from 'expo-router';
 import { colors, radius, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
 
@@ -12,7 +11,7 @@ export function InsightsHeader() {
     <View style={styles.row}>
       <Pressable
         accessibilityRole="button"
-        onPress={() => safeBack(router, '/(tabs)/profile')}
+        onPress={() => router.replace('/(tabs)/profile' as Href)}
         style={({ pressed }) => [styles.back, pressed && styles.pressed]}
       >
         <Ionicons name="chevron-back" size={22} color={colors.text.primary} />

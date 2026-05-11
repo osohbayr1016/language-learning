@@ -111,6 +111,11 @@ export const mn = {
     shareCopied: 'Хуулсан',
     shareProgressMsg:
       '{appName} — өдрийн зорилго {goal} XP. Онцлох: {streak} өдрийн дараалал. Нийт XP: {xp}.',
+    chooseAvatar: 'Дүр сонгох',
+    avatarHint: 'Дуртай дүрээ сонгоод доорх «Хадгалах» дарна уу.',
+    avatarPreview: 'Урьдчилан харах',
+    avatarDefault: 'Энгийн',
+    avatarSaveError: 'Дүр хадгалагдсангүй. Дахин оролдоно уу.',
   },
   pron: {
     tap: 'Тап: хэвийн хурдтай',

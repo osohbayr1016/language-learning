@@ -1,14 +1,14 @@
 import React from 'react';
-import { Image, StyleSheet, Text, View } from 'react-native';
+import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Card } from '../../primitives';
+import { ProfileAvatarDisplay } from '../../features/profile/ProfileAvatarDisplay';
 import { colors, spacing, typography } from '../../theme';
 import type { LeaderboardRow as Row } from '../../lib/api/games';
 
 type Props = { row: Row; rank: number };
 
 export function LeaderboardRow({ row, rank }: Props) {
-  const initial = (row.display_name || '?').slice(0, 1).toUpperCase();
   const isPodium = rank <= 3;
   const podiumColor = rank === 1 ? colors.warning : rank === 2 ? colors.text.secondary : '#CD7F32';
 
@@ -21,13 +21,13 @@ export function LeaderboardRow({ row, rank }: Props) {
           <Text style={styles.rank}>#{rank}</Text>
         )}
       </View>
-      {row.avatar_url ? (
-        <Image source={{ uri: row.avatar_url }} style={styles.avatar} />
-      ) : (
-        <View style={[styles.avatar, styles.placeholder]}>
-          <Text style={styles.initial}>{initial}</Text>
-        </View>
-      )}
+      <ProfileAvatarDisplay
+        avatarUrl={row.avatar_url}
+        size={40}
+        fallbackLabel={row.display_name}
+        emptyStyle="initial"
+        style={styles.avatar}
+      />
       <View style={styles.body}>
         <Text style={styles.name} numberOfLines={1}>{row.display_name}</Text>
         <View style={styles.metaRow}>
@@ -45,14 +45,7 @@ const styles = StyleSheet.create({
   row: { flexDirection: 'row', alignItems: 'center', marginBottom: spacing.sm },
   rankBox: { width: 36, alignItems: 'center' },
   rank: { ...typography.heading.sm, color: colors.text.secondary },
-  avatar: {
-    width: 40,
-    height: 40,
-    borderRadius: 20,
-    marginHorizontal: spacing.sm,
-  },
-  placeholder: { backgroundColor: colors.bg.elevated, alignItems: 'center', justifyContent: 'center' },
-  initial: { ...typography.heading.sm, color: colors.text.primary },
+  avatar: { marginHorizontal: spacing.sm },
   body: { flex: 1 },
   name: { ...typography.heading.sm, color: colors.text.primary },
   metaRow: { flexDirection: 'row', gap: 4, marginTop: 2 },
