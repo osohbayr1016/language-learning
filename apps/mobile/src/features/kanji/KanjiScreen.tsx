@@ -1,30 +1,54 @@
-import React, { useEffect, useState } from 'react';
-import { ActivityIndicator, Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState, useCallback } from 'react';
+import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '../../primitives';
-import { colors, radius, spacing, typography } from '../../theme';
+import { colors, radius, spacing, typography, shadows } from '../../theme';
 import { mn } from '../../i18n/mn';
 import { api } from '../../lib/api';
-import type { Word } from '../../lib/types';
+import type { Word, WordWithProgress } from '../../lib/types';
 import { useRouter } from 'expo-router';
+import { useAuth } from '../../context/AuthContext';
+import { Ionicons } from '@expo/vector-icons';
+
+type ProgressState = 'none' | 'learned' | 'mastered';
+
+function getProgressState(wp: WordWithProgress): ProgressState {
+  if ((wp.repetitions ?? 0) >= 3) return 'mastered';
+  if ((wp.repetitions ?? 0) >= 1) return 'learned';
+  return 'none';
+}
 
 export default function KanjiScreen() {
   const [kanjis, setKanjis] = useState<Word[]>([]);
+  const [progressMap, setProgressMap] = useState<Record<number, ProgressState>>({});
   const [loading, setLoading] = useState(true);
   const router = useRouter();
+  const { token } = useAuth();
+
+  const loadData = useCallback(async () => {
+    setLoading(true);
+    try {
+      const res = await api.words.list({ single_char: 1, limit: 500 });
+      setKanjis(res.data);
+
+      if (token) {
+        // Fetch all pages of user vocabulary to build progress map
+        const vocabRes = await api.user.vocabulary(token, { limit: 500 });
+        const map: Record<number, ProgressState> = {};
+        for (const w of vocabRes.data) {
+          map[w.id] = getProgressState(w);
+        }
+        setProgressMap(map);
+      }
+    } catch (e) {
+      console.error('Failed to load kanjis:', e);
+    } finally {
+      setLoading(false);
+    }
+  }, [token]);
 
   useEffect(() => {
-    async function load() {
-      try {
-        const res = await api.words.list({ single_char: 1, limit: 500 });
-        setKanjis(res.data);
-      } catch (e) {
-        console.error('Failed to load kanjis:', e);
-      } finally {
-        setLoading(false);
-      }
-    }
-    void load();
-  }, []);
+    void loadData();
+  }, [loadData]);
 
   const grouped = kanjis.reduce((acc, word) => {
     const lvl = word.hsk_level || 1;
@@ -34,6 +58,14 @@ export default function KanjiScreen() {
   }, {} as Record<number, Word[]>);
 
   const levels = Object.keys(grouped).map(Number).sort((a, b) => a - b);
+
+  // Compute per-level progress summary
+  const levelStats = levels.reduce((acc, lvl) => {
+    const words = grouped[lvl];
+    const learned = words.filter(w => progressMap[w.id] && progressMap[w.id] !== 'none').length;
+    acc[lvl] = { total: words.length, learned };
+    return acc;
+  }, {} as Record<number, { total: number; learned: number }>);
 
   return (
     <Screen scroll scrollBottomInset={70}>
@@ -51,32 +83,71 @@ export default function KanjiScreen() {
           <Text style={styles.empty}>{mn.kanji.empty}</Text>
         </View>
       ) : (
-        levels.map((lvl) => (
-          <View key={lvl} style={styles.section}>
-            <Text style={styles.sectionTitle}>{mn.kanji.hskLevel.replace('{level}', String(lvl))}</Text>
-            <View style={styles.grid}>
-              {grouped[lvl].map((word) => (
-                <Pressable
-                  key={word.id}
-                  style={({ pressed }) => [styles.card, pressed && styles.cardPressed]}
-                  onPress={() => {
-                    // Navigate to writer
-                    router.push({
-                      pathname: '/kanji/[id]',
-                      params: { id: word.id },
-                    });
-                  }}
-                >
-                  <Text style={styles.hanzi}>{word.hanzi}</Text>
-                  <Text style={styles.pinyin}>{word.pinyin}</Text>
-                  <Text style={styles.meaning} numberOfLines={1}>
-                    {word.meaning_mn}
+        levels.map((lvl) => {
+          const stats = levelStats[lvl];
+          const hskColor = colors.hsk[lvl as keyof typeof colors.hsk] ?? colors.brand.primary;
+          const pct = stats.total > 0 ? stats.learned / stats.total : 0;
+          return (
+            <View key={lvl} style={styles.section}>
+              {/* Section header */}
+              <View style={styles.sectionHeader}>
+                <View style={[styles.hskBadge, { backgroundColor: hskColor + '20', borderColor: hskColor + '60' }]}>
+                  <Text style={[styles.hskBadgeText, { color: hskColor }]}>HSK {lvl}</Text>
+                </View>
+                <View style={styles.sectionMeta}>
+                  <Text style={styles.sectionProgressText}>
+                    {stats.learned} / {stats.total} суралаа
                   </Text>
-                </Pressable>
-              ))}
+                  <View style={styles.sectionProgressBar}>
+                    <View style={[styles.sectionProgressFill, { width: `${pct * 100}%` as any, backgroundColor: hskColor }]} />
+                  </View>
+                </View>
+              </View>
+
+              <View style={styles.grid}>
+                {grouped[lvl].map((word) => {
+                  const state = progressMap[word.id] ?? 'none';
+                  const hskC = colors.hsk[word.hsk_level as keyof typeof colors.hsk] ?? colors.brand.primary;
+                  return (
+                    <Pressable
+                      key={word.id}
+                      style={({ pressed }) => [
+                        styles.card,
+                        state === 'mastered' && styles.cardMastered,
+                        state === 'learned' && styles.cardLearned,
+                        pressed && styles.cardPressed,
+                      ]}
+                      onPress={() => {
+                        router.push({
+                          pathname: '/kanji/[id]',
+                          params: { id: word.id },
+                        });
+                      }}
+                    >
+                      {/* Progress badge */}
+                      {state === 'mastered' && (
+                        <View style={[styles.badge, styles.badgeMastered]}>
+                          <Ionicons name="star" size={10} color="#fff" />
+                        </View>
+                      )}
+                      {state === 'learned' && (
+                        <View style={[styles.badge, styles.badgeLearned]}>
+                          <Ionicons name="checkmark" size={10} color="#fff" />
+                        </View>
+                      )}
+
+                      <Text style={[styles.hanzi, state !== 'none' && styles.hanziLearned]}>
+                        {word.hanzi}
+                      </Text>
+                      <Text style={styles.pinyin} numberOfLines={1}>{word.pinyin}</Text>
+                      <Text style={styles.meaning} numberOfLines={1}>{word.meaning_mn}</Text>
+                    </Pressable>
+                  );
+                })}
+              </View>
             </View>
-          </View>
-        ))
+          );
+        })
       )}
     </Screen>
   );
@@ -86,11 +157,11 @@ const styles = StyleSheet.create({
   header: {
     paddingVertical: spacing.lg,
     paddingHorizontal: spacing.md,
-    backgroundColor: colors.bg.elevated,
+    backgroundColor: colors.brand.primary + '15',
     borderRadius: radius.lg,
     marginBottom: spacing.lg,
     borderWidth: 1,
-    borderColor: colors.border,
+    borderColor: colors.brand.primary + '40',
   },
   title: {
     ...typography.heading.lg,
@@ -112,11 +183,40 @@ const styles = StyleSheet.create({
   section: {
     marginBottom: spacing.xl,
   },
-  sectionTitle: {
-    ...typography.heading.sm,
-    color: colors.text.primary,
+  sectionHeader: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    gap: spacing.md,
     marginBottom: spacing.md,
-    marginLeft: spacing.xs,
+  },
+  hskBadge: {
+    paddingHorizontal: spacing.sm + 4,
+    paddingVertical: spacing.xs,
+    borderRadius: radius.full,
+    borderWidth: 1.5,
+  },
+  hskBadgeText: {
+    fontSize: 13,
+    fontWeight: '800',
+  },
+  sectionMeta: {
+    flex: 1,
+    gap: 4,
+  },
+  sectionProgressText: {
+    ...typography.body.sm,
+    color: colors.text.secondary,
+    fontWeight: '600',
+  },
+  sectionProgressBar: {
+    height: 5,
+    backgroundColor: colors.border,
+    borderRadius: radius.full,
+    overflow: 'hidden',
+  },
+  sectionProgressFill: {
+    height: '100%',
+    borderRadius: radius.full,
   },
   grid: {
     flexDirection: 'row',
@@ -124,34 +224,64 @@ const styles = StyleSheet.create({
     gap: spacing.sm,
   },
   card: {
-    width: '31%', // roughly 3 per row
+    width: '31%',
     backgroundColor: colors.bg.primary,
     borderRadius: radius.md,
     padding: spacing.sm,
     alignItems: 'center',
-    borderWidth: 1,
+    borderWidth: 1.5,
     borderColor: colors.border,
     aspectRatio: 1,
     justifyContent: 'center',
+    position: 'relative',
+    ...shadows.sm,
+  },
+  cardLearned: {
+    borderColor: colors.brand.primary + '80',
+    backgroundColor: colors.brand.primary + '08',
+  },
+  cardMastered: {
+    borderColor: '#FFC800',
+    backgroundColor: '#FFC80012',
   },
   cardPressed: {
     opacity: 0.7,
-    borderColor: colors.brand.primary,
+    transform: [{ scale: 0.97 }],
+  },
+  badge: {
+    position: 'absolute',
+    top: 5,
+    right: 5,
+    width: 18,
+    height: 18,
+    borderRadius: 9,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  badgeLearned: {
+    backgroundColor: colors.brand.primary,
+  },
+  badgeMastered: {
+    backgroundColor: '#FFC800',
   },
   hanzi: {
-    fontSize: 32,
+    fontSize: 30,
     fontWeight: '700',
     color: colors.text.primary,
-    marginBottom: 4,
+    marginBottom: 2,
+  },
+  hanziLearned: {
+    color: colors.brand.primaryDark,
   },
   pinyin: {
-    ...typography.body.xs,
+    fontSize: 10,
     color: colors.text.secondary,
+    textAlign: 'center',
   },
   meaning: {
-    ...typography.body.xs,
+    fontSize: 10,
     color: colors.text.muted,
-    marginTop: 2,
+    marginTop: 1,
     textAlign: 'center',
   },
 });

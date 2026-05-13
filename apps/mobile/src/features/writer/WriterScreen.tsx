@@ -1,7 +1,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { ActivityIndicator, StyleSheet, Text, View, useWindowDimensions } from 'react-native';
+import { useRouter } from 'expo-router';
 import { Button, Screen } from '../../primitives';
-import { useDueWords } from '../../hooks/useDueWords';
 import { useGameSession } from '../../hooks/useGameSession';
 import { colors, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
@@ -11,9 +11,12 @@ import { HanziWriterView, type HanziWriterEvent, type HanziWriterMode } from '..
 import { WriterControls } from './WriterControls';
 import { CharacterPicker } from './CharacterPicker';
 import { AccuracyMeter } from './AccuracyMeter';
+import { useWriterScreenWords } from './useWriterScreenWords';
+import { addKanjiActivity } from '../kanji/kanjiActivityStorage';
 
 export default function WriterScreen() {
-  const { words, loading, error } = useDueWords(8, 'writer');
+  const router = useRouter();
+  const { words, loading, error, kanjiForced, forcedWordId } = useWriterScreenWords();
   const { save } = useGameSession();
   const { width } = useWindowDimensions();
   const canvasSize = Math.min(width - spacing.lg * 2, 320);
@@ -44,7 +47,17 @@ export default function WriterScreen() {
     );
   }
   if (words.length === 0) {
-    return <StudyEmptyState message={error ? mn.study.wordsLoadError : undefined} />;
+    return (
+      <StudyEmptyState
+        message={
+          error
+            ? mn.study.wordsLoadError
+            : kanjiForced
+              ? 'Энэ ханз ачааллаагүй эсвэл олдсонгүй.'
+              : undefined
+        }
+      />
+    );
   }
 
   const handleEvent = (e: HanziWriterEvent) => {
@@ -68,6 +81,11 @@ export default function WriterScreen() {
         words_practiced: 1,
         xp_earned: xp,
       });
+      if (kanjiForced && forcedWordId != null && current!.id === forcedWordId) {
+        await addKanjiActivity(forcedWordId, 'write');
+        router.back();
+        return;
+      }
       if (idx + 1 >= words.length) {
         setIdx(0);
       } else {
@@ -82,7 +100,9 @@ export default function WriterScreen() {
   return (
     <Screen scroll>
       <StudyHeader title={mn.study.writer} index={idx} total={words.length} />
-      <CharacterPicker words={words} current={current!} onPick={(w) => setIdx(words.findIndex((x) => x.id === w.id))} />
+      {words.length > 1 ? (
+        <CharacterPicker words={words} current={current!} onPick={(w) => setIdx(words.findIndex((x) => x.id === w.id))} />
+      ) : null}
       <View style={styles.canvasWrap}>
         <HanziWriterView
           key={`${current!.id}-${mode}`}

@@ -5,3 +5,4 @@ export { Pill } from './Pill';
 export { ProgressBar } from './ProgressBar';
 export { Sheet } from './Sheet';
 export { Input } from './Input';
+export { Dialog } from './Dialog';

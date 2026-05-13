@@ -1,7 +1,6 @@
 import React, { useEffect, useState, useMemo } from 'react';
 import {
   ActivityIndicator,
-  Alert,
   KeyboardAvoidingView,
   Platform,
   Pressable,
@@ -16,20 +15,13 @@ import { api } from '../../lib/api';
 import type { Word } from '../../lib/types';
 import type { AdminChapter } from '../../lib/api/admin';
 import { useAuth } from '../../context/AuthContext';
+import { Screen, Button, Pill, Dialog } from '../../primitives';
+import { PronounceButton } from '../../components/audio/PronounceButton';
 import { colors, radius, spacing, typography } from '../../theme';
 
 type Tab = 'basic' | 'listening' | 'writing' | 'lesson';
 
 type Props = { wordId: number };
-
-function toast(title: string, msg?: string) {
-  if (Platform.OS === 'web') {
-    const g = globalThis as { alert?: (s: string) => void };
-    g.alert?.(msg ? `${title}\n${msg}` : title);
-    return;
-  }
-  Alert.alert(title, msg);
-}
 
 export function AdminWordDetailScreen({ wordId }: Props) {
   const { token } = useAuth();
@@ -45,6 +37,15 @@ export function AdminWordDetailScreen({ wordId }: Props) {
   // Lesson tab state
   const [searchQ, setSearchQ] = useState('');
   const [addLessonId, setAddLessonId] = useState<number | null>(null);
+
+  // Dialog state
+  const [dialogVisible, setDialogVisible] = useState(false);
+  const [dialogContent, setDialogContent] = useState({ title: '', message: '' });
+
+  const showDialog = (title: string, message?: string) => {
+    setDialogContent({ title, message: message || '' });
+    setDialogVisible(true);
+  };
 
   useEffect(() => {
     if (!token) return;
@@ -62,7 +63,7 @@ export function AdminWordDetailScreen({ wordId }: Props) {
         }
       })
       .catch((e) => {
-        if (!cancelled) toast('Алдаа', (e as Error).message);
+        if (!cancelled) showDialog('Алдаа', (e as Error).message);
       })
       .finally(() => {
         if (!cancelled) setLoading(false);
@@ -78,7 +79,7 @@ export function AdminWordDetailScreen({ wordId }: Props) {
   const save = async () => {
     if (!token || !word) return;
     if (!draft.hanzi?.trim() || !draft.pinyin?.trim() || !draft.meaning_mn?.trim()) {
-      toast('Алдаа', 'Ханз, Pinyin, Утга заавал байна.');
+      showDialog('Алдаа', 'Ханз, Pinyin, Утга заавал байна.');
       return;
     }
     setSaving(true);
@@ -87,9 +88,9 @@ export function AdminWordDetailScreen({ wordId }: Props) {
       const full = await api.words.get(wordId);
       setWord(full.data);
       setDraft(full.data);
-      toast('Амжилттай', 'Үг шинэчлэгдлээ');
+      showDialog('Амжилттай', 'Үг шинэчлэгдлээ');
     } catch (e) {
-      toast('Алдаа', (e as Error).message);
+      showDialog('Алдаа', (e as Error).message);
     } finally {
       setSaving(false);
     }
@@ -97,36 +98,17 @@ export function AdminWordDetailScreen({ wordId }: Props) {
 
   const del = async () => {
     if (!token || !word) return;
-    if (Platform.OS === 'web') {
-      const g = globalThis as { confirm?: (s: string) => boolean };
-      if (!g.confirm?.(`"${draft.hanzi}" үгийг устгах уу?`)) return;
-    } else {
-      Alert.alert('Устгах', `"${draft.hanzi}" үгийг устгах уу?`, [
-        { text: 'Буцах', style: 'cancel' },
-        {
-          text: 'Устгах',
-          style: 'destructive',
-          onPress: async () => {
-            try {
-              await api.words.remove(token, wordId);
-              toast('Устгагдлаа');
-              router.back();
-            } catch (e) {
-              toast('Алдаа', (e as Error).message);
-            }
-          },
-        },
-      ]);
-      return;
-    }
-
+    
     // Web fallback for delete
+    const g = globalThis as { confirm?: (s: string) => boolean };
+    if (!g.confirm?.(`"${draft.hanzi}" үгийг устгах уу?`)) return;
+    
     try {
       await api.words.remove(token, wordId);
-      toast('Устгагдлаа');
+      // We don't show dialog here because we are navigating away immediately.
       router.back();
     } catch (e) {
-      toast('Алдаа', (e as Error).message);
+      showDialog('Алдаа', (e as Error).message);
     }
   };
 
@@ -134,10 +116,10 @@ export function AdminWordDetailScreen({ wordId }: Props) {
     if (!token || !addLessonId) return;
     try {
       await api.admin.addLessonWord(token, addLessonId, wordId);
-      toast('Амжилттай', 'Хичээлд нэмэгдлээ');
+      showDialog('Амжилттай', 'Хичээлд нэмэгдлээ');
       setAddLessonId(null);
     } catch (e) {
-      toast('Алдаа', (e as Error).message);
+      showDialog('Алдаа', (e as Error).message);
     }
   };
 
@@ -310,6 +292,12 @@ export function AdminWordDetailScreen({ wordId }: Props) {
           </Pressable>
         </View>
       </ScrollView>
+      <Dialog
+        visible={dialogVisible}
+        title={dialogContent.title}
+        message={dialogContent.message}
+        onClose={() => setDialogVisible(false)}
+      />
     </KeyboardAvoidingView>
   );
 }

@@ -7,6 +7,7 @@ import { HomeHeader } from './HomeHeader';
 import { DueTodayCard } from './DueTodayCard';
 import { DailyGoalCard } from './DailyGoalCard';
 import { Hsk1ProgramSection } from '../study/Hsk1ProgramSection';
+import { LeaderboardPreview } from './LeaderboardPreview';
 
 export default function HomeScreen() {
   const { stats, streak, dueToday, dailyGoal, refresh } = useGamification();
@@ -32,6 +33,7 @@ export default function HomeScreen() {
       <DueTodayCard dueCount={dueToday} />
       <DailyGoalCard totalXp={stats?.total_xp ?? 0} goal={dailyGoal} />
       <Hsk1ProgramSection />
+      <LeaderboardPreview />
     </Screen>
   );
 }
