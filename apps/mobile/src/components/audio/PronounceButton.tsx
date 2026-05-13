@@ -102,20 +102,11 @@ export function PronounceButton({
             {active === 'hold' ? <Text style={styles.badge}>удаан</Text> : null}
           </Pressable>
         </GestureDetector>
-        {mnTrim ? (
-          <Pressable
-            accessibilityRole="button"
-            accessibilityLabel="Орчуулга сонсох"
-            onPress={() => { void playMeaningMn(mnTrim); }}
-            style={[styles.mnBtn, { minHeight: dim[size] }]}
-          >
-            <Text style={styles.mnBtnText}>MN</Text>
-          </Pressable>
-        ) : null}
+
       </View>
       {showHints ? (
         <Text style={styles.hint}>
-          {mnTrim ? 'тап · удаан барих · 2 дарах · MN орчуулга' : 'тап · удаан барих · 2 дарах'}
+          тап · удаан барих · 2 дарах
         </Text>
       ) : null}
     </View>

@@ -41,7 +41,9 @@ export default function AdminLayout() {
       <Stack.Screen name="vocabulary" options={{ title: 'Үгийн сан' }} />
       <Stack.Screen name="cartoons" options={{ title: 'Хүүхэлдэй' }} />
       <Stack.Screen name="users" options={{ title: 'Хэрэглэгчид' }} />
-      <Stack.Screen name="words" options={{ title: 'Шинэ ханз' }} />
+      <Stack.Screen name="words" options={{ title: 'Олноор оруулах' }} />
+      <Stack.Screen name="words/new" options={{ title: 'Шинэ үг' }} />
+      <Stack.Screen name="word/[id]" options={{ title: 'Үг засах' }} />
       <Stack.Screen name="lesson/[id]" options={{ title: 'Хичээл' }} />
     </Stack>
   );

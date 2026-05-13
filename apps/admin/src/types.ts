@@ -13,6 +13,8 @@ export type Word = {
   id: number;
   hanzi: string;
   pinyin: string;
+  pinyin_numbered?: string;
+  tones?: string; // JSON string e.g. "[3,3]"
   meaning_mn: string;
   meaning_en?: string;
   hsk_level: number;
@@ -20,6 +22,9 @@ export type Word = {
   example_zh?: string;
   example_pinyin?: string;
   example_mn?: string;
+  audio_url?: string | null;
+  stroke_count?: number;
+  textbook_unit?: string;
 };
 
 export type AdminStats = {

@@ -6,10 +6,7 @@ import { api } from '../../lib/api';
 import { HomeHeader } from './HomeHeader';
 import { DueTodayCard } from './DueTodayCard';
 import { DailyGoalCard } from './DailyGoalCard';
-import { QuickActions } from './QuickActions';
-import { ExploreRow } from './ExploreRow';
-import { LeaderboardPreview } from './LeaderboardPreview';
-import { Hsk1JourneySummaryCard } from './Hsk1JourneySummaryCard';
+import { Hsk1ProgramSection } from '../study/Hsk1ProgramSection';
 
 export default function HomeScreen() {
   const { stats, streak, dueToday, dailyGoal, refresh } = useGamification();
@@ -32,12 +29,9 @@ export default function HomeScreen() {
   return (
     <Screen scroll scrollBottomInset={70}>
       <HomeHeader name={name} streak={streak?.current_streak ?? 0} />
-      <Hsk1JourneySummaryCard />
       <DueTodayCard dueCount={dueToday} />
       <DailyGoalCard totalXp={stats?.total_xp ?? 0} goal={dailyGoal} />
-      <QuickActions />
-      <ExploreRow />
-      <LeaderboardPreview />
+      <Hsk1ProgramSection />
     </Screen>
   );
 }

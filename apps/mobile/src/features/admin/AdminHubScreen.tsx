@@ -1,19 +1,48 @@
-import React, { useEffect, useMemo, useState } from 'react';
-import { ScrollView, StyleSheet, Text, View } from 'react-native';
+import React, { useEffect, useState } from 'react';
+import { Pressable, ScrollView, StyleSheet, Text, View, Dimensions } from 'react-native';
 import { useRouter } from 'expo-router';
+import { Ionicons } from '@expo/vector-icons';
 import { useAuth } from '../../context/AuthContext';
-import { Card } from '../../primitives';
 import { mn } from '../../i18n/mn';
 import { api } from '../../lib/api';
 import type { AdminStats } from '../../lib/api/admin';
-import { colors, spacing, typography } from '../../theme';
-import { AdminHubRow } from './AdminHubRow';
+import { colors, radius, spacing, typography } from '../../theme';
 import { AdminHubStatsStrip } from './AdminHubStatsStrip';
-import { buildAdminHubSections } from './adminHubSections';
+
+const { width } = Dimensions.get('window');
+const cardMargin = spacing.sm;
+const cardWidth = (width - spacing.lg * 2 - cardMargin) / 2;
+
+type BentoCardProps = {
+  title: string;
+  icon: keyof typeof Ionicons.glyphMap;
+  color: string;
+  href: any;
+  fullWidth?: boolean;
+};
+
+function BentoCard({ title, icon, color, href, fullWidth }: BentoCardProps) {
+  const router = useRouter();
+  
+  return (
+    <Pressable
+      onPress={() => router.push(href)}
+      style={({ pressed }) => [
+        styles.card,
+        fullWidth ? styles.cardFull : styles.cardHalf,
+        pressed && styles.cardPressed
+      ]}
+    >
+      <View style={[styles.iconContainer, { backgroundColor: `${color}15` }]}>
+        <Ionicons name={icon} size={28} color={color} />
+      </View>
+      <Text style={styles.cardTitle}>{title}</Text>
+    </Pressable>
+  );
+}
 
 export function AdminHubScreen() {
   const { token } = useAuth();
-  const router = useRouter();
   const [hubStats, setHubStats] = useState<AdminStats | null>(null);
 
   useEffect(() => {
@@ -32,8 +61,6 @@ export function AdminHubScreen() {
     };
   }, [token]);
 
-  const sections = useMemo(() => buildAdminHubSections(hubStats), [hubStats]);
-
   if (!token) {
     return (
       <View style={styles.center}>
@@ -44,25 +71,71 @@ export function AdminHubScreen() {
 
   return (
     <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
-      <Text style={styles.title}>{mn.admin.hubTitle}</Text>
-      <Text style={styles.intro}>{mn.admin.hubIntro}</Text>
+      <View style={styles.header}>
+        <Text style={styles.title}>{mn.admin.hubTitle}</Text>
+        <Text style={styles.intro}>{mn.admin.hubIntro}</Text>
+      </View>
+
       <AdminHubStatsStrip stats={hubStats} />
 
-      {sections.map((sec) => (
-        <View key={sec.title} style={styles.section}>
-          <Text style={styles.sectionTitle}>{sec.title}</Text>
-          <Card padding={0} style={styles.card}>
-            {sec.items.map((item, idx) => (
-              <AdminHubRow
-                key={item.key}
-                item={item}
-                showDivider={idx < sec.items.length - 1}
-                onPress={() => router.push(item.href)}
-              />
-            ))}
-          </Card>
-        </View>
-      ))}
+      <View style={styles.grid}>
+        {/* Main large actions */}
+        <BentoCard 
+          title="Үгийн сан" 
+          icon="library" 
+          color={colors.hsk[3]} 
+          href="/admin/vocabulary" 
+        />
+        
+        <BentoCard 
+          title="Шинэ үг" 
+          icon="add-circle" 
+          color={colors.accent.teal} 
+          href="/admin/words/new" 
+        />
+        
+        <BentoCard 
+          title="Суралцах зам" 
+          icon="git-branch" 
+          color={colors.hsk[2]} 
+          href="/admin/learning-path" 
+        />
+        
+        <BentoCard 
+          title="HSK 1 Хичээл" 
+          icon="list-circle" 
+          color={colors.brand.primary} 
+          href="/admin/hsk1-lessons" 
+        />
+        
+        <BentoCard 
+          title="Олноор оруулах" 
+          icon="copy" 
+          color={colors.accent.purple} 
+          href="/admin/words" 
+        />
+        
+        <BentoCard 
+          title="Хэрэглэгчид" 
+          icon="people" 
+          color={colors.text.secondary} 
+          href="/admin/users" 
+        />
+        
+        <BentoCard 
+          title="Хүүхэлдэй" 
+          icon="film" 
+          color={colors.accent.amber} 
+          href="/admin/cartoons" 
+        />
+
+        <BentoCard 
+          title="Шалгалт (PDF)" 
+          icon="document-text" 
+          color={colors.brand.secondary} 
+          href="/admin/exam-import" 
+        />
+      </View>
     </ScrollView>
   );
 }
@@ -75,22 +148,71 @@ const styles = StyleSheet.create({
     flexGrow: 1,
     gap: spacing.lg,
   },
-  title: { ...typography.heading.xl, color: colors.text.primary },
+  header: {
+    gap: 4,
+  },
+  title: { 
+    ...typography.heading.xl, 
+    color: colors.text.primary,
+    fontWeight: '800',
+  },
   intro: {
     ...typography.body.md,
     color: colors.text.secondary,
-    lineHeight: 22,
-    marginTop: -spacing.xs,
   },
-  section: { gap: spacing.sm },
-  sectionTitle: {
-    ...typography.body.sm,
+  grid: {
+    flexDirection: 'row',
+    flexWrap: 'wrap',
+    gap: cardMargin,
+  },
+  card: {
+    backgroundColor: colors.bg.primary,
+    borderRadius: radius.xl,
+    padding: spacing.lg,
+    gap: spacing.md,
+    shadowColor: '#000',
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.05,
+    shadowRadius: 8,
+    elevation: 2,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  cardHalf: {
+    width: cardWidth,
+  },
+  cardFull: {
+    width: '100%',
+    flexDirection: 'row',
+    alignItems: 'center',
+    paddingVertical: spacing.xl,
+  },
+  cardPressed: {
+    opacity: 0.8,
+    transform: [{ scale: 0.98 }],
+  },
+  iconContainer: {
+    width: 52,
+    height: 52,
+    borderRadius: 16,
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  cardTitle: {
+    ...typography.heading.sm,
+    color: colors.text.primary,
     fontWeight: '700',
-    color: colors.text.muted,
-    textTransform: 'uppercase',
-    letterSpacing: 0.6,
+    flex: 1,
   },
-  card: { overflow: 'hidden' },
-  center: { flex: 1, justifyContent: 'center', padding: spacing.lg, backgroundColor: colors.bg.secondary },
-  muted: { ...typography.body.md, color: colors.text.muted, textAlign: 'center' },
+  center: { 
+    flex: 1, 
+    justifyContent: 'center', 
+    padding: spacing.lg, 
+    backgroundColor: colors.bg.secondary 
+  },
+  muted: { 
+    ...typography.body.md, 
+    color: colors.text.muted, 
+    textAlign: 'center' 
+  },
 });

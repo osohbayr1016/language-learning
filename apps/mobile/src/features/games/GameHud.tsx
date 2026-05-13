@@ -13,6 +13,7 @@ type Props = {
   /** Алхам болгон секундээр тоологч — тоглоомын хугацаа харагдуулах */
   elapsedSeconds?: number | null;
   progressLabel?: string;
+  combo?: number;
   /** Дүрмийн дундуур шинээр эхлүүлэх */
   onRestart?: () => void;
 };
@@ -23,8 +24,10 @@ function formatElapsed(totalSec: number): string {
   return `${m}:${String(s).padStart(2, '0')}`;
 }
 
-export function GameHud({ title, score, timeLeft, elapsedSeconds, progressLabel, onRestart }: Props) {
+export function GameHud({ title, score, timeLeft, elapsedSeconds, progressLabel, combo = 1, onRestart }: Props) {
   const router = useRouter();
+  const isFever = combo > 2;
+
   return (
     <View style={styles.container}>
       <Pressable
@@ -63,6 +66,12 @@ export function GameHud({ title, score, timeLeft, elapsedSeconds, progressLabel,
             <Text style={[styles.chipText, { color: colors.warning }]}>{timeLeft}s</Text>
           </View>
         ) : null}
+        {combo > 1 ? (
+          <View style={[styles.chip, isFever && styles.feverChip]}>
+            <Ionicons name="flame" size={14} color={isFever ? '#FFF' : colors.warning} />
+            <Text style={[styles.chipText, { color: isFever ? '#FFF' : colors.warning }]}>x{combo}</Text>
+          </View>
+        ) : null}
         <View style={styles.chip}>
           <Ionicons name="star" size={14} color={colors.accent.purple} />
           <Text style={[styles.chipText, { color: colors.accent.purple }]}>{score} {mn.games.score}</Text>
@@ -88,5 +97,8 @@ const styles = StyleSheet.create({
     backgroundColor: colors.bg.elevated,
   },
   chipText: { ...typography.body.sm, fontWeight: '700' },
+  feverChip: {
+    backgroundColor: colors.warning,
+  },
   restartBtn: { padding: 4, justifyContent: 'center' },
 });

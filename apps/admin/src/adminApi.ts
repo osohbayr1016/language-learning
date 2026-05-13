@@ -123,6 +123,8 @@ export const adminApi = {
       params.append('offset', String(offset));
       return req<{ data: Word[]; total: number }>(`/api/words?${params}`);
     },
+    get: (id: number) =>
+      req<{ data: Word }>(`/api/words/${id}`),
     update: (token: string, id: number, body: Partial<Word>) =>
       req<{ message: string }>(`/api/words/${id}`, { method: 'PUT', token, body: JSON.stringify(body) }),
     delete: (token: string, id: number) =>

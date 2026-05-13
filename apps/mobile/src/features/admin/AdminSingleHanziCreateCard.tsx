@@ -24,9 +24,9 @@ function alertUser(title: string, message?: string) {
   Alert.alert(title, message ?? '');
 }
 
-type Props = { hsk: string; onHskChange: (s: string) => void };
+type Props = { hsk: string; onHskChange: (s: string) => void; onCreated?: (id: number) => void };
 
-export function AdminSingleHanziCreateCard({ hsk, onHskChange }: Props) {
+export function AdminSingleHanziCreateCard({ hsk, onHskChange, onCreated }: Props) {
   const { token } = useAuth();
   const [hanzi, setHanzi] = useState('');
   const [pinyin, setPinyin] = useState('');
@@ -65,6 +65,10 @@ export function AdminSingleHanziCreateCard({ hsk, onHskChange }: Props) {
       setExampleZh('');
       setExamplePy('');
       setExampleMn('');
+      
+      if (onCreated) {
+        onCreated(res.data.id);
+      }
     } catch (e) {
       alertUser('Алдаа', (e as Error).message);
     } finally {

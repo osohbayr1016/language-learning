@@ -1,5 +1,6 @@
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useState, useRef } from 'react';
 import { ActivityIndicator, StyleSheet, View } from 'react-native';
+import * as Haptics from 'expo-haptics';
 import { Screen } from '../../../primitives';
 import { useRandomWords } from '../../../hooks/useRandomWords';
 import { useGameSession } from '../../../hooks/useGameSession';
@@ -25,6 +26,8 @@ export default function MatchScreen() {
   const [matchedPairs, setMatchedPairs] = useState(0);
   const [start, setStart] = useState<number>(Date.now());
   const [done, setDone] = useState(false);
+  const [combo, setCombo] = useState(1);
+  const comboTimer = useRef<NodeJS.Timeout | null>(null);
   const [, bumpTick] = useState(0);
 
   useEffect(() => {
@@ -54,6 +57,7 @@ export default function MatchScreen() {
     setDeck(buildMatchDeck(words));
     setMatchedPairs(0);
     setScore(0);
+    setCombo(1);
     setSelected(null);
     setWrong([]);
     setStart(Date.now());
@@ -91,6 +95,7 @@ export default function MatchScreen() {
           setDeck(buildMatchDeck(words));
           setMatchedPairs(0);
           setScore(0);
+          setCombo(1);
           setSelected(null);
           setWrong([]);
           setStart(Date.now());
@@ -100,20 +105,46 @@ export default function MatchScreen() {
     );
   }
 
+  const resetComboTimer = () => {
+    if (comboTimer.current) clearTimeout(comboTimer.current);
+    comboTimer.current = setTimeout(() => {
+      setCombo(1);
+    }, 4000); // 4 seconds to keep combo alive
+  };
+
   const handleTap = (card: MatchCard) => {
     if (selected?.id === card.id) return;
-    if (!selected) { setSelected(card); return; }
+    if (!selected) {
+      setSelected(card);
+      void Haptics.selectionAsync();
+      return;
+    }
+    
     if (selected.wordId === card.wordId && selected.type !== card.type) {
+      // Match!
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Success);
       setDeck((d) => d.map((c) => (c.wordId === card.wordId ? { ...c, matched: true } : c)));
       setSelected(null);
-      setScore((s) => s + 10);
+      
+      const points = 10 * combo;
+      setScore((s) => s + points);
+      setCombo((c) => Math.min(c + 1, 5)); // max combo x5
+      resetComboTimer();
+      
       const next = matchedPairs + 1;
       setMatchedPairs(next);
       void playWord(card.wordId);
-      if (next >= total) void finish();
+      
+      if (next >= total) {
+        if (comboTimer.current) clearTimeout(comboTimer.current);
+        void finish();
+      }
     } else {
+      // Wrong match
+      void Haptics.notificationAsync(Haptics.NotificationFeedbackType.Error);
       setWrong([selected.id, card.id]);
       setSelected(null);
+      setCombo(1);
       setScore((s) => Math.max(0, s - 2));
       setTimeout(() => setWrong([]), 600);
     }
@@ -131,6 +162,7 @@ export default function MatchScreen() {
       <GameHud
         title={mn.games.match}
         score={score}
+        combo={combo}
         elapsedSeconds={elapsedSeconds}
         onRestart={restartMidRound}
         progressLabel={`${matchedPairs}/${total}`}

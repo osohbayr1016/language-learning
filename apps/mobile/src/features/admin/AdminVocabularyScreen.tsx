@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import {
   ActivityIndicator,
   FlatList,
@@ -8,11 +8,10 @@ import {
   TextInput,
   View,
 } from 'react-native';
-import type { Word } from '../../lib/types';
+import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { mn } from '../../i18n/mn';
 import { colors, spacing } from '../../theme';
-import { AdminWordEditModal } from './AdminWordEditModal';
 import { adminVocabularyStyles as styles } from './AdminVocabularyStyles';
 import { useAdminVocabularyList } from './useAdminVocabularyList';
 
@@ -36,8 +35,8 @@ function Chip({
 
 export function AdminVocabularyScreen() {
   const { token } = useAuth();
+  const router = useRouter();
   const a = mn.admin;
-  const [pick, setPick] = useState<Word | null>(null);
   const {
     q,
     setQ,
@@ -51,7 +50,6 @@ export function AdminVocabularyScreen() {
     hasMore,
     total,
     loadMore,
-    reload,
   } = useAdminVocabularyList();
 
   return (
@@ -103,7 +101,7 @@ export function AdminVocabularyScreen() {
             ) : null
           }
           renderItem={({ item }) => (
-            <Pressable style={styles.row} onPress={() => setPick(item)}>
+            <Pressable style={styles.row} onPress={() => router.push(`/admin/word/${item.id}`)}>
               <Text style={styles.hz}>{item.hanzi}</Text>
               <Text style={styles.meta} numberOfLines={2}>
                 HSK {item.hsk_level} · {item.pinyin} · {item.meaning_mn}
@@ -112,15 +110,6 @@ export function AdminVocabularyScreen() {
           )}
         />
       )}
-      {token ? (
-        <AdminWordEditModal
-          visible={!!pick}
-          word={pick}
-          token={token}
-          onClose={() => setPick(null)}
-          onSaved={() => void reload()}
-        />
-      ) : null}
     </View>
   );
 }

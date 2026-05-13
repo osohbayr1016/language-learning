@@ -9,8 +9,8 @@ type TabIconName = React.ComponentProps<typeof Ionicons>['name'];
 const ROUTES: { name: string; label: string; icon: TabIconName; activeIcon: TabIconName }[] = [
   { name: 'home', label: mn.tabs.home, icon: 'home-outline', activeIcon: 'home' },
   { name: 'study', label: mn.tabs.study, icon: 'book-outline', activeIcon: 'book' },
+  { name: 'kanji', label: mn.tabs.kanji, icon: 'language-outline', activeIcon: 'language' },
   { name: 'games', label: mn.tabs.games, icon: 'game-controller-outline', activeIcon: 'game-controller' },
-  { name: 'cartoons', label: mn.tabs.cartoons, icon: 'play-circle-outline', activeIcon: 'play-circle' },
   { name: 'profile', label: mn.tabs.profile, icon: 'person-outline', activeIcon: 'person' },
 ];
 

@@ -115,20 +115,33 @@ words.put('/:id', authMiddleware, adminMiddleware, async (c) => {
     `UPDATE words SET
        hanzi = COALESCE(?, hanzi),
        pinyin = COALESCE(?, pinyin),
+       pinyin_numbered = COALESCE(?, pinyin_numbered),
+       tones = COALESCE(?, tones),
        meaning_mn = COALESCE(?, meaning_mn),
        meaning_en = COALESCE(?, meaning_en),
        hsk_level = COALESCE(?, hsk_level),
        part_of_speech = COALESCE(?, part_of_speech),
        example_zh = COALESCE(?, example_zh),
        example_pinyin = COALESCE(?, example_pinyin),
-       example_mn = COALESCE(?, example_mn)
+       example_mn = COALESCE(?, example_mn),
+       audio_url = COALESCE(?, audio_url),
+       stroke_count = COALESCE(?, stroke_count)
      WHERE id = ?`
   ).bind(
-    body.hanzi ?? null, body.pinyin ?? null,
-    body.meaning_mn ?? null, body.meaning_en ?? null,
-    body.hsk_level ?? null, body.part_of_speech ?? null,
-    body.example_zh ?? null, body.example_pinyin ?? null,
-    body.example_mn ?? null, id
+    body.hanzi ?? null,
+    body.pinyin ?? null,
+    body.pinyin_numbered ?? null,
+    body.tones != null ? JSON.stringify(body.tones) : null,
+    body.meaning_mn ?? null,
+    body.meaning_en ?? null,
+    body.hsk_level ?? null,
+    body.part_of_speech ?? null,
+    body.example_zh ?? null,
+    body.example_pinyin ?? null,
+    body.example_mn ?? null,
+    body.audio_url ?? null,
+    body.stroke_count ?? null,
+    id
   ).run();
 
   return c.json({ message: 'Үг шинэчлэгдлээ' });

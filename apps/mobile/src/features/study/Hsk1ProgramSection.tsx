@@ -55,38 +55,7 @@ export function Hsk1ProgramSection() {
 
   return (
     <View>
-      <Text style={styles.intro}>{mn.study.hsk1ProgramIntro}</Text>
       {advanceGateOk ? <Hsk1AdvanceGateBanner /> : null}
-      <Text style={styles.fundTitle}>{mn.study.hsk1FundamentalsTitle}</Text>
-      <View style={styles.steps}>
-        <FundStep
-          icon="document-attach-outline"
-          label={mn.study.hsk1FundTextbook}
-          hint={mn.study.hsk1FundTextbookHint}
-          onPress={() => void Linking.openURL(HSK1_TEXTBOOK_PDF_URL)}
-        />
-        <FundStep
-          icon="book-outline"
-          label={mn.study.hsk1FundGrammar}
-          hint={mn.study.grammarDesc}
-          onPress={() => router.push('/study/grammar' as never)}
-        />
-        <FundStep
-          icon="play-circle-outline"
-          label={mn.study.hsk1FundFirstLesson}
-          hint={mn.study.hsk1FundFirstLessonHint}
-          onPress={() => {
-            if (firstId != null) router.push(`/lessons/${firstId}` as never);
-            else router.push(hrefStudyTab);
-          }}
-        />
-        <FundStep
-          icon="document-text-outline"
-          label={mn.study.hsk1FundMock}
-          hint={mn.study.mockExamDesc}
-          onPress={() => router.push('/study/mock-exam' as never)}
-        />
-      </View>
       <Text style={styles.listTitle}>{mn.study.hsk1LessonsTitle}</Text>
       <Hsk1LessonList chapters={chapters} />
     </View>

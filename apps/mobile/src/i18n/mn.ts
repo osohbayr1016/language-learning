@@ -40,9 +40,9 @@ export const mn = {
   setup,
   tabs: {
     home: 'Нүүр',
-    study: 'Сурах',
+    study: 'Давтах',
     games: 'Тоглоом',
-    cartoons: 'Хүүхэлдэй',
+    kanji: 'Ханз',
     profile: 'Профайл',
   },
   home: {
@@ -67,15 +67,12 @@ export const mn = {
     perfect: 'Гайхалтай!',
     needsWork: 'Дахин оролдоорой',
   },
-  cartoons: {
-    hub: 'Хүүхэлдэйн кино',
-    watch: 'Үзэх',
-    vocab: 'Сурах үгс',
-    tapWord: 'Дэлгэцэн дээрх үг дээр дарж дуудлагыг сонсоорой',
-    emptyHeadline: 'Удахгүй нэмэгдэнэ',
-    emptyBody:
-      'Одоогоор энд контент байхгүй байна. Хичээлийн хэсгээс үргэлжлүүлэн суралцаарай — хүүхэлдэйг туршилтаар нэмж байна.',
-    emptyCta: 'Сурах хэсэг рүү',
+  kanji: {
+    title: 'Ханз',
+    subtitle: 'Бүх ханзнууд',
+    hskLevel: 'HSK {level}',
+    empty: 'Ханз олдсонгүй',
+    practice: 'Давтах',
   },
   profile: {
     edit: 'Профайл засах',

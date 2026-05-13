@@ -2,6 +2,7 @@ import { useEffect, useState, useCallback } from 'react';
 import { Sidebar } from './components/Sidebar';
 import { DashboardView } from './components/DashboardView';
 import { LearningPathView } from './components/LearningPathView';
+import { WordsView } from './components/WordsView';
 import { VocabularyAdminView } from './components/VocabularyAdminView';
 import { UsersAdminView } from './components/UsersAdminView';
 import { CartoonsView } from './components/CartoonsView';
@@ -15,7 +16,7 @@ type Props = {
 };
 
 export function AdminAppShell({ token, onForbidden }: Props) {
-  const [view, setView] = useState<ViewKey>('dashboard');
+  const [view, setView] = useState<ViewKey>('words');
   const [gateOk, setGateOk] = useState(false);
 
   const forbidden = useCallback(() => {
@@ -55,6 +56,7 @@ export function AdminAppShell({ token, onForbidden }: Props) {
       <Sidebar current={view} onSelect={setView} onSignOut={signOut} />
       <main className="main-content">
         {view === 'dashboard' && <DashboardView token={token} />}
+        {view === 'words' && <WordsView token={token} />}
         {view === 'learningPath' && <LearningPathView token={token} />}
         {view === 'vocabulary' && <VocabularyAdminView token={token} />}
         {view === 'users' && <UsersAdminView token={token} />}

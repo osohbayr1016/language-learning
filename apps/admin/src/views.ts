@@ -1,1 +1,1 @@
-export type ViewKey = 'dashboard' | 'learningPath' | 'vocabulary' | 'users' | 'cartoons' | 'examImport';
+export type ViewKey = 'dashboard' | 'words' | 'learningPath' | 'vocabulary' | 'users' | 'cartoons' | 'examImport';
