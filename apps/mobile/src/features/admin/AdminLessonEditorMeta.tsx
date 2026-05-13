@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import { spacing } from '../../theme';
+import { mn } from '../../i18n/mn';
 import { lessonEditorStyles as styles } from './AdminLessonEditorStyles';
 
 type Props = {
@@ -17,6 +18,7 @@ type Props = {
   onSaveMeta: () => void;
   onDeleteLesson: () => void;
   onAddWord: () => void;
+  onOpenPreview?: () => void;
 };
 
 export function AdminLessonEditorMeta(props: Props) {
@@ -34,6 +36,7 @@ export function AdminLessonEditorMeta(props: Props) {
     onSaveMeta,
     onDeleteLesson,
     onAddWord,
+    onOpenPreview,
   } = props;
 
   return (
@@ -50,6 +53,11 @@ export function AdminLessonEditorMeta(props: Props) {
       <Pressable style={styles.primary} onPress={() => void onSaveMeta()}>
         <Text style={styles.primaryTxt}>Хадгалах</Text>
       </Pressable>
+      {onOpenPreview ? (
+        <Pressable style={styles.secondary} onPress={onOpenPreview}>
+          <Text style={styles.secondaryTxt}>{mn.admin.openLessonPreview}</Text>
+        </Pressable>
+      ) : null}
       <Pressable style={styles.danger} onPress={() => void onDeleteLesson()}>
         <Text style={styles.dangerTxt}>Хичээл устгах</Text>
       </Pressable>

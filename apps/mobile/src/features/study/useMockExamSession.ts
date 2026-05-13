@@ -4,7 +4,10 @@ import type { ExamQuestion, ExamTemplate } from '../../lib/api/exams';
 
 type Result = import('./MockExamResultsView').MockExamResultPayload | null;
 
-export function useMockExamSession(token: string | null | undefined) {
+export function useMockExamSession(
+  token: string | null | undefined,
+  initialTemplateId?: number | null
+) {
   const [templates, setTemplates] = useState<ExamTemplate[]>([]);
   const [sid, setSid] = useState<number | null>(null);
   const [qs, setQs] = useState<ExamQuestion[]>([]);
@@ -14,14 +17,18 @@ export function useMockExamSession(token: string | null | undefined) {
   const [loadingList, setLoadingList] = useState(true);
   const [starting, setStarting] = useState(false);
   const [startFailed, setStartFailed] = useState(false);
+  const [deeplinkInvalid, setDeeplinkInvalid] = useState(false);
   const autoStartOnce = useRef(false);
+  const deeplinkTried = useRef(false);
   const t0 = useRef(Date.now());
 
   const selectable = useMemo(() => [...templates].sort((a, b) => a.hsk_level - b.hsk_level || a.id - b.id), [templates]);
 
   useEffect(() => {
     autoStartOnce.current = false;
-  }, [token]);
+    deeplinkTried.current = false;
+    setDeeplinkInvalid(false);
+  }, [token, initialTemplateId]);
 
   useEffect(() => {
     let cancelled = false;
@@ -75,11 +82,29 @@ export function useMockExamSession(token: string | null | undefined) {
 
   useEffect(() => {
     if (loadingList || !token || sid !== null || starting || startFailed) return;
+
+    const wantDeeplink = initialTemplateId != null && initialTemplateId > 0;
+    if (wantDeeplink) {
+      if (!deeplinkTried.current) {
+        deeplinkTried.current = true;
+        const ok = selectable.some((t) => t.id === initialTemplateId);
+        if (ok) {
+          if (!autoStartOnce.current) {
+            autoStartOnce.current = true;
+            void begin(initialTemplateId);
+          }
+        } else {
+          setDeeplinkInvalid(true);
+        }
+      }
+      return;
+    }
+
     if (selectable.length !== 1) return;
     if (autoStartOnce.current) return;
     autoStartOnce.current = true;
     void begin(selectable[0]!.id);
-  }, [loadingList, token, sid, starting, startFailed, selectable, begin]);
+  }, [loadingList, token, sid, starting, startFailed, selectable, begin, initialTemplateId]);
 
   const pick = (v: string) => {
     const cur = qs[idx];
@@ -131,6 +156,7 @@ export function useMockExamSession(token: string | null | undefined) {
     loadingList,
     starting,
     startFailed,
+    deeplinkInvalid,
     selectable,
     begin,
     pick,

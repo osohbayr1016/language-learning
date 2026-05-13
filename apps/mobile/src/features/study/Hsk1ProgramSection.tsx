@@ -39,9 +39,15 @@ function FundStep({ icon, label, hint, onPress }: StepProps) {
 }
 
 /** Сурах таб — суурь алхмууд + 15 хичээлийн жагсаалт */
+const MAX_HOME_HSK = 3;
+
 export function Hsk1ProgramSection() {
   const router = useRouter();
   const { chapters, loading, advanceGateOk } = useLessonChapters();
+  const homeChapters = useMemo(
+    () => chapters.filter((c) => c.hsk_level <= MAX_HOME_HSK),
+    [chapters],
+  );
   const h1 = useMemo(() => getPrimaryHsk1Chapter(chapters), [chapters]);
   const firstId = useMemo(() => getFirstLessonId(h1), [h1]);
 
@@ -57,7 +63,7 @@ export function Hsk1ProgramSection() {
     <View>
       {advanceGateOk ? <Hsk1AdvanceGateBanner /> : null}
       <Text style={styles.listTitle}>{mn.study.hsk1LessonsTitle}</Text>
-      <Hsk1LessonList chapters={chapters} />
+      <Hsk1LessonList chapters={homeChapters} />
     </View>
   );
 }

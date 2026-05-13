@@ -37,6 +37,8 @@ export const study = {
   hsk1FundTextbookHint: "Олон нийтийн эх сурвалж — үзэж, хэвлэж болно",
   mockExamPickTitle: "Mock сонгох",
   mockExamPickHint: "Олон байвал нэгийг сонгоно — түвшингээр бүлэглэгдсэн (HSK 1, 2 …)",
+  mockExamDeeplinkInvalid:
+    "Энэ шалгалтын загвар олдсонгүй эсвэл нийтлэгдээгүй байна. Буцаж жагсаалтаас сонгоно уу.",
   mockExamQuitTitle: "Mock цуцлах уу?",
   mockExamQuitBody: "Явц хадгалагдахгүй, оноо тооцогдохгүй.",
   mockExamExit: "Гарах",

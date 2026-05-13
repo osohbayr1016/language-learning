@@ -36,6 +36,7 @@ export default function AdminLayout() {
         name="exam-import"
         options={{ title: mn.admin.examPdfImportNavTitle }}
       />
+      <Stack.Screen name="lesson-html-import" options={{ title: 'HTML хичээл импорт' }} />
       <Stack.Screen name="hsk1-lessons" options={{ title: 'HSK 1 хичээлүүд' }} />
       <Stack.Screen name="learning-path" options={{ title: 'Суралцах зам' }} />
       <Stack.Screen name="vocabulary" options={{ title: 'Үгийн сан' }} />
@@ -45,6 +46,10 @@ export default function AdminLayout() {
       <Stack.Screen name="words/new" options={{ title: 'Шинэ үг' }} />
       <Stack.Screen name="word/[id]" options={{ title: 'Үг засах' }} />
       <Stack.Screen name="lesson/[id]" options={{ title: 'Хичээл' }} />
+      <Stack.Screen
+        name="lesson-preview/[id]"
+        options={{ title: mn.admin.lessonPreviewScreenTitle }}
+      />
     </Stack>
   );
 }

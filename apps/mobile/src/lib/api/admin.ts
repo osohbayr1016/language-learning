@@ -33,6 +33,25 @@ export type AdminBulkValidateRow =
   | { ok: true; hanzi: string; strokeCount: number }
   | { ok: false; hanzi: string; error: string };
 
+export type LessonHtmlPreview = {
+  external_lesson_id: string;
+  title_cn: string;
+  title_mn: string;
+  source: string;
+  vocab_count: number;
+  dialogue_count: number;
+  grammar_count: number;
+  workbook_count: number;
+  warnings: string[];
+};
+
+export type LessonHtmlImportResult = LessonHtmlPreview & {
+  lesson_id: number;
+  inserted_words: number;
+  reused_words: number;
+  linked_words: number;
+};
+
 export const adminApi = {
   ...adminPaths,
   users: (token: string, params: { limit?: number; offset?: number } = {}) =>
@@ -62,6 +81,21 @@ export const adminApi = {
     }),
   createWord: (token: string, body: AdminCreateWordBody & { reject_duplicate?: boolean }) =>
     request<{ data: { id: number }; message: string }>('/api/admin/words', {
+      method: 'POST',
+      token,
+      body: JSON.stringify(body),
+    }),
+  previewLessonHtml: (token: string, html: string) =>
+    request<{ data: LessonHtmlPreview }>('/api/admin/lessons/import-html/preview', {
+      method: 'POST',
+      token,
+      body: JSON.stringify({ html }),
+    }),
+  importLessonHtml: (
+    token: string,
+    body: { html: string; chapter_id: number; is_published?: boolean }
+  ) =>
+    request<{ data: LessonHtmlImportResult }>('/api/admin/lessons/import-html', {
       method: 'POST',
       token,
       body: JSON.stringify(body),

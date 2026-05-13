@@ -89,6 +89,7 @@ export function AdminLearningPathScreen() {
           onTogglePublish={() => void toggleChapterPub(ch)}
           onAddLesson={() => void addLesson(ch.id)}
           onOpenLesson={(href) => router.push(href)}
+          onPreviewLesson={(lessonId) => router.push(`/admin/lesson-preview/${lessonId}` as never)}
         />
       )}
       ListEmptyComponent={

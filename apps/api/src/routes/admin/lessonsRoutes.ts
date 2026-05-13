@@ -1,7 +1,17 @@
 import type { Hono } from 'hono';
 import type { Env, Variables } from '../../types';
+import { fetchLessonDetailForAdminPreview } from '../../lib/lessonDetail';
 
 export function registerLessonRoutes(admin: Hono<{ Bindings: Env; Variables: Variables }>) {
+  admin.get('/lessons/:id/preview', async (c) => {
+    const id = Number(c.req.param('id'));
+    if (!Number.isFinite(id)) return c.json({ error: 'Буруу id' }, 400);
+    const { sub } = c.get('user');
+    const result = await fetchLessonDetailForAdminPreview(c.env.DB, id, sub);
+    if (!result.ok) return c.json({ error: 'Хичээл олдсонгүй' }, 404);
+    return c.json({ data: result.data });
+  });
+
   admin.get('/lessons', async (c) => {
     const chapterId = c.req.query('chapter_id');
     if (!chapterId) return c.json({ error: 'chapter_id шаардлагатай' }, 400);

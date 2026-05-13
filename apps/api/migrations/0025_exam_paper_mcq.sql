@@ -5,7 +5,7 @@ PRAGMA foreign_keys=OFF;
 
 CREATE TABLE exam_questions_new (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  template_id INTEGER NOT NULL REFERENCES exam_templates(id) ON DELETE CASCADE,
+  template_id INTEGER NOT NULL,
   section TEXT NOT NULL CHECK(section IN ('listening','reading')),
   part_num INTEGER NOT NULL CHECK(part_num BETWEEN 1 AND 4),
   question_num INTEGER NOT NULL,
@@ -31,6 +31,9 @@ SELECT
   audio_text, question_text, question_pinyin, options, correct_answer, order_num,
   NULL
 FROM exam_questions;
+
+DELETE FROM user_exam_answers;
+DELETE FROM user_exam_sessions;
 
 DROP TABLE exam_questions;
 ALTER TABLE exam_questions_new RENAME TO exam_questions;

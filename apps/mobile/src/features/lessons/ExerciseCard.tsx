@@ -35,5 +35,5 @@ const styles = StyleSheet.create({
     letterSpacing: 1.5,
     marginBottom: spacing.sm,
   },
-  body: { flex: 1, marginTop: spacing.sm },
+  body: { flex: 1, minHeight: 0, marginTop: spacing.sm },
 });

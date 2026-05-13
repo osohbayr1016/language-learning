@@ -1,18 +1,22 @@
 const NO_USER = -1;
 
-/** Нийтэд нээлттэй хичээлийн нэгж — progress нэгтгэх эсвэл зочин (хоосон SRS). */
-export async function fetchPublishedLessonDetail(
+async function fetchLessonDetailPayload(
   db: D1Database,
   lessonId: number,
-  userIdForProgress: number | null
+  userIdForProgress: number | null,
+  publishedOnly: boolean
 ): Promise<
   | { ok: true; data: Record<string, unknown> }
   | { ok: false }
 > {
+  const pubClause = publishedOnly ? 'AND l.is_published = 1' : '';
   const lesson = await db
     .prepare(
-      `SELECT id, chapter_id, title_mn, subtitle_mn, icon, order_num
-       FROM lessons WHERE id = ? AND is_published = 1`
+      `SELECT l.id, l.chapter_id, l.title_mn, l.subtitle_mn, l.icon, l.order_num,
+              c.hsk_level AS chapter_hsk_level
+       FROM lessons l
+       JOIN chapters c ON c.id = l.chapter_id
+       WHERE l.id = ? ${pubClause}`
     )
     .bind(lessonId)
     .first();
@@ -20,6 +24,10 @@ export async function fetchPublishedLessonDetail(
   if (!lesson) return { ok: false };
 
   const bindUid = userIdForProgress === null ? NO_USER : userIdForProgress;
+  const importedContent = await db
+    .prepare('SELECT content_json FROM lesson_contents WHERE lesson_id = ?')
+    .bind(lessonId)
+    .first<{ content_json: string }>();
 
   const wordsRes = await db
     .prepare(
@@ -50,7 +58,32 @@ export async function fetchPublishedLessonDetail(
     data: {
       ...lesson,
       words: wordsRes.results ?? [],
+      imported_content: importedContent?.content_json ? JSON.parse(importedContent.content_json) : null,
       progress: myProgress ?? null,
     },
   };
+}
+
+/** Нийтэд нээлттэй хичээлийн нэгж — progress нэгтгэх эсвэл зочин (хоосон SRS). */
+export async function fetchPublishedLessonDetail(
+  db: D1Database,
+  lessonId: number,
+  userIdForProgress: number | null
+): Promise<
+  | { ok: true; data: Record<string, unknown> }
+  | { ok: false }
+> {
+  return fetchLessonDetailPayload(db, lessonId, userIdForProgress, true);
+}
+
+/** Админ урьдчилан харах — нийтлэгдээгүй ч агуулга татах. */
+export async function fetchLessonDetailForAdminPreview(
+  db: D1Database,
+  lessonId: number,
+  userIdForProgress: number | null
+): Promise<
+  | { ok: true; data: Record<string, unknown> }
+  | { ok: false }
+> {
+  return fetchLessonDetailPayload(db, lessonId, userIdForProgress, false);
 }

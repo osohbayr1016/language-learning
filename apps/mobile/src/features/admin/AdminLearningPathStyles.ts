@@ -27,6 +27,22 @@ export const learningPathStyles = StyleSheet.create({
     borderBottomWidth: 1,
     borderBottomColor: colors.border,
   },
+  lsRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    borderBottomWidth: 1,
+    borderBottomColor: colors.border,
+  },
+  lsMain: { flex: 1, paddingVertical: spacing.sm, paddingHorizontal: spacing.md },
+  lsPreview: {
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    marginRight: spacing.sm,
+    borderRadius: 8,
+    borderWidth: 1,
+    borderColor: colors.brand.secondary,
+  },
+  lsPreviewTxt: { ...typography.body.sm, color: colors.brand.secondary, fontWeight: '700' },
   lsTitle: { ...typography.body.md, color: colors.text.primary, fontWeight: '600' },
   meta: { ...typography.body.sm, color: colors.text.secondary },
   inp: {

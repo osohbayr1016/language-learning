@@ -1,6 +1,7 @@
 import React, { useEffect, useState } from 'react';
 import { StyleSheet, Text, View, Pressable } from 'react-native';
 import { useRouter } from 'expo-router';
+import { safeBack } from '../../lib/navigation/safeBack';
 import { Screen } from '../../primitives';
 import { colors, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
@@ -18,23 +19,43 @@ import {
   exerciseCorrectAnswer,
   exercisePromptFor,
 } from './exercises';
-import { EXERCISE_TITLES } from './types';
+import { exerciseDisplayTitle, isImportedLearnFlow } from './types';
 
-type Props = { lessonId: number };
+export type LessonScreenVariant = 'learn' | 'adminPreview';
 
-export function LessonScreen({ lessonId }: Props) {
+type Props = { lessonId: number; variant?: LessonScreenVariant };
+
+export function LessonScreen({ lessonId, variant = 'learn' }: Props) {
   const router = useRouter();
   const { isAdmin } = useAuth();
-  const { state, current, submit, advance, finalize, accuracy } = useLessonSession(lessonId);
+  const isPreview = variant === 'adminPreview';
+  const { state, current, submit, advance, submitImportedStep, finalize, accuracy } = useLessonSession(
+    lessonId,
+    {
+      mode: isPreview ? 'adminPreview' : 'default',
+    }
+  );
   const [banner, setBanner] = useState<{ correct: boolean } | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
+
+  const exitLesson = () => {
+    if (isPreview) {
+      safeBack(router, '/admin/learning-path');
+      return;
+    }
+    router.replace('/(tabs)/home');
+  };
 
   useEffect(() => {
     if (state.status === 'done') void finalize();
   }, [state.status, finalize]);
 
   const onAnswer = (correct: boolean) => {
+    if (current?.kind === 'imported-section') {
+      submitImportedStep(correct);
+      return;
+    }
     submit(correct);
     setBanner({ correct });
   };
@@ -47,7 +68,7 @@ export function LessonScreen({ lessonId }: Props) {
   const onLeave = () => {
     setLeaveOpen(false);
     setMoreOpen(false);
-    router.replace('/(tabs)/home');
+    exitLesson();
   };
 
   if (state.status === 'loading') {
@@ -67,7 +88,7 @@ export function LessonScreen({ lessonId }: Props) {
             accessibilityRole="button"
             accessibilityLabel={mn.common.back}
             style={styles.errorBtn}
-            onPress={() => router.replace('/(tabs)/home')}
+            onPress={exitLesson}
           >
             <Text style={styles.errorBtnLabel}>{mn.common.back}</Text>
           </Pressable>
@@ -86,7 +107,11 @@ export function LessonScreen({ lessonId }: Props) {
         accuracy={accuracy}
         chapterId={state.detail?.chapter_id}
         currentOrderNum={state.detail?.order_num}
-        onContinue={() => router.replace('/(tabs)/home')}
+        importedContent={state.detail?.imported_content}
+        chapterHskLevel={state.detail?.chapter_hsk_level}
+        enablePostLessonNav={!isPreview}
+        minimalComplete={isImportedLearnFlow(state.exercises) || isPreview}
+        onContinue={exitLesson}
       />
     );
   }
@@ -102,7 +127,7 @@ export function LessonScreen({ lessonId }: Props) {
           onClose={() => setLeaveOpen(true)}
           onMore={() => setMoreOpen(true)}
           onAdminEdit={
-            isAdmin ? () => router.push(`/admin/lesson/${lessonId}` as never) : undefined
+            isAdmin && !isPreview ? () => router.push(`/admin/lesson/${lessonId}` as never) : undefined
           }
         />
       </View>
@@ -110,12 +135,13 @@ export function LessonScreen({ lessonId }: Props) {
       <View style={styles.body}>
         {current ? (
           <ExerciseCard
-            title={EXERCISE_TITLES[current.kind]}
+            title={exerciseDisplayTitle(current)}
             prompt={exercisePromptFor(current)}
           >
             <ExerciseRenderer
               key={current.id}
               exercise={current}
+              lessonWords={state.detail?.words}
               disabled={!!banner}
               onAnswer={onAnswer}
             />

@@ -1,15 +1,15 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { api } from '../../lib/api';
 import { useAuth } from '../../context/AuthContext';
 import { useGamification } from '../../context/GamificationContext';
-import { calculateAdaptive } from '../../lib/srs/adaptive';
-import type { LessonDetail, WordWithProgress } from '../../lib/types';
-import type { ProgressResult } from '../../lib/api/user';
+import type { LessonDetail } from '../../lib/types';
 import type { Exercise, ExerciseResult, LessonStatus } from './types';
 import { buildExercises } from './buildExercises';
-import { computeSkillCounts } from './skills';
+import { fetchLessonSessionDetail } from './fetchLessonSessionDetail';
+import { submitLessonCompleteToServer } from './submitLessonCompleteToServer';
 
 const XP_PER_CORRECT = 10;
+
+export type LessonSessionMode = 'default' | 'adminPreview';
 
 export type LessonState = {
   status: LessonStatus;
@@ -22,7 +22,9 @@ export type LessonState = {
   error: string | null;
 };
 
-export function useLessonSession(lessonId: number) {
+export function useLessonSession(lessonId: number, opts: { mode?: LessonSessionMode } = {}) {
+  const mode = opts.mode ?? 'default';
+  const adminPreview = mode === 'adminPreview';
   const { token } = useAuth();
   const { addLocalXp, refresh: refreshGam } = useGamification();
   const [state, setState] = useState<LessonState>({
@@ -52,10 +54,8 @@ export function useLessonSession(lessonId: number) {
     });
     void (async () => {
       try {
-        const res = token
-          ? await api.lessons.get(token, lessonId)
-          : await api.lessons.publicDetail(lessonId);
-        const exercises = buildExercises(res.data.words);
+        const res = await fetchLessonSessionDetail({ lessonId, token, adminPreview });
+        const exercises = buildExercises(res.data.words, res.data.imported_content);
         if (cancelled) return;
         startedAt.current = Date.now();
         exerciseStartAt.current = Date.now();
@@ -78,7 +78,7 @@ export function useLessonSession(lessonId: number) {
     return () => {
       cancelled = true;
     };
-  }, [lessonId, token]);
+  }, [lessonId, token, adminPreview]);
 
   const current = state.exercises[state.index];
 
@@ -86,7 +86,10 @@ export function useLessonSession(lessonId: number) {
     setState((s) => {
       const ex = s.exercises[s.index];
       if (!ex) return s;
-      const wordIds = ex.kind === 'match-pairs' ? ex.pairs.map((w) => w.id) : [ex.word.id];
+      const wordIds =
+        ex.kind === 'match-pairs' ? ex.pairs.map((w) => w.id)
+          : 'word' in ex ? [ex.word.id]
+            : [];
       const responseMs = Date.now() - exerciseStartAt.current;
       const result: ExerciseResult = { exerciseId: ex.id, wordIds, correct, responseMs };
       const xpDelta = correct ? XP_PER_CORRECT : 0;
@@ -109,66 +112,75 @@ export function useLessonSession(lessonId: number) {
     });
   }, []);
 
-  const finalize = useCallback(async () => {
-    if (!token) return;
-    if (state.status !== 'done') return;
-
-    const totalCount = state.results.length;
-    const correctCount = state.results.filter((r) => r.correct).length;
-    const accuracy = totalCount > 0 ? correctCount / totalCount : 0;
-    const wordsById = new Map<number, WordWithProgress>();
-    for (const w of state.detail?.words ?? []) wordsById.set(w.id, w);
-
-    const progressByWord = new Map<number, { correct: boolean; responseMs: number }>();
-    for (const r of state.results) {
-      for (const wid of r.wordIds) {
-        const existing = progressByWord.get(wid);
-        if (!existing || (r.correct && !existing.correct)) {
-          progressByWord.set(wid, { correct: r.correct, responseMs: r.responseMs });
-        }
+  /** Нэг алхамд үр дүн + дараагийн алхам (уншлага; FeedbackBanner үгүй). */
+  const submitImportedStep = useCallback((correct: boolean) => {
+    setState((s) => {
+      const ex = s.exercises[s.index];
+      if (!ex) return s;
+      const wordIds =
+        ex.kind === 'match-pairs'
+          ? ex.pairs.map((w) => w.id)
+          : 'word' in ex
+            ? [ex.word.id]
+            : [];
+      const responseMs = Date.now() - exerciseStartAt.current;
+      const result: ExerciseResult = { exerciseId: ex.id, wordIds, correct, responseMs };
+      const xpDelta = correct ? XP_PER_CORRECT : 0;
+      const next = s.index + 1;
+      if (next >= s.exercises.length) {
+        return {
+          ...s,
+          results: [...s.results, result],
+          xpEarned: s.xpEarned + xpDelta,
+          status: 'done' as LessonStatus,
+          durationSec: Math.round((Date.now() - startedAt.current) / 1000),
+        };
       }
-    }
+      exerciseStartAt.current = Date.now();
+      return {
+        ...s,
+        results: [...s.results, result],
+        xpEarned: s.xpEarned + xpDelta,
+        index: next,
+      };
+    });
+  }, []);
 
-    const results: ProgressResult[] = [];
-    for (const [wid, info] of progressByWord.entries()) {
-      const w = wordsById.get(wid);
-      if (!w) continue;
-      const r = calculateAdaptive(
-        { ease_factor: w.ease_factor, interval: w.interval, repetitions: w.repetitions },
-        { rating: info.correct ? 4 : 1, responseMs: info.responseMs, confidence: 1 }
-      );
-      results.push({
-        word_id: wid,
-        ease_factor: r.ease_factor,
-        interval: r.interval,
-        repetitions: r.repetitions,
-        next_review: r.next_review.toISOString(),
-        response_ms: r.response_ms,
-        confidence: r.confidence,
-      });
-    }
-
-    const skill_results = computeSkillCounts(state.exercises, state.results);
-
+  const finalize = useCallback(async () => {
+    if (adminPreview || !token || state.status !== 'done') return;
     try {
-      await api.lessons.complete(token, lessonId, {
-        accuracy,
-        xp_earned: state.xpEarned,
-        duration_seconds: state.durationSec,
-        results,
-        skill_results,
+      await submitLessonCompleteToServer({
+        token,
+        lessonId,
+        exercises: state.exercises,
+        results: state.results,
+        detail: state.detail,
+        xpEarned: state.xpEarned,
+        durationSec: state.durationSec,
+        addLocalXp,
+        refreshGam,
       });
-      addLocalXp(state.xpEarned);
-      void refreshGam();
     } catch (e) {
       console.warn('lesson complete failed', e);
     }
-  }, [token, lessonId, state.status, state.exercises, state.results, state.detail, state.xpEarned, state.durationSec, addLocalXp, refreshGam]);
+  }, [
+    adminPreview,
+    token,
+    lessonId,
+    state.status,
+    state.exercises,
+    state.results,
+    state.detail,
+    state.xpEarned,
+    state.durationSec,
+    addLocalXp,
+    refreshGam,
+  ]);
 
   const accuracy = useMemo(() => {
     if (state.results.length === 0) return 0;
     return state.results.filter((r) => r.correct).length / state.results.length;
   }, [state.results]);
 
-  return { state, current, submit, advance, finalize, accuracy };
+  return { state, current, submit, advance, submitImportedStep, finalize, accuracy };
 }

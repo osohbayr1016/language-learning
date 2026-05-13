@@ -1,6 +1,6 @@
-import React from 'react';
+import React, { useMemo } from 'react';
 import { ActivityIndicator, Pressable, Text } from 'react-native';
-import { useRouter } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { safeBack } from '../../lib/navigation/safeBack';
 import { Screen } from '../../primitives';
 import { useAuth } from '../../context/AuthContext';
@@ -15,9 +15,14 @@ import { useMockExamSession } from './useMockExamSession';
 export function MockExamScreen() {
   const router = useRouter();
   const { token } = useAuth();
-  const hook = useMockExamSession(token);
+  const { templateId: templateIdParam } = useLocalSearchParams<{ templateId?: string }>();
+  const initialTemplateId = useMemo(() => {
+    const n = Number(templateIdParam);
+    return Number.isFinite(n) && n > 0 ? Math.trunc(n) : null;
+  }, [templateIdParam]);
+  const hook = useMockExamSession(token, initialTemplateId);
 
-  const { sid, qs, idx, setIdx, ans, result, loadingList, starting, startFailed, selectable, begin, pick } =
+  const { sid, qs, idx, setIdx, ans, result, loadingList, starting, startFailed, deeplinkInvalid, selectable, begin, pick } =
     hook;
   const cur = qs[idx];
   const totalQ = qs.length;
@@ -37,6 +42,23 @@ export function MockExamScreen() {
     return (
       <Screen edges={['top']}>
         <ActivityIndicator color={colors.brand.primary} />
+      </Screen>
+    );
+  }
+
+  if (deeplinkInvalid) {
+    return (
+      <Screen edges={['top']} scroll>
+        <Text style={styles.muted}>{mn.study.mockExamDeeplinkInvalid}</Text>
+        <Pressable
+          accessibilityRole="button"
+          accessibilityLabel={mn.common.back}
+          style={styles.pickerBack}
+          onPress={exit}
+          hitSlop={12}
+        >
+          <Text style={styles.pickerBackTx}>{mn.common.back}</Text>
+        </Pressable>
       </Screen>
     );
   }

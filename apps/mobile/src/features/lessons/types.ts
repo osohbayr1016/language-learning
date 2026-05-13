@@ -1,4 +1,13 @@
-import type { WordWithProgress } from '../../lib/types';
+import type { ImportedLessonContent, ImportedWorkbookItem, WordWithProgress } from '../../lib/types';
+
+export type ImportedLearnSection =
+  | 'summary'
+  | 'kanjis'
+  | 'phrases'
+  | 'easy-texts'
+  | 'dialogue'
+  | 'grammar'
+  | 'slang';
 
 export type ExerciseKind =
   | 'memorize'
@@ -8,7 +17,9 @@ export type ExerciseKind =
   | 'arrange-words'
   | 'fill-blank'
   | 'true-false'
-  | 'say-sentence';
+  | 'say-sentence'
+  | 'imported-section'
+  | 'imported-workbook';
 
 export type Exercise =
   | { kind: 'memorize'; id: string; word: WordWithProgress }
@@ -39,7 +50,16 @@ export type Exercise =
       shownMeaning: string;
       isTrue: boolean;
     }
-  | { kind: 'say-sentence'; id: string; word: WordWithProgress };
+  | { kind: 'say-sentence'; id: string; word: WordWithProgress }
+  | { kind: 'imported-section'; id: string; section: ImportedLearnSection; content: ImportedLessonContent }
+  | {
+      kind: 'imported-workbook';
+      id: string;
+      sectionTitle: string;
+      sectionType: string;
+      item: ImportedWorkbookItem;
+      bank?: string[];
+    };
 
 export type ExerciseResult = {
   exerciseId: string;
@@ -50,7 +70,21 @@ export type ExerciseResult = {
 
 export type LessonStatus = 'loading' | 'running' | 'done' | 'error';
 
-export const EXERCISE_TITLES: Record<ExerciseKind, string> = {
+export function isImportedLearnFlow(exercises: Exercise[]): boolean {
+  return exercises.length > 0 && exercises.every((e) => e.kind === 'imported-section');
+}
+
+const IMPORTED_SECTION_TITLES: Record<ImportedLearnSection, string> = {
+  summary: 'Summary',
+  kanjis: 'New Kanjis',
+  phrases: 'Phrases',
+  'easy-texts': 'Easy texts',
+  dialogue: 'Dialogue',
+  grammar: 'Grammar',
+  slang: 'Slang',
+};
+
+export const EXERCISE_TITLES: Record<Exclude<ExerciseKind, 'imported-section'>, string> = {
   memorize: 'Цээжлэх',
   'choose-word': 'Үг сонго',
   'listen-mcq': 'Сонсоод сонго',
@@ -59,4 +93,10 @@ export const EXERCISE_TITLES: Record<ExerciseKind, string> = {
   'fill-blank': 'Дутууг бөглө',
   'true-false': 'Үнэн худал',
   'say-sentence': 'Хэлж сонсго',
+  'imported-workbook': 'Workbook',
 };
+
+export function exerciseDisplayTitle(ex: Exercise): string {
+  if (ex.kind === 'imported-section') return IMPORTED_SECTION_TITLES[ex.section];
+  return EXERCISE_TITLES[ex.kind];
+}

@@ -1,0 +1,63 @@
+import { StyleSheet } from 'react-native';
+import { colors, radius, spacing, typography } from '../../theme';
+
+export const lessonHtmlImportStyles = StyleSheet.create({
+  scroll: { padding: spacing.md, paddingBottom: spacing.xxl, gap: spacing.md },
+  card: {
+    backgroundColor: colors.bg.card,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.lg,
+    padding: spacing.md,
+    gap: spacing.sm,
+  },
+  title: { ...typography.heading.md, color: colors.text.primary, fontWeight: '800' },
+  label: { ...typography.body.sm, color: colors.text.secondary, fontWeight: '700' },
+  hint: { ...typography.body.sm, color: colors.text.muted, lineHeight: 20 },
+  textarea: {
+    minHeight: 160,
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    padding: spacing.sm,
+    color: colors.text.primary,
+    backgroundColor: colors.bg.primary,
+  },
+  row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, alignItems: 'center' },
+  btn: {
+    backgroundColor: colors.brand.primary,
+    borderRadius: radius.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+  },
+  btnSec: {
+    backgroundColor: colors.bg.elevated,
+    borderRadius: radius.md,
+    paddingVertical: spacing.sm,
+    paddingHorizontal: spacing.md,
+    borderWidth: 1,
+    borderColor: colors.border,
+  },
+  btnDis: { opacity: 0.5 },
+  btnText: { ...typography.body.sm, color: '#fff', fontWeight: '800' },
+  btnSecText: { ...typography.body.sm, color: colors.text.primary, fontWeight: '800' },
+  chip: {
+    borderWidth: 1,
+    borderColor: colors.border,
+    borderRadius: radius.md,
+    paddingVertical: spacing.xs,
+    paddingHorizontal: spacing.sm,
+    backgroundColor: colors.bg.primary,
+  },
+  chipOn: { borderColor: colors.brand.primary, backgroundColor: `${colors.brand.primary}18` },
+  chipMissing: { opacity: 0.7, backgroundColor: colors.bg.secondary },
+  chipCreate: {
+    borderStyle: 'dashed',
+    borderColor: colors.brand.primary,
+    backgroundColor: `${colors.brand.primary}0d`,
+  },
+  chipText: { ...typography.body.sm, color: colors.text.primary },
+  chipTextMuted: { ...typography.body.sm, color: colors.text.muted },
+  stat: { ...typography.body.md, color: colors.text.primary },
+  error: { ...typography.body.sm, color: colors.error },
+});

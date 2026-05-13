@@ -33,6 +33,22 @@ export const lesson = {
   micHint: 'Микрофон дээр дарж дээрх өгүүлбэрийг хэлээрэй',
   micListening: 'Сонсож байна... зогсооход дарна уу',
   speechMatch: 'Таны хэлсэн: {n}% таарсан',
+  doneMockExam: 'Mock шалгалт өгөх',
+  doneMockExamHskFallbackHint:
+    'Ижил HSK түвшний олон загвар байгаа тул хамгийн их ID-тайг нь эхлүүлнэ. Тодорхой загвар: импортын JSON-д mock_exam_template_id.',
   continueNextPrefix: 'Дараах →',
   backToStudy: 'Судлах хэсэг рүү',
+  importedEmptySummary: 'Товч танилцуулга энэ хувилбарт байхгүй байна.',
+  importedEmptyBlock: 'Энэ хэсэгт агуулга байхгүй.',
+  importedEmptyDialogue: 'Ярианы мөр энэ хувилбарт байхгүй байна.',
+  importedEmptyEasyTexts: 'Товч өгүүлбэрүүд энэ хувилбарт байхгүй байна.',
+  importedSectionPrompt: {
+    summary: 'Товч танилцуулга уншаад ойлголоо',
+    kanjis: 'Шинэ ханзнуудыг уншаад ойлголоо',
+    phrases: 'Тогтоолуудыг уншаад ойлголоо',
+    'easy-texts': 'Товч, ойлгомжтой текстүүдийг уншаад ойлголоо',
+    dialogue: 'Ярилцлагыг уншаад ойлголоо',
+    grammar: 'Дүрмийн хэсгийг уншаад ойлголоо',
+    slang: 'Slang, идиомыг уншаад ойлголоо',
+  },
 };

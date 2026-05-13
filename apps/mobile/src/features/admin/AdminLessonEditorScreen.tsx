@@ -7,7 +7,7 @@ import {
   Text,
   View,
 } from 'react-native';
-import { useLocalSearchParams } from 'expo-router';
+import { useLocalSearchParams, useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { colors } from '../../theme';
 import { AdminLessonEditorMeta } from './AdminLessonEditorMeta';
@@ -18,6 +18,7 @@ import { useAdminLessonEditor } from './useAdminLessonEditor';
 export function AdminLessonEditorScreen() {
   const { id } = useLocalSearchParams<{ id: string }>();
   const lid = Number(id);
+  const router = useRouter();
   const { token } = useAuth();
 
   const editor = useAdminLessonEditor({ token, lessonId: lid });
@@ -66,6 +67,7 @@ export function AdminLessonEditorScreen() {
             onSaveMeta={() => void editor.saveMeta()}
             onDeleteLesson={() => void editor.delLesson()}
             onAddWord={() => void editor.addW()}
+            onOpenPreview={() => router.push(`/admin/lesson-preview/${lid}` as never)}
           />
         }
         data={editor.words}

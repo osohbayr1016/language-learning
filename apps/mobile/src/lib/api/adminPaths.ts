@@ -1,4 +1,5 @@
 import { request } from './client';
+import type { LessonDetail } from '../types';
 
 export type AdminStats = {
   users: number;
@@ -78,6 +79,24 @@ export const adminPaths = {
       body: JSON.stringify(body),
     }),
 
+  createChapter: (
+    token: string,
+    body: {
+      title_mn: string;
+      subtitle_mn?: string;
+      color?: string;
+      hsk_level?: number;
+      order_num?: number;
+      is_published?: number;
+      flashcard_delay_days?: number;
+    }
+  ) =>
+    request<{ data: { id: number } }>('/api/admin/chapters', {
+      method: 'POST',
+      token,
+      body: JSON.stringify(body),
+    }),
+
   createLesson: (
     token: string,
     body: { chapter_id: number; title_mn: string; subtitle_mn?: string; order_num?: number }
@@ -108,6 +127,9 @@ export const adminPaths = {
 
   deleteLesson: (token: string, id: number) =>
     request<{ message: string }>(`/api/admin/lessons/${id}`, { method: 'DELETE', token }),
+
+  lessonPreview: (token: string, lessonId: number) =>
+    request<{ data: LessonDetail }>(`/api/admin/lessons/${lessonId}/preview`, { token }),
 
   lessonWords: (token: string, lessonId: number) =>
     request<{ data: LessonWordLink[] }>(`/api/admin/lessons/${lessonId}/words`, { token }),

@@ -22,6 +22,16 @@ export const lessonEditorStyles = StyleSheet.create({
     marginTop: spacing.sm,
   },
   primaryTxt: { color: '#fff', fontWeight: '700' },
+  secondary: {
+    padding: spacing.md,
+    borderRadius: 10,
+    borderWidth: 1,
+    borderColor: colors.brand.secondary,
+    alignItems: 'center',
+    marginTop: spacing.sm,
+    backgroundColor: colors.bg.card,
+  },
+  secondaryTxt: { color: colors.brand.secondary, fontWeight: '700' },
   danger: {
     padding: spacing.md,
     borderRadius: 10,

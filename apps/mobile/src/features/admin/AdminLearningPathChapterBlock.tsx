@@ -2,6 +2,7 @@ import React from 'react';
 import { Pressable, Text, TextInput, View } from 'react-native';
 import type { Href } from 'expo-router';
 import type { AdminChapter } from '../../lib/api/admin';
+import { mn } from '../../i18n/mn';
 import { learningPathStyles as styles } from './AdminLearningPathStyles';
 import { lessonCount } from './adminLessonTreeSections';
 
@@ -13,6 +14,7 @@ type Props = {
   onTogglePublish: () => void;
   onAddLesson: () => void;
   onOpenLesson: (href: Href) => void;
+  onPreviewLesson: (lessonId: number) => void;
 };
 
 export function AdminLearningPathChapterBlock({
@@ -23,6 +25,7 @@ export function AdminLearningPathChapterBlock({
   onTogglePublish,
   onAddLesson,
   onOpenLesson,
+  onPreviewLesson,
 }: Props) {
   const n = lessonCount(ch);
   return (
@@ -50,16 +53,20 @@ export function AdminLearningPathChapterBlock({
         <Text style={styles.smallTxt}>Хичээл нэмэх</Text>
       </Pressable>
       {(ch.lessons ?? []).map((ls) => (
-        <Pressable
-          key={ls.id}
-          style={styles.ls}
-          onPress={() => onOpenLesson(`/admin/lesson/${ls.id}` as Href)}
-        >
-          <Text style={styles.lsTitle}>{ls.title_mn}</Text>
-          <Text style={styles.meta}>
-            #{ls.id} · үг {ls.word_count} · {ls.is_published ? 'нийтлэгдсэн' : 'нуугдсан'}
-          </Text>
-        </Pressable>
+        <View key={ls.id} style={styles.lsRow}>
+          <Pressable
+            style={styles.lsMain}
+            onPress={() => onOpenLesson(`/admin/lesson/${ls.id}` as Href)}
+          >
+            <Text style={styles.lsTitle}>{ls.title_mn}</Text>
+            <Text style={styles.meta}>
+              #{ls.id} · үг {ls.word_count} · {ls.is_published ? 'нийтлэгдсэн' : 'нуугдсан'}
+            </Text>
+          </Pressable>
+          <Pressable style={styles.lsPreview} onPress={() => onPreviewLesson(ls.id)}>
+            <Text style={styles.lsPreviewTxt}>{mn.admin.learningPathPreviewLesson}</Text>
+          </Pressable>
+        </View>
       ))}
     </View>
   );

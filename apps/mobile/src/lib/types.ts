@@ -34,6 +34,42 @@ export type LessonProgress = {
   completed_at: string | null;
 };
 
+export type ImportedDialogueLine = { speaker?: string; cn: string; mn: string };
+export type ImportedDialogue = {
+  no: number;
+  title: string;
+  lines?: ImportedDialogueLine[];
+  text_cn?: string;
+  text_mn?: string;
+};
+export type ImportedNote = { title: string; body: string };
+export type ImportedWorkbookItem = {
+  q: string;
+  options?: string[];
+  answer?: string | boolean | null;
+  parts?: string[];
+};
+export type ImportedWorkbookSection = {
+  type: string;
+  title: string;
+  bank?: string[];
+  items: ImportedWorkbookItem[];
+};
+export type ImportedLessonContent = {
+  external_lesson_id: string;
+  title_cn: string;
+  title_mn: string;
+  source: string;
+  summary: string;
+  dialogues: ImportedDialogue[];
+  vocab: { hanzi: string; pinyin: string; meaning_mn: string; hsk_level: number }[];
+  grammar: ImportedNote[];
+  slang: ImportedNote[];
+  workbook: { sections: ImportedWorkbookSection[] };
+  quizlet_text: string;
+  mock_exam_template_id?: number;
+};
+
 export type Lesson = {
   id: number;
   chapter_id: number;
@@ -61,11 +97,13 @@ export type Chapter = {
 export type LessonDetail = {
   id: number;
   chapter_id: number;
+  chapter_hsk_level?: HskLevel;
   title_mn: string;
   subtitle_mn: string;
   icon: string;
   order_num: number;
   words: WordWithProgress[];
+  imported_content?: ImportedLessonContent | null;
   progress: LessonProgress | null;
 };
 

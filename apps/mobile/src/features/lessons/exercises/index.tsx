@@ -8,14 +8,19 @@ import { ArrangeWords } from './ArrangeWords';
 import { FillBlank } from './FillBlank';
 import { TrueFalse } from './TrueFalse';
 import { SaySentence } from './SaySentence';
+import { ImportedWorkbookCard } from './ImportedWorkbookCard';
+import { ImportedSectionCard } from '../importedSections/ImportedSectionCard';
+import { mn } from '../../../i18n/mn';
+import type { WordWithProgress } from '../../../lib/types';
 
 type Props = {
   exercise: Exercise;
+  lessonWords?: WordWithProgress[];
   disabled: boolean;
   onAnswer: (correct: boolean) => void;
 };
 
-export function ExerciseRenderer({ exercise, disabled, onAnswer }: Props) {
+export function ExerciseRenderer({ exercise, lessonWords, disabled, onAnswer }: Props) {
   switch (exercise.kind) {
     case 'memorize':
       return <MemorizeCard exercise={exercise} disabled={disabled} onAnswer={onAnswer} />;
@@ -33,6 +38,17 @@ export function ExerciseRenderer({ exercise, disabled, onAnswer }: Props) {
       return <TrueFalse exercise={exercise} disabled={disabled} onAnswer={onAnswer} />;
     case 'say-sentence':
       return <SaySentence exercise={exercise} disabled={disabled} onAnswer={onAnswer} />;
+    case 'imported-section':
+      return (
+        <ImportedSectionCard
+          exercise={exercise}
+          lessonWords={lessonWords}
+          disabled={disabled}
+          onAnswer={onAnswer}
+        />
+      );
+    case 'imported-workbook':
+      return <ImportedWorkbookCard exercise={exercise} disabled={disabled} onAnswer={onAnswer} />;
   }
 }
 
@@ -54,6 +70,10 @@ export function exercisePromptFor(exercise: Exercise): string {
       return 'Энэ үнэн үү?';
     case 'say-sentence':
       return 'Дээрх өгүүлбэрийг хэлж сонсго';
+    case 'imported-section':
+      return mn.lesson.importedSectionPrompt[exercise.section];
+    case 'imported-workbook':
+      return exercise.sectionTitle;
   }
 }
 
@@ -73,5 +93,9 @@ export function exerciseCorrectAnswer(exercise: Exercise): string {
       return exercise.isTrue ? 'Үнэн' : 'Худал';
     case 'say-sentence':
       return exercise.word.example_zh ?? exercise.word.hanzi;
+    case 'imported-section':
+      return 'Үзсэн';
+    case 'imported-workbook':
+      return exercise.item.answer == null ? 'Дасгал уншсан' : String(exercise.item.answer);
   }
 }
