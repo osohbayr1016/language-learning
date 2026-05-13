@@ -133,3 +133,8 @@ export const gradients = {
   flame: ['#FF9600', '#FF4B4B'] as const,
   success: ['#58CC02', '#06B6D4'] as const,
 };
+
+/** Web `AppShell`: centered phone-width column for the whole app (including `/admin`). */
+export const layout = {
+  phoneWebMaxWidth: 430,
+} as const;

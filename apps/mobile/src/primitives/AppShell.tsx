@@ -1,21 +1,27 @@
 import React from 'react';
 import { Platform, StyleSheet, View, ViewStyle } from 'react-native';
-import { colors } from '../theme';
+import { colors, layout as layoutTokens } from '../theme';
 
 type Props = { children: React.ReactNode };
 
-const PHONE_WIDTH = 430;
-
 /**
- * On web: centers the app inside a 430-px wide phone-style column with
- * subtle borders and shadow on a neutral page background. On native: pass-through.
+ * On web: centers the app in a phone-width column (same for main app and `/admin`).
+ * On native: pass-through.
  */
 export function AppShell({ children }: Props) {
   if (Platform.OS !== 'web') return <>{children}</>;
 
   return (
     <View style={styles.page as ViewStyle}>
-      <View style={styles.column as ViewStyle}>{children}</View>
+      <View
+        style={[
+          styles.column as ViewStyle,
+          { maxWidth: layoutTokens.phoneWebMaxWidth },
+          styles.columnCentered as ViewStyle,
+        ]}
+      >
+        {children}
+      </View>
     </View>
   );
 }
@@ -31,8 +37,8 @@ const styles = StyleSheet.create({
   },
   column: {
     width: '100%',
-    maxWidth: PHONE_WIDTH,
-    flex: 1,
+    flexGrow: 1,
+    flexShrink: 0,
     minHeight: '100%' as unknown as number,
     backgroundColor: colors.bg.primary,
     borderLeftWidth: 1,
@@ -43,5 +49,10 @@ const styles = StyleSheet.create({
     shadowOpacity: 0.06,
     shadowRadius: 16,
     overflow: 'hidden',
+  },
+  columnCentered: {
+    alignSelf: 'center',
+    marginLeft: 'auto',
+    marginRight: 'auto',
   },
 });
