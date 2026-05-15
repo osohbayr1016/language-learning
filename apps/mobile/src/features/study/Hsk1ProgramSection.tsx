@@ -45,7 +45,7 @@ export function Hsk1ProgramSection() {
   const router = useRouter();
   const { chapters, loading, advanceGateOk } = useLessonChapters();
   const homeChapters = useMemo(
-    () => chapters.filter((c) => c.hsk_level <= MAX_HOME_HSK),
+    () => chapters.filter((c) => c.jlpt_level <= MAX_HOME_HSK),
     [chapters],
   );
   const h1 = useMemo(() => getPrimaryHsk1Chapter(chapters), [chapters]);

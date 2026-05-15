@@ -16,7 +16,7 @@ export default function SpeakPracticeScreen() {
   const router = useRouter();
   const { words, loading, error } = useRandomWords(40);
   const pool = useMemo(
-    () => words.filter((w) => (w.example_zh ?? w.hanzi ?? '').length > 0),
+    () => words.filter((w) => (w.example_jp ?? w.kanji ?? '').length > 0),
     [words]
   );
   const [idx, setIdx] = useState(0);

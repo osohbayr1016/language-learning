@@ -13,13 +13,13 @@ export const ADMIN_HUB_SECTIONS: AdminHubSectionDef[] = [
       {
         title: 'Суралцах зам',
         icon: 'git-branch',
-        color: colors.hsk[2],
+        color: colors.jlpt[2],
         href: '/admin/learning-path',
       },
       {
         title: 'HTML импорт',
         icon: 'cloud-upload',
-        color: colors.hsk[4],
+        color: colors.jlpt[4],
         href: '/admin/lesson-html-import',
       },
     ],
@@ -27,7 +27,7 @@ export const ADMIN_HUB_SECTIONS: AdminHubSectionDef[] = [
   {
     titleKey: 'hubSectionWords',
     items: [
-      { title: 'Үгийн сан', icon: 'library', color: colors.hsk[3], href: '/admin/vocabulary' },
+      { title: 'Үгийн сан', icon: 'library', color: colors.jlpt[3], href: '/admin/vocabulary' },
       {
         title: 'Шинэ үг',
         icon: 'add-circle',

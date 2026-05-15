@@ -90,7 +90,7 @@ function LessonAdminRow({ ch, ls, onPress }: { ch: AdminChapter; ls: AdminLesson
         </Text>
       </View>
       <Text style={[styles.badge, { backgroundColor: ch.color ? `${ch.color}22` : colors.bg.elevated }]}>
-        HSK {ch.hsk_level}
+        HSK {ch.jlpt_level}
       </Text>
     </Pressable>
   );

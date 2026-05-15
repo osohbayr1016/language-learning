@@ -31,27 +31,27 @@ function toast(title: string, msg?: string) {
 }
 
 export function AdminWordEditModal({ visible, word, token, onClose, onSaved }: Props) {
-  const [hanzi, setHanzi] = useState('');
-  const [py, setPy] = useState('');
+  const [kanji, setKanji] = useState('');
+  const [romaji, setRomaji] = useState('');
   const [mnStr, setMnStr] = useState('');
-  const [hsk, setHsk] = useState('1');
+  const [jlpt, setJlpt] = useState('1');
 
   useEffect(() => {
     if (!word) return;
-    setHanzi(word.hanzi);
-    setPy(word.pinyin);
+    setKanji(word.kanji);
+    setRomaji(word.romaji);
     setMnStr(word.meaning_mn);
-    setHsk(String(word.hsk_level));
+    setJlpt(String(word.jlpt_level));
   }, [word]);
 
   const save = async () => {
     if (!word) return;
     try {
       await api.words.update(token, word.id, {
-        hanzi: hanzi.trim(),
-        pinyin: py.trim(),
+        kanji: kanji.trim(),
+        romaji: romaji.trim(),
         meaning_mn: mnStr.trim(),
-        hsk_level: Math.min(6, Math.max(1, Number(hsk) || 1)) as Word['hsk_level'],
+        jlpt_level: Math.min(5, Math.max(1, Number(jlpt) || 1)) as Word['jlpt_level'],
       });
       toast('Хадгалагдлаа');
       onSaved();
@@ -78,14 +78,14 @@ export function AdminWordEditModal({ visible, word, token, onClose, onSaved }: P
       <View style={styles.back}>
         <View style={styles.sheet}>
           <Text style={styles.title}>Засах #{word?.id ?? ''}</Text>
-          <Text style={styles.lbl}>Ханз</Text>
-          <TextInput style={styles.inp} value={hanzi} onChangeText={setHanzi} />
-          <Text style={styles.lbl}>Pinyin</Text>
-          <TextInput style={styles.inp} value={py} onChangeText={setPy} autoCapitalize="none" />
+          <Text style={styles.lbl}>Канжи / кана</Text>
+          <TextInput style={styles.inp} value={kanji} onChangeText={setKanji} />
+          <Text style={styles.lbl}>Romaji</Text>
+          <TextInput style={styles.inp} value={romaji} onChangeText={setRomaji} autoCapitalize="none" />
           <Text style={styles.lbl}>Утга</Text>
           <TextInput style={styles.inp} value={mnStr} onChangeText={setMnStr} />
-          <Text style={styles.lbl}>HSK</Text>
-          <TextInput style={styles.inp} value={hsk} onChangeText={setHsk} keyboardType="number-pad" />
+          <Text style={styles.lbl}>JLPT (1=N5 … 5=N1)</Text>
+          <TextInput style={styles.inp} value={jlpt} onChangeText={setJlpt} keyboardType="number-pad" />
           <Pressable style={styles.primary} onPress={() => void save()}>
             <Text style={styles.primaryTxt}>Хадгалах</Text>
           </Pressable>

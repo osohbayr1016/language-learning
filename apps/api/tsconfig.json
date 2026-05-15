@@ -7,8 +7,8 @@
     "lib": ["ES2022"],
     "types": ["@cloudflare/workers-types"],
     "paths": {
-      "@chinese-app/types": ["../../packages/types/src/index.ts"],
-      "@chinese-app/srs": ["../../packages/srs/src/index.ts"]
+      "@japanese-learning/types": ["../../packages/types/src/index.ts"],
+      "@japanese-learning/srs": ["../../packages/srs/src/index.ts"]
     }
   },
   "include": ["src/**/*.ts"],

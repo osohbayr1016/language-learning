@@ -13,7 +13,26 @@ import {
   AUTH_ACCESS_TOKEN_KEY,
   AUTH_REFRESH_TOKEN_KEY,
 } from '../lib/auth/tokenStorageKeys';
-import type { ChineseLevel, LearningReason } from '../features/setup/types';
+import type { JlptSelfLevel, LearningReason } from '../features/setup/types';
+
+function migrateStoredLevel(raw: string | null): JlptSelfLevel | null {
+  if (raw == null || raw === '') return null;
+  const map: Record<string, JlptSelfLevel> = {
+    none: 'none',
+    n5: 'n5',
+    n4: 'n4',
+    n3: 'n3',
+    n2: 'n2',
+    n1: 'n1',
+    hsk1: 'n5',
+    hsk2: 'n4',
+    hsk3: 'n3',
+    hsk4: 'n2',
+    hsk5: 'n1',
+    hsk6: 'n1',
+  };
+  return map[raw] ?? null;
+}
 
 const ONBOARDING_KEY = 'has_seen_onboarding';
 const LEVEL_KEY = 'chinese_level';
@@ -25,7 +44,7 @@ interface AuthState {
   isLoading: boolean;
   isAuthenticated: boolean;
   hasSeenOnboarding: boolean;
-  chineseLevel: ChineseLevel | null;
+  chineseLevel: JlptSelfLevel | null;
   reason: LearningReason | null;
 }
 
@@ -33,7 +52,7 @@ interface AuthContextType extends AuthState {
   signIn: (tokens: { access_token: string; refresh_token: string }) => Promise<void>;
   signOut: () => Promise<void>;
   completeOnboarding: () => Promise<void>;
-  saveSetup: (level: ChineseLevel, reason: LearningReason) => Promise<void>;
+  saveSetup: (level: JlptSelfLevel, reason: LearningReason) => Promise<void>;
   refreshAdminRole: () => Promise<boolean>;
 }
 
@@ -76,13 +95,13 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     async function bootstrap() {
       let token: string | null = null;
       let hasSeenOnboarding = false;
-      let chineseLevel: ChineseLevel | null = null;
+      let chineseLevel: JlptSelfLevel | null = null;
       let reason: LearningReason | null = null;
       try {
         token = await restoreStoredAccessToken();
         const flag = await getItem(ONBOARDING_KEY);
         hasSeenOnboarding = flag === 'true';
-        chineseLevel = (await getItem(LEVEL_KEY)) as ChineseLevel | null;
+        chineseLevel = migrateStoredLevel(await getItem(LEVEL_KEY));
         reason = (await getItem(REASON_KEY)) as LearningReason | null;
       } catch (e) {
         console.error('Auth bootstrap failed', e);
@@ -126,7 +145,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     setState((s) => ({ ...s, hasSeenOnboarding: true }));
   };
 
-  const saveSetup = async (level: ChineseLevel, reason: LearningReason) => {
+  const saveSetup = async (level: JlptSelfLevel, reason: LearningReason) => {
     await setItem(LEVEL_KEY, level);
     await setItem(REASON_KEY, reason);
     setState((s) => ({ ...s, chineseLevel: level, reason }));

@@ -28,7 +28,7 @@ const styles = StyleSheet.create({
 function HskPill({ level }: { level: number }) {
   return (
     <View style={styles.pill}>
-      <Text style={styles.pillTxt}>HSK{level}</Text>
+      <Text style={styles.pillTxt}>N{6 - level}</Text>
     </View>
   );
 }
@@ -47,10 +47,10 @@ export function VocabPane({
 }) {
   const { playWord } = useAudio();
   const [strokePopup, setStrokePopup] = useState<{ char: string; mountKey: number } | null>(null);
-  const byHanzi = useMemo(() => {
+  const byKanji = useMemo(() => {
     const m = new Map<string, WordWithProgress>();
     for (const w of lessonWords ?? []) {
-      if (!m.has(w.hanzi)) m.set(w.hanzi, w);
+      if (!m.has(w.kanji)) m.set(w.kanji, w);
     }
     return m;
   }, [lessonWords]);
@@ -58,14 +58,14 @@ export function VocabPane({
   return (
     <>
       {rows.map((row, i) => {
-        const w = byHanzi.get(row.hanzi);
+        const w = byKanji.get(row.kanji);
         return (
-          <View key={`${row.hanzi}-${i}`} style={styles.block}>
-            <Text style={styles.cnLine}>{row.hanzi}</Text>
-            <Text style={styles.p}>{row.pinyin}</Text>
+          <View key={`${row.kanji}-${i}`} style={styles.block}>
+            <Text style={styles.cnLine}>{row.kanji}</Text>
+            <Text style={styles.p}>{row.romaji}</Text>
             <Text style={styles.p}>{row.meaning_mn}</Text>
             <View style={styles.row}>
-              <HskPill level={row.hsk_level} />
+              <HskPill level={row.jlpt_level} />
               {w ? (
                 <>
                   <Pressable
@@ -78,7 +78,7 @@ export function VocabPane({
                   </Pressable>
                   <Pressable
                     onPress={() => {
-                      const ch = firstGrapheme(w.hanzi) || firstGrapheme(row.hanzi);
+                      const ch = firstGrapheme(w.kanji) || firstGrapheme(row.kanji);
                       if (ch) setStrokePopup({ char: ch, mountKey: Date.now() });
                     }}
                   >

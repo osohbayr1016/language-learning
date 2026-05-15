@@ -8,13 +8,14 @@ export function escapeXmlForSsml(s: string): string {
     .replace(/'/g, '&apos;');
 }
 
-const EDGE_TTS_VOICE = 'zh-CN-XiaoxiaoNeural';
+const EDGE_TTS_VOICE_JA = 'ja-JP-NanamiNeural';
 
-export function zhSsmlBody(hanzi: string, speed: 'normal' | 'slow'): string {
+/** Japanese TTS (kana/kanji/romaji phrases). */
+export function jaSsmlBody(text: string, speed: 'normal' | 'slow'): string {
   const rate = speed === 'slow' ? '-30%' : '0%';
-  const inner = escapeXmlForSsml(hanzi.trim());
-  return `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="zh-CN">
-  <voice name="${EDGE_TTS_VOICE}">
+  const inner = escapeXmlForSsml(text.trim());
+  return `<speak version="1.0" xmlns="http://www.w3.org/2001/10/synthesis" xml:lang="ja-JP">
+  <voice name="${EDGE_TTS_VOICE_JA}">
     <prosody rate="${rate}">${inner}</prosody>
   </voice>
 </speak>`.trim();
@@ -29,7 +30,7 @@ export async function fetchEdgeTTS(ssml: string): Promise<ArrayBuffer | null> {
         headers: {
           'Content-Type': 'application/ssml+xml',
           'X-Microsoft-OutputFormat': 'audio-16khz-128kbitrate-mono-mp3',
-          'User-Agent': 'ChineseLearningApp/1.0',
+          'User-Agent': 'JapaneseLearningApp/1.0',
           'Ocp-Apim-Subscription-Key': '',
         },
         body: ssml,
@@ -53,7 +54,7 @@ export async function fetchEdgeTTS(ssml: string): Promise<ArrayBuffer | null> {
 
   if (!phrase.trim()) return null;
 
-  const gttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(phrase)}&tl=zh-CN&client=tw-ob`;
+  const gttsUrl = `https://translate.google.com/translate_tts?ie=UTF-8&q=${encodeURIComponent(phrase)}&tl=ja&client=tw-ob`;
   const response = await fetch(gttsUrl, {
     headers: { 'User-Agent': 'Mozilla/5.0' },
   });

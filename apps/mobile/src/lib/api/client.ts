@@ -78,7 +78,7 @@ function parseOkResponse<T>(res: Response, text: string): T {
     return JSON.parse(text) as T;
   } catch {
     throw new Error(
-      'API суурь буруу эсвэл вэб SPA HTML ирлээ. EXPO_PUBLIC_API_URL нь chinese-learning-api.*.workers.dev байх ёстой.'
+      'API суурь буруу эсвэл вэб SPA HTML ирлээ. EXPO_PUBLIC_API_URL нь япон API Workers (`nihongo-mn-api.*.workers.dev`) байх ёстой.'
     );
   }
 }

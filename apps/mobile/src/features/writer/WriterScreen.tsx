@@ -30,7 +30,7 @@ export default function WriterScreen() {
   const advanceLockRef = useRef(false);
 
   const current = words[idx];
-  const firstChar = current ? Array.from(current.hanzi)[0] : '';
+  const firstChar = current ? Array.from(current.kanji)[0] : '';
 
   useEffect(() => {
     setMistakes(0);

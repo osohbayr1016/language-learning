@@ -12,7 +12,7 @@ import { AUTH_LOCALE_DISPLAY, type AuthLocaleCode } from '../../i18n/authLocales
 import { colors, spacing, typography } from '../../theme';
 import { useAuthLocale } from './AuthLocaleContext';
 
-const ORDER: AuthLocaleCode[] = ['mn', 'zh', 'en'];
+const ORDER: AuthLocaleCode[] = ['mn', 'ja', 'en'];
 
 const webFocus =
   Platform.OS === 'web'

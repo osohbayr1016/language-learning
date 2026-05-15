@@ -115,7 +115,7 @@ export function CartoonAdminAttachModal({ token, cartoonId, visible, onClose, on
                     }}
                   >
                     <Text style={styles.hitTxt}>
-                      #{w.id} {w.hanzi} · {w.meaning_mn}
+                      #{w.id} {w.kanji} · {w.meaning_mn}
                     </Text>
                   </Pressable>
                 ))}

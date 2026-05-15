@@ -1,7 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ToneColoredText } from '../../../components/hanzi';
-import { parseTones } from '../../../lib/tones';
 import { colors, radius, spacing, typography } from '../../../theme';
 import type { WordWithProgress } from '../../../lib/types';
 
@@ -9,7 +8,7 @@ type State = 'idle' | 'correct' | 'wrong' | 'reveal';
 
 type Props = {
   word: WordWithProgress;
-  show: 'hanzi' | 'mn';
+  show: 'jp' | 'mn';
   state: State;
   onPress: () => void;
 };
@@ -22,9 +21,7 @@ export function AnswerOption({ word, show, state, onPress }: Props) {
     reveal: styles.reveal,
   };
 
-  const tones = parseTones(word.tones);
-
-  const label = show === 'hanzi' ? word.hanzi : word.meaning_mn;
+  const label = show === 'jp' ? word.kanji : word.meaning_mn;
 
   return (
     <Pressable
@@ -34,9 +31,9 @@ export function AnswerOption({ word, show, state, onPress }: Props) {
       disabled={state !== 'idle'}
       style={[styles.btn, stateStyles[state]]}
     >
-      {show === 'hanzi' ? (
+      {show === 'jp' ? (
         <View style={styles.row}>
-          <ToneColoredText hanzi={word.hanzi} tones={tones} size="sm" align="left" />
+          <ToneColoredText hanzi={word.kanji} size="sm" align="left" />
         </View>
       ) : (
         <Text style={styles.text}>{word.meaning_mn}</Text>

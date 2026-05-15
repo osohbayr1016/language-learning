@@ -36,7 +36,7 @@ export function SpeakWordCardFace({
       <PronounceButton
         wordId={word.id}
         meaningMn={showMongolianMeaning ? word.meaning_mn : undefined}
-        wordHanzi={word.hanzi}
+        wordHanzi={word.kanji}
         displayText={hanzi}
         size="md"
         style={pronounceStyle ?? styles.pronounce}

@@ -35,7 +35,7 @@ export function ListenMcq({ exercise, disabled, onAnswer }: Props) {
           return (
             <OptionTile
               key={opt.id}
-              label={opt.hanzi}
+              label={opt.kanji}
               sub={opt.meaning_mn}
               state={state}
               disabled={selectedId !== null || disabled}

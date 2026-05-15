@@ -10,13 +10,13 @@ export function PuzzleDisplay({ puzzle, filled }: Props) {
   return (
     <Card padding="lg" variant="elevated" style={styles.card}>
       <Text style={styles.label}>{puzzle.meaning_mn}</Text>
-      <Text style={styles.pinyin}>{puzzle.pinyin}</Text>
+      <Text style={styles.romaji}>{puzzle.romaji}</Text>
       <View style={styles.expr}>
         <Box content={filled ?? '?'} highlighted={!filled} />
         <Text style={styles.plus}>+</Text>
         <Box content={puzzle.givenPart} />
         <Text style={styles.equals}>=</Text>
-        <Box content={filled ? puzzle.hanzi : '?'} bigger highlighted />
+        <Box content={filled ? puzzle.kanji : '?'} bigger highlighted />
       </View>
     </Card>
   );
@@ -39,7 +39,7 @@ function Box({ content, bigger, highlighted }: { content: string; bigger?: boole
 const styles = StyleSheet.create({
   card: { alignItems: 'center', gap: spacing.xs, marginBottom: spacing.lg },
   label: { ...typography.heading.lg, color: colors.text.primary },
-  pinyin: { ...typography.pinyin.md, color: colors.accent.purple },
+  romaji: { ...typography.romaji.md, color: colors.accent.purple },
   expr: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.md },
   box: {
     width: 56,

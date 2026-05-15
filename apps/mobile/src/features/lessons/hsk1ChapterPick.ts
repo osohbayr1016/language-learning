@@ -1,10 +1,10 @@
 import type { Chapter } from '../../lib/types';
 
-/** HSK 1-ийн үндсэн бүлэг (анхны id=1 эсвэл hsk_level=1). */
+/** JLPT N5 anchor chapter (id=1 or jlpt_level=1). */
 export function getPrimaryHsk1Chapter(chapters: Chapter[]): Chapter | null {
-  const byId = chapters.find((c) => c.id === 1 && c.hsk_level === 1);
+  const byId = chapters.find((c) => c.id === 1 && c.jlpt_level === 1);
   if (byId) return byId;
-  const h1 = chapters.filter((c) => c.hsk_level === 1).sort((a, b) => a.order_num - b.order_num);
+  const h1 = chapters.filter((c) => c.jlpt_level === 1).sort((a, b) => a.order_num - b.order_num);
   return h1[0] ?? null;
 }
 

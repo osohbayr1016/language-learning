@@ -4,7 +4,7 @@
 CREATE TABLE IF NOT EXISTS exam_templates (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title TEXT NOT NULL,
-  hsk_level INTEGER NOT NULL DEFAULT 1,
+  jlpt_level INTEGER NOT NULL DEFAULT 1,
   total_questions INTEGER NOT NULL DEFAULT 40,
   duration_minutes INTEGER NOT NULL DEFAULT 35,
   passing_score INTEGER NOT NULL DEFAULT 120,
@@ -25,7 +25,7 @@ CREATE TABLE IF NOT EXISTS exam_questions (
   )),
   audio_text TEXT NOT NULL DEFAULT '',
   question_text TEXT NOT NULL DEFAULT '',
-  question_pinyin TEXT NOT NULL DEFAULT '',
+  question_romaji TEXT NOT NULL DEFAULT '',
   options JSON DEFAULT '[]',
   correct_answer TEXT NOT NULL,
   order_num INTEGER NOT NULL DEFAULT 0

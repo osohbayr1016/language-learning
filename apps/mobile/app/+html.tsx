@@ -1,9 +1,9 @@
 import { ScrollViewStyleReset } from 'expo-router/html';
 import { type PropsWithChildren } from 'react';
 
-const APP_TITLE = 'Хятад хэл сурах';
+const APP_TITLE = 'Япон хэл сурах';
 const META_DESC =
-  'Хятад хэл сурах апп — хичээл, тоглоом, дуу сонсох. Learn Chinese with lessons, games, and audio.';
+  'Япон хэл сурах апп — хичээл, тоглоом, дуу сонсох. Learn Japanese with lessons, games, and audio.';
 
 /**
  * Server-rendered HTML shell for the Expo web build. Viewport allows pinch-zoom;
@@ -26,7 +26,7 @@ export default function Root({ children }: PropsWithChildren) {
         <link rel="preconnect" href="https://fonts.googleapis.com" />
         <link rel="preconnect" href="https://fonts.gstatic.com" crossOrigin="anonymous" />
         <link
-          href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800&family=Noto+Sans+SC:wght@400;600;700&display=swap"
+          href="https://fonts.googleapis.com/css2?family=Noto+Sans:wght@400;600;700;800&family=Noto+Sans+JP:wght@400;600;700&display=swap"
           rel="stylesheet"
         />
         <link rel="icon" href="/favicon.ico" />
@@ -60,7 +60,7 @@ body {
   overflow-y: auto;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
-  font-family: "Noto Sans", "Noto Sans SC", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+  font-family: "Noto Sans", "Noto Sans JP", system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
 }
 #root { display: flex; flex-direction: column; min-height: 100%; }
 input:focus-visible, textarea:focus-visible {

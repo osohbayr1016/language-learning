@@ -13,7 +13,7 @@ async function fetchLessonDetailPayload(
   const lesson = await db
     .prepare(
       `SELECT l.id, l.chapter_id, l.title_mn, l.subtitle_mn, l.icon, l.order_num,
-              c.hsk_level AS chapter_hsk_level
+              c.jlpt_level AS chapter_jlpt_level
        FROM lessons l
        JOIN chapters c ON c.id = l.chapter_id
        WHERE l.id = ? ${pubClause}`

@@ -24,7 +24,7 @@ export async function publishedLessonTree(
     safeAll(
       db
         .prepare(
-          `SELECT id, title_mn, subtitle_mn, color, hsk_level, order_num, is_published
+          `SELECT id, title_mn, subtitle_mn, color, jlpt_level, order_num, is_published
            FROM chapters WHERE is_published = 1 ORDER BY order_num ASC`
         )
         .all()

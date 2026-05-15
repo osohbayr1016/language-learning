@@ -22,7 +22,7 @@ export function useMockExamSession(
   const deeplinkTried = useRef(false);
   const t0 = useRef(Date.now());
 
-  const selectable = useMemo(() => [...templates].sort((a, b) => a.hsk_level - b.hsk_level || a.id - b.id), [templates]);
+  const selectable = useMemo(() => [...templates].sort((a, b) => a.jlpt_level - b.jlpt_level || a.id - b.id), [templates]);
 
   useEffect(() => {
     autoStartOnce.current = false;

@@ -15,9 +15,9 @@ type Props = {
 export function MockExamTemplatePicker({ templates, onPick, onBack }: Props) {
   const byLevel = new Map<number, typeof templates>();
   for (const t of templates) {
-    const ls = byLevel.get(t.hsk_level) ?? [];
+    const ls = byLevel.get(t.jlpt_level) ?? [];
     ls.push(t);
-    byLevel.set(t.hsk_level, ls);
+    byLevel.set(t.jlpt_level, ls);
   }
   const sections = [...byLevel.entries()].sort((a, b) => a[0] - b[0]);
 

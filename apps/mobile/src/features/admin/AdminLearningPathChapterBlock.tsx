@@ -32,7 +32,7 @@ export function AdminLearningPathChapterBlock({
     <View style={styles.ch}>
       <Text style={styles.chTitle}>{ch.title_mn}</Text>
       <Text style={styles.meta}>
-        HSK {ch.hsk_level} · {n} хичээл · картанд орох хүлээлт (хоног)
+        HSK {ch.jlpt_level} · {n} хичээл · картанд орох хүлээлт (хоног)
       </Text>
       <TextInput
         style={styles.inp}

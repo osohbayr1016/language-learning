@@ -22,8 +22,8 @@ async function nextLessonOrder(db: D1Database, chapterId: number): Promise<numbe
 }
 
 function titleForLesson(content: ImportedLessonContent): string {
-  if (content.title_mn && content.title_cn) return `${content.title_cn} · ${content.title_mn}`;
-  return content.title_mn || content.title_cn;
+  if (content.title_mn && content.title_jp) return `${content.title_jp} · ${content.title_mn}`;
+  return content.title_mn || content.title_jp;
 }
 
 function workbookCount(content: ImportedLessonContent): number {
@@ -75,11 +75,11 @@ export async function storeImportedLesson(db: D1Database, input: StoreInput): Pr
   await db
     .prepare(
       `INSERT INTO lesson_contents
-       (lesson_id, external_lesson_id, source, title_cn, title_mn, summary, content_json,
+       (lesson_id, external_lesson_id, source, title_jp, title_mn, summary, content_json,
         dialogue_count, grammar_count, workbook_count, quizlet_text, updated_at)
        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, CURRENT_TIMESTAMP)
        ON CONFLICT(external_lesson_id) DO UPDATE SET
-         lesson_id = excluded.lesson_id, source = excluded.source, title_cn = excluded.title_cn,
+         lesson_id = excluded.lesson_id, source = excluded.source, title_jp = excluded.title_jp,
          title_mn = excluded.title_mn, summary = excluded.summary, content_json = excluded.content_json,
          dialogue_count = excluded.dialogue_count, grammar_count = excluded.grammar_count,
          workbook_count = excluded.workbook_count, quizlet_text = excluded.quizlet_text,
@@ -89,7 +89,7 @@ export async function storeImportedLesson(db: D1Database, input: StoreInput): Pr
       lessonId,
       input.content.external_lesson_id,
       input.content.source,
-      input.content.title_cn,
+      input.content.title_jp,
       input.content.title_mn,
       input.content.summary,
       contentJson,

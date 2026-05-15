@@ -32,9 +32,9 @@ export function AdminLessonWordRow({ item, index, total, onMoveUp, onMoveDown, o
         </Pressable>
       </View>
       <View style={styles.flex1}>
-        <Text style={styles.hz}>{item.hanzi}</Text>
+        <Text style={styles.hz}>{item.kanji}</Text>
         <Text style={styles.meta}>
-          {item.pinyin} · {item.meaning_mn}
+          {item.romaji} · {item.meaning_mn}
         </Text>
       </View>
       <Pressable onPress={() => void onRemove(item.word_id)}>

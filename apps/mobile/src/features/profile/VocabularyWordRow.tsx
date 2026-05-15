@@ -20,8 +20,8 @@ export function VocabularyWordRow({ item, onOpenDetail, onPromote }: Props) {
   return (
     <View style={styles.row}>
       <Pressable style={styles.rowMain} onPress={() => onOpenDetail(item.id)}>
-        <Text style={styles.hanzi}>{item.hanzi}</Text>
-        <Text style={styles.meta}>{item.pinyin}</Text>
+        <Text style={styles.hanzi}>{item.kanji}</Text>
+        <Text style={styles.meta}>{item.romaji}</Text>
         <Text style={styles.meaning} numberOfLines={2}>
           {item.meaning_mn}
         </Text>

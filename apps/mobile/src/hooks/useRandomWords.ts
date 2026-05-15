@@ -2,7 +2,7 @@ import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import type { Word } from '../lib/types';
 
-export function useRandomWords(count: number, hsk?: number) {
+export function useRandomWords(count: number, jlpt?: number) {
   const [words, setWords] = useState<Word[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -12,7 +12,7 @@ export function useRandomWords(count: number, hsk?: number) {
     async function load() {
       setLoading(true);
       try {
-        const r = await api.words.list({ hsk, limit: Math.max(50, count * 4) });
+        const r = await api.words.list({ jlpt, limit: Math.max(50, count * 4) });
         const all = (r.data ?? []).slice();
         const shuffled = all.sort(() => Math.random() - 0.5).slice(0, count);
         setWords(shuffled);
@@ -22,7 +22,7 @@ export function useRandomWords(count: number, hsk?: number) {
         setLoading(false);
       }
     }
-  }, [count, hsk]);
+  }, [count, jlpt]);
 
   return { words, loading, error };
 }

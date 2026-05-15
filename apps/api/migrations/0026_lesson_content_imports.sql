@@ -5,7 +5,7 @@ CREATE TABLE IF NOT EXISTS lesson_contents (
   lesson_id INTEGER NOT NULL UNIQUE REFERENCES lessons(id) ON DELETE CASCADE,
   external_lesson_id TEXT NOT NULL UNIQUE,
   source TEXT NOT NULL DEFAULT 'html_import',
-  title_cn TEXT NOT NULL DEFAULT '',
+  title_jp TEXT NOT NULL DEFAULT '',
   title_mn TEXT NOT NULL DEFAULT '',
   summary TEXT NOT NULL DEFAULT '',
   content_json TEXT NOT NULL,

@@ -50,7 +50,7 @@ export const examImportAdmin = {
     token: string,
     body: {
       title: string;
-      hsk_level?: number;
+      jlpt_level?: number;
       duration_minutes?: number;
       passing_score?: number;
       max_score?: number;

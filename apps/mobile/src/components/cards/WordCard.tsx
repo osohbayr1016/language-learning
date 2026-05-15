@@ -5,6 +5,7 @@ import { ToneColoredText, PinyinRow } from '../hanzi';
 import { PronounceButton } from '../audio/PronounceButton';
 import { colors, spacing, typography } from '../../theme';
 import type { Word } from '../../lib/types';
+import { jlptNLabel } from '../../lib/jlptLabel';
 
 type Props = {
   word: Word;
@@ -14,18 +15,18 @@ type Props = {
 };
 
 export function WordCard({ word, onPress, showAudio = true, compact = false }: Props) {
-  const hskColor = colors.hsk[word.hsk_level] ?? colors.accent.purple;
+  const hskColor = colors.jlpt[word.jlpt_level as keyof typeof colors.jlpt] ?? colors.accent.purple;
 
   return (
     <Card onPress={onPress} padding={compact ? 'sm' : 'md'} style={styles.card}>
       <View style={styles.row}>
         <View style={styles.left}>
-          <ToneColoredText hanzi={word.hanzi} tones={word.tones} size={compact ? 'sm' : 'md'} align="left" />
-          <PinyinRow pinyin={word.pinyin} size={compact ? 'sm' : 'md'} align="left" />
+          <ToneColoredText hanzi={word.kanji} tones={undefined} size={compact ? 'sm' : 'md'} align="left" />
+          <PinyinRow pinyin={word.romaji ?? ''} size={compact ? 'sm' : 'md'} align="left" />
           <Text style={styles.meaning} numberOfLines={2}>{word.meaning_mn}</Text>
         </View>
         <View style={styles.right}>
-          <Pill label={`HSK ${word.hsk_level}`} color={hskColor} />
+          <Pill label={jlptNLabel(word.jlpt_level)} color={hskColor} />
           {showAudio ? (
             <PronounceButton wordId={word.id} meaningMn={word.meaning_mn} size="sm" style={{ marginTop: spacing.sm }} />
           ) : null}

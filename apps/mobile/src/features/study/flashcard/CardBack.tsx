@@ -2,7 +2,6 @@ import React from "react";
 import { StyleSheet, Text, View } from "react-native";
 import { ToneColoredText, PinyinRow } from "../../../components/hanzi";
 import { PronounceButton } from "../../../components/audio/PronounceButton";
-import { parseTones } from "../../../lib/tones";
 import { colors, spacing, typography } from "../../../theme";
 import { useDisplayPrefs } from "../../../context/DisplayPrefsContext";
 import type { WordWithProgress } from "../../../lib/types";
@@ -11,18 +10,17 @@ type Props = { word: WordWithProgress };
 
 export function CardBack({ word }: Props) {
   const { showPinyin } = useDisplayPrefs();
-  const tones = parseTones(word.tones);
 
   return (
     <View style={styles.wrap}>
-      <ToneColoredText hanzi={word.hanzi} tones={tones} size="lg" />
-      {showPinyin ? <PinyinRow pinyin={word.pinyin} size="lg" /> : null}
+      <ToneColoredText hanzi={word.kanji} tones={undefined} size="lg" />
+      {showPinyin ? <PinyinRow pinyin={word.romaji} size="lg" /> : null}
       <Text style={styles.meaning}>{word.meaning_mn}</Text>
-      {word.example_zh ? (
+      {word.example_jp ? (
         <View style={styles.example}>
-          <Text style={styles.exampleZh}>{word.example_zh}</Text>
-          {showPinyin && word.example_pinyin ? (
-            <Text style={styles.examplePinyin}>{word.example_pinyin}</Text>
+          <Text style={styles.exampleJp}>{word.example_jp}</Text>
+          {showPinyin && word.example_romaji ? (
+            <Text style={styles.exampleRomaji}>{word.example_romaji}</Text>
           ) : null}
           {word.example_mn ? (
             <Text style={styles.exampleMn}>{word.example_mn}</Text>
@@ -61,15 +59,15 @@ const styles = StyleSheet.create({
     marginTop: spacing.sm,
     flexShrink: 1,
   },
-  exampleZh: {
+  exampleJp: {
     ...typography.heading.md,
     color: colors.text.primary,
     textAlign: "center",
     flexShrink: 1,
     maxWidth: "100%",
   },
-  examplePinyin: {
-    ...typography.pinyin.md,
+  exampleRomaji: {
+    ...typography.romaji.md,
     color: colors.text.secondary,
     textAlign: "center",
     flexShrink: 1,

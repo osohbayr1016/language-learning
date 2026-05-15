@@ -23,7 +23,7 @@ export function useAdminVocabularyList() {
   const baseParams = useMemo(
     () => ({
       q: debouncedQ || undefined,
-      hsk,
+      jlpt: hsk,
       single_char: singleOnly ? (1 as const) : undefined,
       limit: PAGE,
     }),

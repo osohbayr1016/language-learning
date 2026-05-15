@@ -4,7 +4,13 @@ import type { AdminStats } from '../../lib/api/admin';
 import { mn } from '../../i18n/mn';
 import { colors, spacing, typography } from '../../theme';
 
-const LEVELS = ['1', '2', '3', '4', '5', '6'] as const;
+const LEVELS = ['1', '2', '3', '4', '5'] as const;
+
+function jlptBandLabel(lvl: string): string {
+  const n = Number(lvl);
+  if (n >= 1 && n <= 5) return `N${6 - n}`;
+  return lvl;
+}
 
 function pick(map: Record<string, number>, k: string): number {
   return map[k] ?? 0;
@@ -18,17 +24,17 @@ export function AdminDashboardHskBreakdown({ stats }: Props) {
     <View style={styles.wrap}>
       <Text style={styles.title}>{a.hskBreakdownTitle}</Text>
       <View style={styles.head}>
-        <Text style={[styles.cell, styles.h]}>HSK</Text>
+        <Text style={[styles.cell, styles.h]}>JLPT</Text>
         <Text style={styles.cell}>{a.hskColWords}</Text>
         <Text style={styles.cell}>{a.hskColChapters}</Text>
         <Text style={styles.cell}>{a.hskColLessons}</Text>
       </View>
       {LEVELS.map((lvl) => (
         <View key={lvl} style={styles.row}>
-          <Text style={[styles.cell, styles.h]}>{lvl}</Text>
-          <Text style={styles.cell}>{pick(stats.words_by_hsk, lvl)}</Text>
-          <Text style={styles.cell}>{pick(stats.chapters_by_hsk, lvl)}</Text>
-          <Text style={styles.cell}>{pick(stats.lessons_by_hsk, lvl)}</Text>
+          <Text style={[styles.cell, styles.h]}>{jlptBandLabel(lvl)}</Text>
+          <Text style={styles.cell}>{pick(stats.words_by_jlpt, lvl)}</Text>
+          <Text style={styles.cell}>{pick(stats.chapters_by_jlpt, lvl)}</Text>
+          <Text style={styles.cell}>{pick(stats.lessons_by_jlpt, lvl)}</Text>
         </View>
       ))}
     </View>

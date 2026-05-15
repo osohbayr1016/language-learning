@@ -6,7 +6,7 @@ import { buildChapterPickRows } from './adminLessonHtmlChapterRows';
 import { lessonHtmlImportStyles as styles } from './AdminLessonHtmlImportStyles';
 
 function chapterLabel(ch: AdminChapter) {
-  return `HSK ${ch.hsk_level} · ${ch.title_mn}`;
+  return `HSK ${ch.jlpt_level} · ${ch.title_mn}`;
 }
 
 type Props = {

@@ -8,11 +8,10 @@ import {
 } from 'react-native';
 import { Stack, useLocalSearchParams } from 'expo-router';
 import { Screen } from '../../primitives';
-import { ToneColoredText, ToneBar } from '../../components/hanzi';
+import { ToneColoredText, PinyinRow } from '../../components/hanzi';
 import { PronounceButton } from '../../components/audio/PronounceButton';
 import { HanziWriterView, type HanziWriterEvent, type HanziWriterMode } from '../../components/writing/HanziWriterView';
 import { WriterControls } from '../writer/WriterControls';
-import { parseTones } from '../../lib/tones';
 import { api } from '../../lib/api';
 import type { Word, WordWithProgress } from '../../lib/types';
 import { mn } from '../../i18n/mn';
@@ -81,24 +80,20 @@ export function ProfileWordDetailScreen() {
     );
   }
 
-  const tones = parseTones(word.tones);
-  const firstTone = tones[0] ?? 0;
-  const firstChar = Array.from(word.hanzi)[0] ?? '';
+  const firstChar = Array.from(word.kanji)[0] ?? '';
   const waiting = entry ? isFlashcardWaiting(entry.flashcard_eligible_at) : false;
 
   return (
     <>
-      <Stack.Screen options={{ title: word.hanzi }} />
+      <Stack.Screen options={{ title: word.kanji }} />
       <Screen scroll padded={false}>
         <View style={styles.wrap}>
-          <ToneColoredText hanzi={word.hanzi} tones={tones} size="xl" />
-          <View style={styles.toneRow}>
-            <ToneBar tone={firstTone} width={80} height={32} />
-          </View>
+          <ToneColoredText hanzi={word.kanji} tones={undefined} size="xl" />
           <View style={styles.listen}>
             <PronounceButton wordId={word.id} meaningMn={word.meaning_mn} size="lg" />
           </View>
-          <Text style={styles.py}>{word.pinyin}</Text>
+          <PinyinRow pinyin={word.romaji} size="md" />
+          {word.kana ? <Text style={styles.kana}>{word.kana}</Text> : null}
           <Text style={styles.mean}>{word.meaning_mn}</Text>
           {entry && waiting ? (
             <Text style={styles.srsWait}>
@@ -138,9 +133,8 @@ const styles = StyleSheet.create({
     gap: spacing.md,
     paddingBottom: spacing.xl,
   },
-  toneRow: { marginTop: spacing.sm },
   listen: { marginTop: spacing.sm },
-  py: { ...typography.body.md, color: colors.text.secondary },
+  kana: { ...typography.body.md, color: colors.brand.secondary },
   mean: { ...typography.body.lg, color: colors.text.primary, textAlign: 'center' },
   srsWait: { ...typography.body.sm, color: colors.accent.amber },
   srsNext: { ...typography.body.sm, color: colors.text.muted },

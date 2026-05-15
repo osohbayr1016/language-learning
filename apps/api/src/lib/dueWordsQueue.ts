@@ -1,19 +1,19 @@
 /**
  * GET /api/words/due — overdue SRS first, then new words from completed + next preview
- * lessons (lesson_words order), capped by path HSK, then global fallback.
+ * lessons (lesson_words order), capped by path JLPT band, then global fallback.
  */
 
 import { pickFreshFromLessons } from './dueWordsPickFresh';
 
 const PREVIEW_LESSON_COUNT = 2;
-const FALLBACK_HSK_CAP = 3;
+const FALLBACK_JLPT_CAP = 3;
 
 export type DueQueueOptions = { writerOnly?: boolean };
 
-type LessonRow = { id: number; hsk_level: number };
+type LessonRow = { id: number; jlpt_level: number };
 
 function writerClause(writerOnly: boolean): string {
-  return writerOnly ? ' AND LENGTH(w.hanzi) = 1' : '';
+  return writerOnly ? ' AND LENGTH(w.kanji) <= 3' : '';
 }
 
 export async function fetchDueWordsQueue(
@@ -45,7 +45,7 @@ export async function fetchDueWordsQueue(
   const ordered = (
     await db
       .prepare(
-        `SELECT l.id, c.hsk_level AS hsk_level
+        `SELECT l.id, c.jlpt_level AS jlpt_level
          FROM lessons l JOIN chapters c ON c.id = l.chapter_id
          WHERE l.is_published = 1 AND c.is_published = 1
          ORDER BY c.order_num ASC, l.order_num ASC`
@@ -67,16 +67,16 @@ export async function fetchDueWordsQueue(
   const fi = firstIncomplete === -1 ? path.length : firstIncomplete;
   const previewIds = path.slice(fi, fi + PREVIEW_LESSON_COUNT).map((l) => l.id);
 
-  /** Max HSK among completed + preview lessons; if none (empty catalog), allow legacy cap. */
-  let maxHsk = 1;
+  /** Max JLPT band among completed + preview lessons; if none (empty catalog), allow fallback cap. */
+  let maxJlpt = 1;
   let anyScope = false;
   for (const l of path) {
     if (done.has(l.id) || previewIds.includes(l.id)) {
       anyScope = true;
-      maxHsk = Math.max(maxHsk, l.hsk_level);
+      maxJlpt = Math.max(maxJlpt, l.jlpt_level);
     }
   }
-  if (!anyScope) maxHsk = FALLBACK_HSK_CAP;
+  if (!anyScope) maxJlpt = FALLBACK_JLPT_CAP;
 
   const wordLessonOrder: number[] = [];
   for (const l of path) {
@@ -98,7 +98,7 @@ export async function fetchDueWordsQueue(
     need,
     seen,
     inProgress,
-    maxHsk,
+    maxJlpt,
     wCh
   );
 
@@ -111,11 +111,11 @@ export async function fetchDueWordsQueue(
       `SELECT w.*, NULL AS ease_factor, 0 AS interval, 0 AS repetitions, NULL AS next_review
        FROM words w
        WHERE w.id NOT IN (SELECT word_id FROM user_word_progress WHERE user_id = ?)
-         AND w.hsk_level <= ?${wCh}
-       ORDER BY w.hsk_level ASC, w.id ASC
+         AND w.jlpt_level <= ?${wCh}
+       ORDER BY w.jlpt_level ASC, w.id ASC
        LIMIT ?`
     )
-    .bind(userId, maxHsk, fallNeed + seen.size + 40)
+    .bind(userId, maxJlpt, fallNeed + seen.size + 40)
     .all();
 
   for (const row of fall.results ?? []) {

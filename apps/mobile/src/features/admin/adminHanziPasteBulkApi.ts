@@ -5,16 +5,17 @@ import { examplePatchFromTriplet } from './exampleFieldsForAdminWord';
 
 type OkRow = Extract<ParsedImportLine, { ok: true }>;
 
-type ExTriplet = { exampleZh: string; examplePinyin: string; exampleMn: string };
+type ExTriplet = { exampleJp: string; exampleRomaji: string; exampleMn: string };
 
 function mapWords(rows: OkRow[], ex?: ExTriplet) {
   const patch = examplePatchFromTriplet(
-    ex ?? { exampleZh: '', examplePinyin: '', exampleMn: '' }
+    ex ?? { exampleJp: '', exampleRomaji: '', exampleMn: '' }
   );
   const hasPatch = Object.keys(patch).length > 0;
   return rows.map((r) => ({
-    hanzi: r.hanzi,
-    pinyin: r.pinyin,
+    kanji: r.kanji,
+    romaji: r.romaji,
+    romaji_numbered: r.romaji,
     meaning_mn: r.meaning_mn,
     ...(hasPatch ? patch : {}),
   }));
@@ -23,13 +24,13 @@ function mapWords(rows: OkRow[], ex?: ExTriplet) {
 export async function execAdminBulkValidate(opts: {
   token: string;
   okRows: OkRow[];
-  hsk: number;
+  jlpt: number;
   textbookTrim: string;
   examples?: ExTriplet;
 }): Promise<{ results: AdminBulkValidateRow[]; fails: Extract<AdminBulkValidateRow, { ok: false }>[] }> {
   const res = await api.admin.validateWordsBulk(opts.token, {
     words: mapWords(opts.okRows, opts.examples),
-    hsk_level: opts.hsk,
+    jlpt_level: opts.jlpt,
     textbook_unit: opts.textbookTrim || undefined,
   });
   const results = res.data.results;
@@ -40,14 +41,14 @@ export async function execAdminBulkValidate(opts: {
 export async function execAdminBulkCreate(opts: {
   token: string;
   okRows: OkRow[];
-  hsk: number;
+  jlpt: number;
   textbookTrim: string;
   dupPolicy: 'fail' | 'skip';
   examples?: ExTriplet;
 }) {
   return api.admin.createWordsBulk(opts.token, {
     words: mapWords(opts.okRows, opts.examples),
-    hsk_level: opts.hsk,
+    jlpt_level: opts.jlpt,
     textbook_unit: opts.textbookTrim || undefined,
     duplicate_policy: opts.dupPolicy,
   });

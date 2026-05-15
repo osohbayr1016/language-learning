@@ -78,7 +78,7 @@ export function GrammarLessonScreen() {
 
       {detail.exercises.map((ex) => (
         <View key={ex.id} style={styles.block}>
-          <Text style={styles.q}>{ex.question_zh}</Text>
+          <Text style={styles.q}>{ex.question_jp}</Text>
           <GrammarExerciseBlock
             ex={ex}
             value={answers[ex.id] ?? ''}

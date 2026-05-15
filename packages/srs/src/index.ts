@@ -1,5 +1,5 @@
-import type { ReviewRating, UserWordProgress } from '@chinese-app/types';
-export type { ReviewRating } from '@chinese-app/types';
+import type { ReviewRating, UserWordProgress } from '@japanese-learning/types';
+export type { ReviewRating } from '@japanese-learning/types';
 
 /**
  * SM-2 (SuperMemo 2) Spaced Repetition Algorithm

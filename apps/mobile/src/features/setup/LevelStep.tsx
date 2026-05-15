@@ -3,23 +3,22 @@ import { View } from 'react-native';
 import { MascotBubble } from './MascotBubble';
 import { OptionCard } from './OptionCard';
 import { mn } from '../../i18n/mn';
-import type { ChineseLevel } from './types';
+import type { JlptSelfLevel } from './types';
 
-type Item = { id: ChineseLevel; title: string; subtitle: string };
+type Item = { id: JlptSelfLevel; title: string; subtitle: string };
 
 const ITEMS: Item[] = [
   { id: 'none', title: mn.setup.levelNoneTitle, subtitle: mn.setup.levelNoneSub },
-  { id: 'hsk1', title: mn.setup.levelHsk.replace('{n}', '1'), subtitle: mn.setup.levelHsk1 },
-  { id: 'hsk2', title: mn.setup.levelHsk.replace('{n}', '2'), subtitle: mn.setup.levelHsk2 },
-  { id: 'hsk3', title: mn.setup.levelHsk.replace('{n}', '3'), subtitle: mn.setup.levelHsk3 },
-  { id: 'hsk4', title: mn.setup.levelHsk.replace('{n}', '4'), subtitle: mn.setup.levelHsk4 },
-  { id: 'hsk5', title: mn.setup.levelHsk.replace('{n}', '5'), subtitle: mn.setup.levelHsk5 },
-  { id: 'hsk6', title: mn.setup.levelHsk.replace('{n}', '6'), subtitle: mn.setup.levelHsk6 },
+  { id: 'n5', title: mn.setup.levelN5Title, subtitle: mn.setup.levelN5Sub },
+  { id: 'n4', title: mn.setup.levelN4Title, subtitle: mn.setup.levelN4Sub },
+  { id: 'n3', title: mn.setup.levelN3Title, subtitle: mn.setup.levelN3Sub },
+  { id: 'n2', title: mn.setup.levelN2Title, subtitle: mn.setup.levelN2Sub },
+  { id: 'n1', title: mn.setup.levelN1Title, subtitle: mn.setup.levelN1Sub },
 ];
 
 type Props = {
-  value: ChineseLevel | null;
-  onChange: (v: ChineseLevel) => void;
+  value: JlptSelfLevel | null;
+  onChange: (v: JlptSelfLevel) => void;
 };
 
 export function LevelStep({ value, onChange }: Props) {

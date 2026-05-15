@@ -5,7 +5,7 @@ import { useDueWords } from '../../../hooks/useDueWords';
 import { useSrsRating } from '../../../hooks/useSrsRating';
 import { useAdaptiveTimer } from '../../../hooks/useAdaptiveTimer';
 import { useAudio } from '../../../context/AudioContext';
-import { calculateXP } from '@chinese-app/srs';
+import { calculateXP } from '@japanese-learning/srs';
 import { stripToneMarks } from '../../../lib/tones';
 import { colors, spacing } from '../../../theme';
 import { mn } from '../../../i18n/mn';
@@ -20,8 +20,8 @@ import type { WordWithProgress } from '../../../lib/types';
 function isAnswerCorrect(input: string, word: WordWithProgress): boolean {
   const trimmed = input.trim();
   if (!trimmed) return false;
-  if (trimmed === word.hanzi) return true;
-  return stripToneMarks(trimmed) === stripToneMarks(word.pinyin);
+  if (trimmed === word.kanji) return true;
+  return stripToneMarks(trimmed) === stripToneMarks(word.romaji);
 }
 
 export default function WriteScreen() {

@@ -3,7 +3,7 @@ export type Cartoon = {
   title_mn: string;
   description_mn: string;
   thumbnail_url: string | null;
-  hsk_level: number | null;
+  jlpt_level: number | null;
   duration_s: number;
   is_published: number;
   created_at: string;
@@ -11,16 +11,16 @@ export type Cartoon = {
 
 export type Word = {
   id: number;
-  hanzi: string;
-  pinyin: string;
-  pinyin_numbered?: string;
-  tones?: string; // JSON string e.g. "[3,3]"
+  kanji: string;
+  romaji: string;
+  romaji_numbered?: string;
+  kana?: string;
   meaning_mn: string;
   meaning_en?: string;
-  hsk_level: number;
+  jlpt_level: number;
   part_of_speech?: string;
-  example_zh?: string;
-  example_pinyin?: string;
+  example_jp?: string;
+  example_romaji?: string;
   example_mn?: string;
   audio_url?: string | null;
   stroke_count?: number;
@@ -41,10 +41,10 @@ export type AdminStats = {
   game_sessions: number;
   cartoons: number;
   lesson_word_links: number;
-  distinct_hanzi: number;
-  words_by_hsk: Record<string, number>;
-  chapters_by_hsk: Record<string, number>;
-  lessons_by_hsk: Record<string, number>;
+  distinct_kanji: number;
+  words_by_jlpt: Record<string, number>;
+  chapters_by_jlpt: Record<string, number>;
+  lessons_by_jlpt: Record<string, number>;
 };
 
 export type AdminLesson = {

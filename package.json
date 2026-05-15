@@ -1,5 +1,5 @@
 {
-  "name": "chinese-learning-monorepo",
+  "name": "japanese-learning-monorepo",
   "private": true,
   "version": "0.0.1",
   "scripts": {
@@ -7,9 +7,9 @@
     "build": "turbo run build",
     "lint": "turbo run lint",
     "type-check": "turbo run type-check",
-    "preview:web": "pnpm --filter @chinese-app/web preview",
-    "serve:web": "pnpm --filter @chinese-app/web serve",
-    "release:web": "pnpm --filter @chinese-app/web release",
+    "preview:web": "pnpm --filter @japanese-learning/web preview",
+    "serve:web": "pnpm --filter @japanese-learning/web serve",
+    "release:web": "pnpm --filter @japanese-learning/web release",
     "eas:build:ios": "pnpm --filter mobile run eas:build:ios",
     "eas:build:android": "pnpm --filter mobile run eas:build:android",
     "eas:build:preview": "pnpm --filter mobile run eas:build:preview",

@@ -6,7 +6,7 @@ export type Cartoon = {
   title_mn: string;
   description_mn: string | null;
   thumbnail_url: string | null;
-  hsk_level: number | null;
+  jlpt_level: number | null;
   duration_s: number;
   is_published: boolean;
 };
@@ -19,8 +19,10 @@ export type CartoonDetail = Cartoon & {
 };
 
 export const cartoons = {
-  list: (params: { hsk?: number } = {}) =>
-    request<{ data: Cartoon[] }>(`/api/cartoons${buildQuery(params)}`),
+  list: (params: { jlpt?: number; hsk?: number } = {}) =>
+    request<{ data: Cartoon[] }>(
+      `/api/cartoons${buildQuery({ jlpt: params.jlpt ?? params.hsk })}`
+    ),
   get: (id: number, token?: string) =>
     request<{ data: CartoonDetail }>(`/api/cartoons/${id}`, { token }),
 };

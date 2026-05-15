@@ -1,6 +1,6 @@
 import { useEffect } from 'react';
 import { Platform } from 'react-native';
-import type { ReviewRating } from '@chinese-app/srs';
+import type { ReviewRating } from '@japanese-learning/srs';
 import {
   attachWebStudyKeydown,
   webKeyEventIsEditingField,

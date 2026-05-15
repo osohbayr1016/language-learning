@@ -4,24 +4,24 @@
 CREATE TABLE IF NOT EXISTS grammar_lessons (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title_mn TEXT NOT NULL,
-  title_zh TEXT NOT NULL DEFAULT '',
+  title_jp TEXT NOT NULL DEFAULT '',
   grammar_point TEXT NOT NULL,
   explanation_mn TEXT NOT NULL DEFAULT '',
   pattern TEXT NOT NULL DEFAULT '',
   examples JSON NOT NULL DEFAULT '[]',
-  hsk_level INTEGER NOT NULL DEFAULT 1,
+  jlpt_level INTEGER NOT NULL DEFAULT 1,
   order_num INTEGER NOT NULL DEFAULT 0,
   is_published INTEGER NOT NULL DEFAULT 1,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_grammar_hsk ON grammar_lessons(hsk_level, order_num);
+CREATE INDEX IF NOT EXISTS idx_grammar_jlpt ON grammar_lessons(jlpt_level, order_num);
 
 CREATE TABLE IF NOT EXISTS grammar_exercises (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   grammar_lesson_id INTEGER NOT NULL REFERENCES grammar_lessons(id) ON DELETE CASCADE,
   exercise_type TEXT NOT NULL CHECK(exercise_type IN ('fill_blank','choose_correct','reorder','translate','true_false')),
-  question_zh TEXT NOT NULL DEFAULT '',
+  question_jp TEXT NOT NULL DEFAULT '',
   question_mn TEXT NOT NULL DEFAULT '',
   correct_answer TEXT NOT NULL,
   options JSON DEFAULT '[]',

@@ -31,8 +31,8 @@ export function ChooseWordMcq({ exercise, disabled, onAnswer }: Props) {
           return (
             <OptionTile
               key={opt.id}
-              label={opt.hanzi}
-              sub={opt.pinyin}
+              label={opt.kanji}
+              sub={opt.romaji ?? undefined}
               state={state}
               disabled={selectedId !== null || disabled}
               onPress={() => onPick(opt.id)}

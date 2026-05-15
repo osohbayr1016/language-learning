@@ -25,7 +25,7 @@
         "buildType": "app-bundle"
       },
       "env": {
-        "EXPO_PUBLIC_API_URL": "https://chinese-learning-api.osohoo691016.workers.dev"
+        "EXPO_PUBLIC_API_URL": "https://nihongo-mn-api.osohoo691016.workers.dev"
       }
     }
   },

@@ -23,7 +23,7 @@ export function TrueFalse({ exercise, disabled, onAnswer }: Props) {
   return (
     <View style={styles.root}>
       <View style={styles.statement}>
-        <ToneColoredText hanzi={exercise.word.hanzi} tones={exercise.word.tones} size="md" />
+        <ToneColoredText hanzi={exercise.word.kanji} size="md" />
         <Text style={styles.equals}>=</Text>
         <Text style={styles.meaning}>{exercise.shownMeaning}</Text>
       </View>

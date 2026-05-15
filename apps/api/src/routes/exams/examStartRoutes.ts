@@ -21,9 +21,9 @@ export function registerExamStartRoutes(app: Hono<{ Bindings: Env; Variables: Va
   app.get('/templates', async (c) => {
     const rows = (
       await c.env.DB.prepare(
-        `SELECT id, title, hsk_level, total_questions, duration_minutes,
+        `SELECT id, title, jlpt_level, total_questions, duration_minutes,
                 passing_score, max_score FROM exam_templates
-         WHERE is_published = 1 ORDER BY hsk_level ASC, id ASC`
+         WHERE is_published = 1 ORDER BY jlpt_level ASC, id ASC`
       ).all()
     ).results;
 
@@ -90,7 +90,7 @@ export function registerExamStartRoutes(app: Hono<{ Bindings: Env; Variables: Va
           .prepare(
             `SELECT id, template_id, section, part_num, question_num,
                     question_type, audio_text, question_text,
-                    question_pinyin, options, order_num, audio_key
+                    question_romaji, options, order_num, audio_key
              FROM exam_questions WHERE template_id = ? ORDER BY order_num ASC`
           )
           .bind(tid)

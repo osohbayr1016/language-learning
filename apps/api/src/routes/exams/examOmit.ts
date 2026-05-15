@@ -24,11 +24,11 @@ export function omitExamQuestionAnswer(q: QRow, apiOrigin: string): Record<strin
     ...(L
       ? {
           scenario_mn: q.question_text,
-          listen_zh: q.audio_text ?? '',
+          listen_jp: q.audio_text ?? '',
         }
       : {
-          question_zh: q.question_text,
-          question_pinyin: q.question_pinyin,
+          question_jp: q.question_text,
+          question_romaji: q.question_romaji,
         }),
     options: opts,
     order_num: q.order_num ?? 0,

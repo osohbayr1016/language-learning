@@ -3,7 +3,7 @@ import { request } from './client';
 export type ExamTemplate = {
   id: number;
   title: string;
-  hsk_level: number;
+  jlpt_level: number;
   total_questions: number;
   duration_minutes: number;
   passing_score: number;
@@ -16,10 +16,10 @@ export type ExamQuestion = {
   part_num: number;
   question_num: number;
   question_type: string;
-  listen_zh?: string;
+  listen_jp?: string;
   scenario_mn?: string;
-  question_zh?: string;
-  question_pinyin?: string;
+  question_jp?: string;
+  question_romaji?: string;
   options: unknown[];
   order_num?: number;
   audio_url?: string;

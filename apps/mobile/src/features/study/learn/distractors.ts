@@ -11,12 +11,12 @@ export function pickDistractors(
   let candidates = pool.filter((w) => w.id !== current.id);
 
   if (difficulty === 'hard') {
-    candidates = candidates.filter((w) => w.hsk_level === current.hsk_level);
+    candidates = candidates.filter((w) => w.jlpt_level === current.jlpt_level);
     if (candidates.length < count) {
       candidates = pool.filter((w) => w.id !== current.id);
     }
   } else if (difficulty === 'medium') {
-    candidates = candidates.filter((w) => Math.abs(w.hsk_level - current.hsk_level) <= 1);
+    candidates = candidates.filter((w) => Math.abs(w.jlpt_level - current.jlpt_level) <= 1);
     if (candidates.length < count) {
       candidates = pool.filter((w) => w.id !== current.id);
     }

@@ -7,9 +7,9 @@ export function graphemeCount(hanzi: string): number {
 }
 
 export function kanjiRows(vocab: ImportedVocabRow[]): ImportedVocabRow[] {
-  return vocab.filter((row) => graphemeCount(row.hanzi) === 1);
+  return vocab.filter((row) => graphemeCount(row.kanji) === 1);
 }
 
 export function phraseRows(vocab: ImportedVocabRow[]): ImportedVocabRow[] {
-  return vocab.filter((row) => graphemeCount(row.hanzi) > 1);
+  return vocab.filter((row) => graphemeCount(row.kanji) > 1);
 }

@@ -13,8 +13,8 @@ type Props = {
 export function FillBlank({ exercise, disabled, onAnswer }: Props) {
   const [picked, setPicked] = useState<number | null>(null);
   const target = exercise.word;
-  const sentence = target.example_zh ?? `${target.hanzi}`;
-  const masked = sentence.replace(target.hanzi, '____');
+  const sentence = target.example_jp ?? `${target.kanji}`;
+  const masked = sentence.replace(target.kanji, '____');
 
   const onPick = (id: number) => {
     if (picked !== null || disabled) return;
@@ -40,8 +40,8 @@ export function FillBlank({ exercise, disabled, onAnswer }: Props) {
           return (
             <OptionTile
               key={opt.id}
-              label={opt.hanzi}
-              sub={opt.pinyin}
+              label={opt.kanji}
+              sub={opt.romaji ?? undefined}
               state={state}
               disabled={picked !== null || disabled}
               onPress={() => onPick(opt.id)}

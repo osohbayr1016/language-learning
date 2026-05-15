@@ -4,15 +4,16 @@ import { Platform, Pressable, StyleSheet, Text } from 'react-native';
 import { colors, spacing } from '../../theme';
 
 type Props = {
-  hanzi: string;
+  /** Japanese text to speak (prefer kana/kanji as shown on the slide). */
+  phrase: string;
   accessibilityLabel: string;
 };
 
-export function SpeakPhraseButton({ hanzi, accessibilityLabel }: Props) {
+export function SpeakPhraseButton({ phrase, accessibilityLabel }: Props) {
   const play = useCallback(() => {
     Speech.stop();
-    Speech.speak(hanzi, { language: 'zh-CN', rate: 0.92 });
-  }, [hanzi]);
+    Speech.speak(phrase, { language: 'ja-JP', rate: 0.92 });
+  }, [phrase]);
 
   return (
     <Pressable

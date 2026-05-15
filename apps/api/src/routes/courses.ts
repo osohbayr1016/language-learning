@@ -1,12 +1,13 @@
 import { Hono } from 'hono';
 import { authMiddleware, adminMiddleware } from '../middleware/auth';
 import type { Env, Variables } from '../types';
+import { jsonBodyInvalid, readJsonBody } from '../lib/requestJson';
 
 const courses = new Hono<{ Bindings: Env; Variables: Variables }>();
 
 // GET /api/courses — public
 courses.get('/', async (c) => {
-  const hsk = c.req.query('hsk');
+  const jlptRaw = c.req.query('jlpt') ?? c.req.query('hsk');
   const limit = Number(c.req.query('limit') ?? 20);
   const offset = Number(c.req.query('offset') ?? 0);
 
@@ -15,9 +16,9 @@ courses.get('/', async (c) => {
                WHERE c.is_published = 1`;
   const params: (string | number)[] = [];
 
-  if (hsk) {
-    query += ' AND c.hsk_level = ?';
-    params.push(Number(hsk));
+  if (jlptRaw) {
+    query += ' AND c.jlpt_level = ?';
+    params.push(Number(jlptRaw));
   }
 
   query += ' GROUP BY c.id ORDER BY c.created_at DESC LIMIT ? OFFSET ?';
@@ -56,15 +57,23 @@ courses.get('/:id/words', async (c) => {
 
 // POST /api/courses — admin
 courses.post('/', authMiddleware, adminMiddleware, async (c) => {
-  const body = await c.req.json();
+  const body = await readJsonBody<{
+    title_mn: string;
+    title_jp?: string;
+    description_mn?: string;
+    thumbnail_url?: string | null;
+    video_url?: string | null;
+    jlpt_level?: number;
+  }>(c);
+  if (!body) return jsonBodyInvalid(c);
 
   const result = await c.env.DB.prepare(
-    `INSERT INTO courses (title_mn, title_zh, description_mn, thumbnail_url, video_url, hsk_level, created_by)
+    `INSERT INTO courses (title_mn, title_jp, description_mn, thumbnail_url, video_url, jlpt_level, created_by)
      VALUES (?, ?, ?, ?, ?, ?, ?) RETURNING id`
   ).bind(
-    body.title_mn, body.title_zh ?? '',
+    body.title_mn, body.title_jp ?? '',
     body.description_mn ?? '', body.thumbnail_url ?? null,
-    body.video_url ?? null, body.hsk_level ?? 1,
+    body.video_url ?? null, body.jlpt_level ?? 1,
     c.get('user').sub
   ).first<{ id: number }>();
 
@@ -73,24 +82,33 @@ courses.post('/', authMiddleware, adminMiddleware, async (c) => {
 
 // PUT /api/courses/:id — admin
 courses.put('/:id', authMiddleware, adminMiddleware, async (c) => {
-  const body = await c.req.json();
+  const body = await readJsonBody<{
+    title_mn?: string;
+    title_jp?: string;
+    description_mn?: string;
+    thumbnail_url?: string | null;
+    video_url?: string | null;
+    jlpt_level?: number;
+    is_published?: boolean;
+  }>(c);
+  if (!body) return jsonBodyInvalid(c);
   const id = c.req.param('id');
 
   await c.env.DB.prepare(
     `UPDATE courses SET
        title_mn = COALESCE(?, title_mn),
-       title_zh = COALESCE(?, title_zh),
+       title_jp = COALESCE(?, title_jp),
        description_mn = COALESCE(?, description_mn),
        thumbnail_url = COALESCE(?, thumbnail_url),
        video_url = COALESCE(?, video_url),
-       hsk_level = COALESCE(?, hsk_level),
+       jlpt_level = COALESCE(?, jlpt_level),
        is_published = COALESCE(?, is_published),
        updated_at = CURRENT_TIMESTAMP
      WHERE id = ?`
   ).bind(
-    body.title_mn ?? null, body.title_zh ?? null,
+    body.title_mn ?? null, body.title_jp ?? null,
     body.description_mn ?? null, body.thumbnail_url ?? null,
-    body.video_url ?? null, body.hsk_level ?? null,
+    body.video_url ?? null, body.jlpt_level ?? null,
     body.is_published != null ? (body.is_published ? 1 : 0) : null,
     id
   ).run();
@@ -101,7 +119,8 @@ courses.put('/:id', authMiddleware, adminMiddleware, async (c) => {
 // POST /api/courses/:id/words — admin: add words to course
 courses.post('/:id/words', authMiddleware, adminMiddleware, async (c) => {
   const id = c.req.param('id');
-  const body = await c.req.json<{ word_ids: number[] }>();
+  const body = await readJsonBody<{ word_ids: number[] }>(c);
+  if (!body) return jsonBodyInvalid(c);
 
   const statements = body.word_ids.map((wordId, idx) =>
     c.env.DB.prepare(

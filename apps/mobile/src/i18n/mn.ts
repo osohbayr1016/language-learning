@@ -5,7 +5,7 @@ import { study } from './strings/study';
 import { games } from './strings/games';
 
 export const mn = {
-  appName: 'Хятад Хэл',
+  appName: 'Япон Хэл',
   common: {
     continue: 'Үргэлжлүүлэх',
     next: 'Дараах',
@@ -32,7 +32,7 @@ export const mn = {
     weakPassword: 'Нууц үг доод тал нь 8 тэмдэгт байх ёстой',
   },
   onboarding: {
-    s1: 'Хичээл, тоглоом, контентоор хятад хэлээ өдөр бүр сайжруулцгаая',
+    s1: 'Хичээл, тоглоом, контентоор япон хэлээ өдөр бүр сайжруулцгаая',
     s2: 'Тоглоом тоглож үг цээжлээрэй',
     s3: 'Өдөр бүр алгасахгүй сурахад чинь туслана',
     start: 'Эхлэх',
@@ -42,7 +42,7 @@ export const mn = {
     home: 'Нүүр',
     study: 'Давтах',
     games: 'Тоглоом',
-    kanji: 'Ханз',
+    kanji: 'Канжи',
     profile: 'Профайл',
   },
   home: {
@@ -60,7 +60,7 @@ export const mn = {
   study,
   games,
   writer: {
-    title: 'Ханзаар бичих',
+    title: 'Канжи бичих',
     watch: 'Зураас харах',
     trace: 'Бичих',
     accuracy: 'Нарийвчлал',
@@ -70,7 +70,7 @@ export const mn = {
   kanji: {
     title: 'Ханз',
     subtitle: 'Бүх ханзнууд',
-    hskLevel: 'HSK {level}',
+    hskLevel: 'JLPT {level}',
     empty: 'Ханз олдсонгүй',
     practice: 'Давтах',
   },
@@ -209,8 +209,8 @@ export const mn = {
     bulkServerValidateMerged: '(зарим алдааг сервер нэмж олсон)',
     rejectDuplicateWord: 'Давхар үг байвал цуцлах (409)',
     bulkDupPolicyTitle: 'Бөөнөөр нэмэх — давхардал',
-    wordExampleZh: 'Жишээ өгүүлбэр (хятад)',
-    wordExamplePinyin: 'Жишээ — pinyin',
+    wordExampleJp: 'Жишээ өгүүлбэр (япон)',
+    wordExampleRomaji: 'Жишээ — romaji',
     wordExampleMn: 'Жишээ — монгол',
     bulkSharedExampleHint: 'Оруулсан жишээг олон-мөрийн зөв мөр бүрэнд ижилхэн хадгалана.',
     wordExamplePreviewTitle: 'Оруулсан жишээ (бүх нэмэгдэх үг)',

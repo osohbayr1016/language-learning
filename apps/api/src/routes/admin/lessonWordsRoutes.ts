@@ -1,5 +1,6 @@
 import type { Hono } from 'hono';
 import type { Env, Variables } from '../../types';
+import { jsonBodyInvalid, readJsonBody } from '../../lib/requestJson';
 
 export function registerLessonWordRoutes(admin: Hono<{ Bindings: Env; Variables: Variables }>) {
   admin.get('/lessons/:lessonId/words', async (c) => {
@@ -7,7 +8,7 @@ export function registerLessonWordRoutes(admin: Hono<{ Bindings: Env; Variables:
     if (!Number.isFinite(lessonId)) return c.json({ error: 'Буруу id' }, 400);
     const rows = await c.env.DB.prepare(
       `SELECT lw.id AS link_id, lw.lesson_id, lw.word_id, lw.order_num,
-              w.hanzi, w.pinyin, w.meaning_mn, w.hsk_level
+              w.kanji, w.romaji, w.meaning_mn, w.jlpt_level
        FROM lesson_words lw
        JOIN words w ON w.id = lw.word_id
        WHERE lw.lesson_id = ?
@@ -21,7 +22,8 @@ export function registerLessonWordRoutes(admin: Hono<{ Bindings: Env; Variables:
   admin.post('/lessons/:lessonId/words', async (c) => {
     const lessonId = Number(c.req.param('lessonId'));
     if (!Number.isFinite(lessonId)) return c.json({ error: 'Буруу id' }, 400);
-    const body = await c.req.json<{ word_id: number }>();
+    const body = await readJsonBody<{ word_id: number }>(c);
+    if (!body) return jsonBodyInvalid(c);
     const wid = Number(body.word_id);
     if (!Number.isFinite(wid)) return c.json({ error: 'word_id шаардлагатай' }, 400);
     const mx = await c.env.DB.prepare(
@@ -45,7 +47,8 @@ export function registerLessonWordRoutes(admin: Hono<{ Bindings: Env; Variables:
   admin.put('/lessons/:lessonId/words/order', async (c) => {
     const lessonId = Number(c.req.param('lessonId'));
     if (!Number.isFinite(lessonId)) return c.json({ error: 'Буруу id' }, 400);
-    const body = await c.req.json<{ word_ids: number[] }>();
+    const body = await readJsonBody<{ word_ids: number[] }>(c);
+    if (!body) return jsonBodyInvalid(c);
     const ids = Array.isArray(body.word_ids) ? body.word_ids.map(Number).filter(Number.isFinite) : [];
     const stmts = ids.map((wid, i) =>
       c.env.DB.prepare(

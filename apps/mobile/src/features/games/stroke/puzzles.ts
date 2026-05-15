@@ -1,85 +1,68 @@
 export type StrokePuzzle = {
   id: string;
-  hanzi: string;
+  kanji: string;
   meaning_mn: string;
-  pinyin: string;
+  romaji: string;
   givenPart: string;
   missingPart: string;
   options: string[];
 };
 
+/** Radical-choice drills (shared CJK components; same mechanic as before). */
 export const STROKE_PUZZLES: StrokePuzzle[] = [
   {
     id: 'p1',
-    hanzi: '你',
-    meaning_mn: 'чи',
-    pinyin: 'nǐ',
-    givenPart: '尔',
+    kanji: '休',
+    meaning_mn: 'амрах',
+    romaji: 'kyū',
+    givenPart: '木',
     missingPart: '亻',
     options: ['亻', '彳', '人', '入'],
   },
   {
     id: 'p2',
-    hanzi: '好',
-    meaning_mn: 'сайн',
-    pinyin: 'hǎo',
-    givenPart: '子',
-    missingPart: '女',
-    options: ['女', '母', '安', '子'],
+    kanji: '明',
+    meaning_mn: 'гэрэл, маргааш',
+    romaji: 'mei / ashita',
+    givenPart: '月',
+    missingPart: '日',
+    options: ['日', '目', '白', '曰'],
   },
   {
     id: 'p3',
-    hanzi: '妈',
-    meaning_mn: 'ээж',
-    pinyin: 'mā',
-    givenPart: '马',
+    kanji: '好',
+    meaning_mn: 'дуртай, сайн',
+    romaji: 'kō / ii',
+    givenPart: '子',
     missingPart: '女',
-    options: ['女', '母', '马', '小'],
+    options: ['女', '母', '安', '妹'],
   },
   {
     id: 'p4',
-    hanzi: '爸',
-    meaning_mn: 'аав',
-    pinyin: 'bà',
-    givenPart: '巴',
-    missingPart: '父',
-    options: ['父', '人', '八', '入'],
+    kanji: '男',
+    meaning_mn: 'эрэгтэй',
+    romaji: 'dan',
+    givenPart: '力',
+    missingPart: '田',
+    options: ['田', '力', '土', '由'],
   },
   {
     id: 'p5',
-    hanzi: '吃',
-    meaning_mn: 'идэх',
-    pinyin: 'chī',
-    givenPart: '乞',
-    missingPart: '口',
-    options: ['口', '日', '目', '田'],
+    kanji: '語',
+    meaning_mn: 'хэл, үг',
+    romaji: 'go',
+    givenPart: '吾',
+    missingPart: '言',
+    options: ['言', '口', '讠', '音'],
   },
   {
     id: 'p6',
-    hanzi: '想',
-    meaning_mn: 'бодох',
-    pinyin: 'xiǎng',
-    givenPart: '相',
-    missingPart: '心',
-    options: ['心', '必', '思', '忄'],
-  },
-  {
-    id: 'p7',
-    hanzi: '学',
-    meaning_mn: 'сурах',
-    pinyin: 'xué',
-    givenPart: '⺍',
-    missingPart: '子',
-    options: ['子', '字', '学', '孩'],
-  },
-  {
-    id: 'p8',
-    hanzi: '请',
-    meaning_mn: 'гуйх',
-    pinyin: 'qǐng',
-    givenPart: '青',
-    missingPart: '讠',
-    options: ['讠', '言', '亻', '阝'],
+    kanji: '間',
+    meaning_mn: 'завсар, хооронд',
+    romaji: 'ma / aida',
+    givenPart: '日',
+    missingPart: '門',
+    options: ['門', '間', '開', '閉'],
   },
 ];
 

@@ -1,6 +1,7 @@
 import type { Hono } from 'hono';
 import type { Env, Variables } from '../../types';
 import { fetchLessonDetailForAdminPreview } from '../../lib/lessonDetail';
+import { jsonBodyInvalid, readJsonBody } from '../../lib/requestJson';
 
 export function registerLessonRoutes(admin: Hono<{ Bindings: Env; Variables: Variables }>) {
   admin.get('/lessons/:id/preview', async (c) => {
@@ -28,14 +29,15 @@ export function registerLessonRoutes(admin: Hono<{ Bindings: Env; Variables: Var
   });
 
   admin.post('/lessons', async (c) => {
-    const body = await c.req.json<{
+    const body = await readJsonBody<{
       chapter_id: number;
       title_mn: string;
       subtitle_mn?: string;
       icon?: string;
       order_num?: number;
       is_published?: number;
-    }>();
+    }>(c);
+    if (!body) return jsonBodyInvalid(c);
     const chId = Number(body.chapter_id);
     const title = typeof body.title_mn === 'string' ? body.title_mn.trim() : '';
     if (!Number.isFinite(chId) || !title) return c.json({ error: 'chapter_id, title_mn шаардлагатай' }, 400);
@@ -58,14 +60,15 @@ export function registerLessonRoutes(admin: Hono<{ Bindings: Env; Variables: Var
   admin.patch('/lessons/:id', async (c) => {
     const id = Number(c.req.param('id'));
     if (!Number.isFinite(id)) return c.json({ error: 'Буруу id' }, 400);
-    const body = await c.req.json<{
+    const body = await readJsonBody<{
       chapter_id?: number;
       title_mn?: string;
       subtitle_mn?: string;
       icon?: string;
       order_num?: number;
       is_published?: number;
-    }>();
+    }>(c);
+    if (!body) return jsonBodyInvalid(c);
     await c.env.DB.prepare(
       `UPDATE lessons SET
          chapter_id = COALESCE(?, chapter_id),

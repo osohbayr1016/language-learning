@@ -10,11 +10,11 @@ type Props = {
   errRows: Extract<ParsedImportLine, { ok: false }>[];
   serverFails: Extract<AdminBulkValidateRow, { ok: false }>[];
   token: boolean;
-  bulkExZh: string;
-  bulkExPy: string;
+  bulkExJp: string;
+  bulkExRo: string;
   bulkExMn: string;
-  onBulkExZh: (v: string) => void;
-  onBulkExPy: (v: string) => void;
+  onBulkExJp: (v: string) => void;
+  onBulkExRo: (v: string) => void;
   onBulkExMn: (v: string) => void;
 };
 
@@ -24,11 +24,11 @@ export function AdminBulkParsedSection({
   errRows,
   serverFails,
   token,
-  bulkExZh,
-  bulkExPy,
+  bulkExJp,
+  bulkExRo,
   bulkExMn,
-  onBulkExZh,
-  onBulkExPy,
+  onBulkExJp,
+  onBulkExRo,
   onBulkExMn,
 }: Props) {
   if (!preview.length) return null;
@@ -39,14 +39,14 @@ export function AdminBulkParsedSection({
         okRows={okRows}
         errRows={errRows}
         serverFails={serverFails}
-        sharedExample={{ zh: bulkExZh, py: bulkExPy, mn: bulkExMn }}
+        sharedExample={{ jp: bulkExJp, ro: bulkExRo, mn: bulkExMn }}
       />
       <AdminHanziExampleFieldsBlock
-        exampleZh={bulkExZh}
-        examplePinyin={bulkExPy}
+        exampleJp={bulkExJp}
+        exampleRomaji={bulkExRo}
         exampleMn={bulkExMn}
-        onExampleZh={onBulkExZh}
-        onExamplePinyin={onBulkExPy}
+        onExampleJp={onBulkExJp}
+        onExampleRomaji={onBulkExRo}
         onExampleMn={onBulkExMn}
         showBulkHint
         disabled={!token}

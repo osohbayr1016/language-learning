@@ -7,7 +7,7 @@ export type Course = {
   title_zh: string | null;
   description_mn: string | null;
   thumbnail_url: string | null;
-  hsk_level: number | null;
+  jlpt_level: number | null;
   word_count: number;
   is_published: boolean;
 };

@@ -48,7 +48,7 @@ export function AdminDashboardScreen() {
     <ScrollView contentContainerStyle={styles.wrap}>
       <Text style={styles.intro}>{a.dashScreenIntro}</Text>
       <Text style={styles.extra}>
-        {a.tileLessonWordLinks}: {s.lesson_word_links} · {a.tileDistinctHanzi}: {s.distinct_hanzi} · Дуусгалт:{' '}
+        {a.tileLessonWordLinks}: {s.lesson_word_links} · {a.tileDistinctHanzi}: {s.distinct_kanji} · Дуусгалт:{' '}
         {s.lesson_completions} ({s.lesson_completions_last_7_days} / 7 хоног) · Кино: {s.cartoons}
       </Text>
       <AdminDashboardHskBreakdown stats={s} />

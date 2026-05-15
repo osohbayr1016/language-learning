@@ -16,7 +16,7 @@ import type { Word } from '../../lib/types';
 import type { AdminChapter } from '../../lib/api/admin';
 import { useAuth } from '../../context/AuthContext';
 import { Screen, Button, Pill, Dialog } from '../../primitives';
-import { PronounceButton } from '../../components/audio/PronounceButton';
+import { jlptNLabel } from '../../lib/jlptLabel';
 import { colors, radius, spacing, typography } from '../../theme';
 
 type Tab = 'basic' | 'listening' | 'writing' | 'lesson';
@@ -78,8 +78,8 @@ export function AdminWordDetailScreen({ wordId }: Props) {
 
   const save = async () => {
     if (!token || !word) return;
-    if (!draft.hanzi?.trim() || !draft.pinyin?.trim() || !draft.meaning_mn?.trim()) {
-      showDialog('Алдаа', 'Ханз, Pinyin, Утга заавал байна.');
+    if (!draft.kanji?.trim() || !draft.romaji?.trim() || !draft.meaning_mn?.trim()) {
+      showDialog('Алдаа', 'Канжи, romaji, утга заавал байна.');
       return;
     }
     setSaving(true);
@@ -101,7 +101,7 @@ export function AdminWordDetailScreen({ wordId }: Props) {
     
     // Web fallback for delete
     const g = globalThis as { confirm?: (s: string) => boolean };
-    if (!g.confirm?.(`"${draft.hanzi}" үгийг устгах уу?`)) return;
+    if (!g.confirm?.(`"${draft.kanji}" үгийг устгах уу?`)) return;
     
     try {
       await api.words.remove(token, wordId);
@@ -125,7 +125,7 @@ export function AdminWordDetailScreen({ wordId }: Props) {
 
   const allLessons = useMemo(() => {
     return tree.flatMap((ch) =>
-      (ch.lessons ?? []).map((ls) => ({ ...ls, chapterTitle: ch.title_mn, hsk: ch.hsk_level }))
+      (ch.lessons ?? []).map((ls) => ({ ...ls, chapterTitle: ch.title_mn, jlpt: ch.jlpt_level }))
     );
   }, [tree]);
 
@@ -158,11 +158,11 @@ export function AdminWordDetailScreen({ wordId }: Props) {
       <ScrollView contentContainerStyle={styles.scroll} keyboardShouldPersistTaps="handled">
         {/* Header */}
         <View style={styles.header}>
-          <Text style={styles.hanzi}>{draft.hanzi}</Text>
+          <Text style={styles.hanzi}>{draft.kanji}</Text>
           <View style={styles.headerMeta}>
-            <Text style={styles.pinyin}>{draft.pinyin}</Text>
+            <Text style={styles.pinyin}>{draft.romaji}</Text>
             <View style={styles.hskBadge}>
-              <Text style={styles.hskText}>HSK {draft.hsk_level}</Text>
+              <Text style={styles.hskText}>{jlptNLabel(draft.jlpt_level ?? 1)}</Text>
             </View>
           </View>
           <Text style={styles.meaning}>{draft.meaning_mn}</Text>
@@ -188,32 +188,32 @@ export function AdminWordDetailScreen({ wordId }: Props) {
         <View style={styles.tabContent}>
           {tab === 'basic' && (
             <View style={styles.section}>
-              <Text style={styles.label}>Ханз *</Text>
-              <TextInput style={styles.input} value={draft.hanzi} onChangeText={(v) => set('hanzi', v)} />
-              
-              <Text style={styles.label}>Pinyin *</Text>
-              <TextInput style={styles.input} value={draft.pinyin} onChangeText={(v) => set('pinyin', v)} autoCapitalize="none" />
-              
-              <Text style={styles.label}>Pinyin (тоогоор)</Text>
-              <TextInput style={styles.input} value={draft.pinyin_numbered ?? ''} onChangeText={(v) => set('pinyin_numbered', v)} autoCapitalize="none" />
-              
+              <Text style={styles.label}>Канжи / кана *</Text>
+              <TextInput style={styles.input} value={draft.kanji} onChangeText={(v) => set('kanji', v)} />
+
+              <Text style={styles.label}>Romaji *</Text>
+              <TextInput style={styles.input} value={draft.romaji} onChangeText={(v) => set('romaji', v)} autoCapitalize="none" />
+
+              <Text style={styles.label}>Romaji (дуудлага задлах)</Text>
+              <TextInput style={styles.input} value={draft.romaji_numbered ?? ''} onChangeText={(v) => set('romaji_numbered', v)} autoCapitalize="none" />
+
               <Text style={styles.label}>Утга (Монгол) *</Text>
               <TextInput style={styles.input} value={draft.meaning_mn} onChangeText={(v) => set('meaning_mn', v)} />
-              
+
               <Text style={styles.label}>Утга (Англи)</Text>
               <TextInput style={styles.input} value={draft.meaning_en ?? ''} onChangeText={(v) => set('meaning_en', v)} />
-              
-              <Text style={styles.label}>HSK түвшин *</Text>
-              <TextInput style={styles.input} value={String(draft.hsk_level ?? 1)} onChangeText={(v) => set('hsk_level', Number(v) || 1)} keyboardType="number-pad" />
-              
+
+              <Text style={styles.label}>JLPT түвшин * (1=N5 … 5=N1)</Text>
+              <TextInput style={styles.input} value={String(draft.jlpt_level ?? 1)} onChangeText={(v) => set('jlpt_level', Number(v) || 1)} keyboardType="number-pad" />
+
+              <Text style={styles.label}>Хирагана / катакана</Text>
+              <TextInput style={styles.input} value={draft.kana ?? ''} onChangeText={(v) => set('kana', v)} />
+
               <Text style={styles.label}>Үгийн аймаг</Text>
               <TextInput style={styles.input} value={draft.part_of_speech ?? ''} onChangeText={(v) => set('part_of_speech', v)} autoCapitalize="none" />
-              
+
               <Text style={styles.label}>Цохилтын тоо</Text>
               <TextInput style={styles.input} value={String(draft.stroke_count ?? '')} onChangeText={(v) => set('stroke_count', Number(v) || 0)} keyboardType="number-pad" />
-              
-              <Text style={styles.label}>Тоны дараалал (JSON, e.g. [3,3])</Text>
-              <TextInput style={styles.input} value={draft.tones ?? ''} onChangeText={(v) => set('tones', v)} />
             </View>
           )}
 
@@ -235,11 +235,11 @@ export function AdminWordDetailScreen({ wordId }: Props) {
 
           {tab === 'writing' && (
             <View style={styles.section}>
-              <Text style={styles.label}>Өгүүлбэр (Хятад)</Text>
-              <TextInput style={styles.input} value={draft.example_zh ?? ''} onChangeText={(v) => set('example_zh', v)} placeholder="你好吗？" />
-              
-              <Text style={styles.label}>Өгүүлбэр (Pinyin)</Text>
-              <TextInput style={styles.input} value={draft.example_pinyin ?? ''} onChangeText={(v) => set('example_pinyin', v)} placeholder="Nǐ hǎo ma?" autoCapitalize="none" />
+              <Text style={styles.label}>Өгүүлбэр (япон)</Text>
+              <TextInput style={styles.input} value={draft.example_jp ?? ''} onChangeText={(v) => set('example_jp', v)} placeholder="今日はいい天気です。" />
+
+              <Text style={styles.label}>Өгүүлбэр (romaji)</Text>
+              <TextInput style={styles.input} value={draft.example_romaji ?? ''} onChangeText={(v) => set('example_romaji', v)} placeholder="Kyou wa ii tenki desu." autoCapitalize="none" />
               
               <Text style={styles.label}>Өгүүлбэр (Монгол)</Text>
               <TextInput style={styles.input} value={draft.example_mn ?? ''} onChangeText={(v) => set('example_mn', v)} placeholder="Та сайн уу?" />
@@ -266,7 +266,7 @@ export function AdminWordDetailScreen({ wordId }: Props) {
                     style={[styles.lessonItem, addLessonId === ls.id && styles.lessonItemSelected]}
                     onPress={() => setAddLessonId(ls.id)}
                   >
-                    <Text style={styles.lessonItemHsk}>HSK{ls.hsk}</Text>
+                    <Text style={styles.lessonItemHsk}>{jlptNLabel(ls.jlpt)}</Text>
                     <Text style={styles.lessonItemTitle} numberOfLines={1}>
                       {ls.chapterTitle} › {ls.title_mn}
                     </Text>
@@ -320,14 +320,14 @@ const styles = StyleSheet.create({
   headerMeta: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginBottom: spacing.xs },
   pinyin: { ...typography.body.md, color: colors.brand.primary },
   hskBadge: {
-    backgroundColor: colors.hsk[1] + '22',
+    backgroundColor: colors.jlpt[1] + '22',
     paddingHorizontal: 8,
     paddingVertical: 2,
     borderRadius: 12,
     borderWidth: 1,
-    borderColor: colors.hsk[1] + '55',
+    borderColor: colors.jlpt[1] + '55',
   },
-  hskText: { fontSize: 12, fontWeight: '700', color: colors.hsk[1] },
+  hskText: { fontSize: 12, fontWeight: '700', color: colors.jlpt[1] },
   meaning: { ...typography.body.md, color: colors.text.secondary },
   
   tabsRow: {

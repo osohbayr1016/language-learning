@@ -117,8 +117,8 @@ export function useMandarinSpeechRound({
   });
 
   const exampleAside =
-    speechPrompt === 'word' && word.example_zh && word.example_zh !== word.hanzi
-      ? speakExampleAside(word.example_zh, hideMongolian)
+    speechPrompt === 'word' && word.example_jp && word.example_jp !== word.kanji
+      ? speakExampleAside(word.example_jp, hideMongolian)
       : null;
 
   const markFallbackAnswer = useCallback(

@@ -6,14 +6,14 @@ const IOS_BUILD_NUMBER = '1';
 const ANDROID_VERSION_CODE = 1;
 
 export default (): ExpoConfig => ({
-  name: 'Хятад Хэл',
-  slug: 'chinese-learning',
+  name: 'Япон Хэл',
+  slug: 'japanese-learning',
   owner: 'twissu',
   version: '1.0.0',
   orientation: 'portrait',
   icon: './assets/icon.png',
   userInterfaceStyle: 'dark',
-  scheme: 'chineseapp',
+  scheme: 'japaneseapp',
   newArchEnabled: true,
   splash: {
     image: './assets/splash-icon.png',
@@ -22,12 +22,12 @@ export default (): ExpoConfig => ({
   },
   ios: {
     supportsTablet: false,
-    bundleIdentifier: 'com.chineselearning.app',
+    bundleIdentifier: 'com.japaneselearning.app',
     buildNumber: IOS_BUILD_NUMBER,
     infoPlist: {
       ITSAppUsesNonExemptEncryption: false,
       NSMicrophoneUsageDescription:
-        'Хятад өгүүлбэр хэлэх дасгалд микрофон шаардлагатай.',
+        'Япон өгүүлбэр хэлэх дасгалд микрофон шаардлагатай.',
       NSSpeechRecognitionUsageDescription:
         'Таны хэлсэн үгийг таних зөвшөөрөл шаардлагатай.',
     },
@@ -37,7 +37,7 @@ export default (): ExpoConfig => ({
       foregroundImage: './assets/adaptive-icon.png',
       backgroundColor: '#0F0F1A',
     },
-    package: 'com.chineselearning.app',
+    package: 'com.japaneselearning.app',
     versionCode: ANDROID_VERSION_CODE,
     permissions: [
       'android.permission.RECORD_AUDIO',
@@ -64,7 +64,7 @@ export default (): ExpoConfig => ({
       'expo-speech-recognition',
       {
         microphonePermission:
-          'Хятад өгүүлбэр хэлэх дасгалд микрофон шаардлагатай.',
+          'Япон өгүүлбэр хэлэх дасгалд микрофон шаардлагатай.',
         speechRecognitionPermission:
           'Таны хэлсэн үгийг таних зөвшөөрөл шаардлагатай.',
         androidSpeechServicePackages: ['com.google.android.googlequicksearchbox'],
@@ -75,7 +75,7 @@ export default (): ExpoConfig => ({
     typedRoutes: true,
   },
   extra: {
-    apiUrl: 'https://chinese-learning-api.osohoo691016.workers.dev',
+    apiUrl: 'https://japanese-learning-api.osohoo691016.workers.dev',
     eas: {
       projectId: 'f37b493b-0499-4d37-a234-6b2abefdc319',
     },

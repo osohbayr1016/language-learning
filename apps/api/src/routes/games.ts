@@ -4,6 +4,7 @@ import type { Env, Variables } from '../types';
 import { bumpDailyActivity, bumpGamePlayed } from '../lib/activity';
 import { updateStreak } from '../lib/streak';
 import { addXpToUserStats } from '../lib/progress';
+import { jsonBodyInvalid, readJsonBody } from '../lib/requestJson';
 
 const games = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -12,14 +13,15 @@ games.use('*', authMiddleware);
 // POST /api/games/session — save game result
 games.post('/session', async (c) => {
   const { sub } = c.get('user');
-  const body = await c.req.json<{
+  const body = await readJsonBody<{
     game_type: string;
     score: number;
     accuracy: number;
     duration_seconds: number;
     words_practiced: number;
     xp_earned: number;
-  }>();
+  }>(c);
+  if (!body) return jsonBodyInvalid(c);
 
   await c.env.DB.prepare(
     `INSERT INTO game_sessions (user_id, game_type, score, accuracy, duration_seconds, words_practiced, xp_earned)

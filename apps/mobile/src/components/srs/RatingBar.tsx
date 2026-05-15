@@ -2,7 +2,7 @@ import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { colors, radius, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
-import type { ReviewRating } from '@chinese-app/srs';
+import type { ReviewRating } from '@japanese-learning/srs';
 
 type Props = {
   onRate: (rating: ReviewRating) => void;

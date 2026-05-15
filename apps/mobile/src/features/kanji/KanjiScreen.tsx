@@ -8,6 +8,7 @@ import type { Word, WordWithProgress } from '../../lib/types';
 import { useRouter } from 'expo-router';
 import { useAuth } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
+import { jlptNLabel } from '../../lib/jlptLabel';
 
 type ProgressState = 'none' | 'learned' | 'mastered';
 
@@ -51,7 +52,7 @@ export default function KanjiScreen() {
   }, [loadData]);
 
   const grouped = kanjis.reduce((acc, word) => {
-    const lvl = word.hsk_level || 1;
+    const lvl = word.jlpt_level || 1;
     if (!acc[lvl]) acc[lvl] = [];
     acc[lvl].push(word);
     return acc;
@@ -85,14 +86,14 @@ export default function KanjiScreen() {
       ) : (
         levels.map((lvl) => {
           const stats = levelStats[lvl];
-          const hskColor = colors.hsk[lvl as keyof typeof colors.hsk] ?? colors.brand.primary;
+          const hskColor = colors.jlpt[lvl as keyof typeof colors.jlpt] ?? colors.brand.primary;
           const pct = stats.total > 0 ? stats.learned / stats.total : 0;
           return (
             <View key={lvl} style={styles.section}>
               {/* Section header */}
               <View style={styles.sectionHeader}>
                 <View style={[styles.hskBadge, { backgroundColor: hskColor + '20', borderColor: hskColor + '60' }]}>
-                  <Text style={[styles.hskBadgeText, { color: hskColor }]}>HSK {lvl}</Text>
+                  <Text style={[styles.hskBadgeText, { color: hskColor }]}>{jlptNLabel(lvl)}</Text>
                 </View>
                 <View style={styles.sectionMeta}>
                   <Text style={styles.sectionProgressText}>
@@ -107,7 +108,7 @@ export default function KanjiScreen() {
               <View style={styles.grid}>
                 {grouped[lvl].map((word) => {
                   const state = progressMap[word.id] ?? 'none';
-                  const hskC = colors.hsk[word.hsk_level as keyof typeof colors.hsk] ?? colors.brand.primary;
+                  const hskC = colors.jlpt[word.jlpt_level as keyof typeof colors.jlpt] ?? colors.brand.primary;
                   return (
                     <Pressable
                       key={word.id}
@@ -137,9 +138,9 @@ export default function KanjiScreen() {
                       )}
 
                       <Text style={[styles.hanzi, state !== 'none' && styles.hanziLearned]}>
-                        {word.hanzi}
+                        {word.kanji}
                       </Text>
-                      <Text style={styles.pinyin} numberOfLines={1}>{word.pinyin}</Text>
+                      <Text style={styles.pinyin} numberOfLines={1}>{word.romaji}</Text>
                       <Text style={styles.meaning} numberOfLines={1}>{word.meaning_mn}</Text>
                     </Pressable>
                   );

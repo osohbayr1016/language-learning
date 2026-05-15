@@ -30,7 +30,7 @@ export default function SentenceScreen({ initialWords, onDone }: Props) {
   const { playWord } = useAudio();
 
   const queue = useMemo(
-    () => pool.filter((w) => (w.example_zh ?? '').length > 0),
+    () => pool.filter((w) => (w.example_jp ?? '').length > 0),
     [pool]
   );
   const distractorPool = useMemo(() => pool, [pool]);
@@ -134,7 +134,7 @@ export default function SentenceScreen({ initialWords, onDone }: Props) {
         score={score}
         progressLabel={`${idx + 1}/${queue.length}`}
       />
-      <SentencePrompt word={current} filled={selected?.hanzi ?? null} />
+      <SentencePrompt word={current} filled={selected?.kanji ?? null} />
       <CandidateTray
         candidates={candidates}
         selectedId={selected?.id ?? null}

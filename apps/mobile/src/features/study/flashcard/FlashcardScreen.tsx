@@ -1,11 +1,11 @@
 import React, { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import { ActivityIndicator, Platform, StyleSheet, Text, View } from "react-native";
-import type { ReviewRating } from "@chinese-app/srs";
+import type { ReviewRating } from "@japanese-learning/srs";
 import { Screen } from "../../../primitives";
 import { useDueWords } from "../../../hooks/useDueWords";
 import { useSrsRating } from "../../../hooks/useSrsRating";
 import { useAdaptiveTimer } from "../../../hooks/useAdaptiveTimer";
-import { calculateXP } from "@chinese-app/srs";
+import { calculateXP } from "@japanese-learning/srs";
 import { colors, spacing, typography } from "../../../theme";
 import { StudyHeader } from "../StudyHeader";
 import { StudyEmptyState } from "../EmptyState";

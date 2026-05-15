@@ -9,6 +9,7 @@ type QIn = {
   audio_text?: string;
   question_text?: string;
   question_pinyin?: string;
+  question_romaji?: string;
   options: unknown;
   correct_answer: string;
   order_num: number;
@@ -17,6 +18,7 @@ type QIn = {
 
 type ImportBody = {
   title?: string;
+  jlpt_level?: number;
   hsk_level?: number;
   duration_minutes?: number;
   passing_score?: number;
@@ -85,7 +87,7 @@ examImportApp.post('/import', async (c) => {
     }
   }
 
-  const hsk = Math.min(6, Math.max(1, Number(body.hsk_level) || 2));
+  const jlpt = Math.min(5, Math.max(1, Number(body.jlpt_level ?? body.hsk_level) || 2));
   const duration = Math.max(1, Number(body.duration_minutes) || 55);
   const maxScore = Math.max(1, Number(body.max_score) || 200);
   const passScoreRaw = body.passing_score != null ? Number(body.passing_score) : 120;
@@ -93,10 +95,10 @@ examImportApp.post('/import', async (c) => {
   const pub = body.is_published === true ? 1 : 0;
 
   const insT = await c.env.DB.prepare(
-    `INSERT INTO exam_templates (title, hsk_level, total_questions, duration_minutes, passing_score, max_score, is_published)
+    `INSERT INTO exam_templates (title, jlpt_level, total_questions, duration_minutes, passing_score, max_score, is_published)
      VALUES (?, ?, ?, ?, ?, ?, ?)`
   )
-    .bind(title, hsk, qs.length, duration, passScore, maxScore, pub)
+    .bind(title, jlpt, qs.length, duration, passScore, maxScore, pub)
     .run();
 
   const tid = Number(insT.meta?.last_row_id ?? 0);
@@ -110,7 +112,7 @@ examImportApp.post('/import', async (c) => {
         q.audio_key != null && String(q.audio_key).startsWith('exams/') ? String(q.audio_key) : null;
       return c.env.DB
         .prepare(
-          `INSERT INTO exam_questions (template_id, section, part_num, question_num, question_type, audio_text, question_text, question_pinyin, options, correct_answer, order_num, audio_key)
+          `INSERT INTO exam_questions (template_id, section, part_num, question_num, question_type, audio_text, question_text, question_romaji, options, correct_answer, order_num, audio_key)
            VALUES (?, ?, ?, ?, 'paper_mcq', ?, ?, ?, ?, ?, ?, ?)`
         )
         .bind(
@@ -120,7 +122,7 @@ examImportApp.post('/import', async (c) => {
           q.question_num,
           q.audio_text ?? '',
           q.question_text ?? '',
-          q.question_pinyin ?? '',
+          (q.question_romaji ?? q.question_pinyin) ?? '',
           JSON.stringify(normOpts(q.options)),
           String(q.correct_answer).trim(),
           q.order_num,

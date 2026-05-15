@@ -52,7 +52,7 @@ export const cartoonsAdmin = {
       description_mn?: string;
       video_key: string;
       thumbnail_key?: string;
-      hsk_level?: number;
+      jlpt_level?: number;
       duration_s?: number;
       is_published?: boolean;
     }
@@ -73,7 +73,7 @@ export const cartoonsAdmin = {
       title_mn: string;
       description_mn: string;
       thumbnail_key: string | null;
-      hsk_level: number;
+      jlpt_level: number;
       duration_s: number;
       is_published: boolean;
     }>

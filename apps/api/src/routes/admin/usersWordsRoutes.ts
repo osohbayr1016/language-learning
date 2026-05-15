@@ -1,7 +1,8 @@
 import { Hono } from 'hono';
 import { insertAdminWord, type AdminWordCreateInput } from '../../lib/adminCreateWord';
-import { dryRunValidateAdminWord, fetchExistingHanziMnPairs } from '../../lib/adminWordDryRun';
+import { dryRunValidateAdminWord, fetchExistingKanjiMnPairs } from '../../lib/adminWordDryRun';
 import type { Env, Variables } from '../../types';
+import { jsonBodyInvalid, readJsonBody } from '../../lib/requestJson';
 
 const usersWords = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -19,18 +20,19 @@ usersWords.get('/users', async (c) => {
 });
 
 type BulkOut =
-  | { ok: true; id: number; hanzi: string }
-  | { ok: true; skipped: true; hanzi: string }
-  | { ok: false; hanzi: string; error: string };
+  | { ok: true; id: number; kanji: string }
+  | { ok: true; skipped: true; kanji: string }
+  | { ok: false; kanji: string; error: string };
 
 usersWords.post('/words/bulk/validate', async (c) => {
-  const payload = await c.req.json<{
+  const payload = await readJsonBody<{
     words?: AdminWordCreateInput[];
-    hsk_level?: number;
+    jlpt_level?: number;
     textbook_unit?: string | null;
-  }>();
+  }>(c);
+  if (!payload) return jsonBodyInvalid(c);
   const rows = Array.isArray(payload.words) ? payload.words : [];
-  const defaultHsk = Math.min(6, Math.max(1, Number(payload.hsk_level ?? 1)));
+  const defaultJlpt = Math.min(5, Math.max(1, Number(payload.jlpt_level ?? 1)));
   const globalTb =
     typeof payload.textbook_unit === 'string' ? payload.textbook_unit.trim() : '';
   if (rows.length === 0) return c.json({ error: 'Ядаж нэг үг оруулна уу' }, 400);
@@ -39,22 +41,22 @@ usersWords.post('/words/bulk/validate', async (c) => {
   }
 
   const results: (
-    | { ok: true; hanzi: string; strokeCount: number }
-    | { ok: false; hanzi: string; error: string }
+    | { ok: true; kanji: string; strokeCount: number }
+    | { ok: false; kanji: string; error: string }
   )[] = [];
 
   for (const raw of rows) {
     const merged: AdminWordCreateInput = {
       ...raw,
-      hsk_level: raw.hsk_level != null ? raw.hsk_level : defaultHsk,
+      jlpt_level: raw.jlpt_level != null ? raw.jlpt_level : defaultJlpt,
       textbook_unit: (raw.textbook_unit ?? globalTb) || undefined,
     };
-    const hzRaw = typeof merged.hanzi === 'string' ? merged.hanzi.trim() : '';
+    const kjRaw = typeof merged.kanji === 'string' ? merged.kanji.trim() : '';
     const r = await dryRunValidateAdminWord(merged);
     if (r.ok) {
-      results.push({ ok: true, hanzi: r.hanzi, strokeCount: r.strokeCount });
+      results.push({ ok: true, kanji: r.kanji, strokeCount: r.strokeCount });
     } else {
-      results.push({ ok: false, hanzi: hzRaw || '—', error: r.error });
+      results.push({ ok: false, kanji: kjRaw || '—', error: r.error });
     }
   }
 
@@ -62,14 +64,15 @@ usersWords.post('/words/bulk/validate', async (c) => {
 });
 
 usersWords.post('/words/bulk', async (c) => {
-  const payload = await c.req.json<{
+  const payload = await readJsonBody<{
     words?: AdminWordCreateInput[];
-    hsk_level?: number;
+    jlpt_level?: number;
     duplicate_policy?: 'fail' | 'skip';
     textbook_unit?: string | null;
-  }>();
+  }>(c);
+  if (!payload) return jsonBodyInvalid(c);
   const rows = Array.isArray(payload.words) ? payload.words : [];
-  const defaultHsk = Math.min(6, Math.max(1, Number(payload.hsk_level ?? 1)));
+  const defaultJlpt = Math.min(5, Math.max(1, Number(payload.jlpt_level ?? 1)));
   const dupPolicy = payload.duplicate_policy === 'fail' ? 'fail' : 'skip';
   const globalTb =
     typeof payload.textbook_unit === 'string' ? payload.textbook_unit.trim() : '';
@@ -80,34 +83,34 @@ usersWords.post('/words/bulk', async (c) => {
 
   const mergedRows = rows.map((raw) => ({
     ...raw,
-    hsk_level: raw.hsk_level != null ? raw.hsk_level : defaultHsk,
+    jlpt_level: raw.jlpt_level != null ? raw.jlpt_level : defaultJlpt,
     textbook_unit: (raw.textbook_unit ?? globalTb) || undefined,
   }));
 
-  const pairCandidates: { hanzi: string; meaning_mn: string }[] = [];
+  const pairCandidates: { kanji: string; meaning_mn: string }[] = [];
   for (const m of mergedRows) {
-    const hz = typeof m.hanzi === 'string' ? m.hanzi.trim() : '';
+    const kj = typeof m.kanji === 'string' ? m.kanji.trim() : '';
     const mn = typeof m.meaning_mn === 'string' ? m.meaning_mn.trim() : '';
-    if (hz && mn) pairCandidates.push({ hanzi: hz, meaning_mn: mn });
+    if (kj && mn) pairCandidates.push({ kanji: kj, meaning_mn: mn });
   }
 
-  const existingDupKeys = await fetchExistingHanziMnPairs(c.env.DB, pairCandidates);
+  const existingDupKeys = await fetchExistingKanjiMnPairs(c.env.DB, pairCandidates);
 
   const results: BulkOut[] = [];
 
   for (const raw of mergedRows) {
-    const hzRaw = typeof raw.hanzi === 'string' ? raw.hanzi.trim() : '';
+    const kjRaw = typeof raw.kanji === 'string' ? raw.kanji.trim() : '';
     const r = await insertAdminWord(c.env.DB, raw, {
       duplicatePolicy: dupPolicy === 'fail' ? 'fail' : 'skip',
       existingDupKeys,
     });
 
     if (r.kind === 'inserted') {
-      results.push({ ok: true, id: r.id, hanzi: r.hanzi });
+      results.push({ ok: true, id: r.id, kanji: r.kanji });
     } else if (r.kind === 'skipped_dup') {
-      results.push({ ok: true, skipped: true, hanzi: r.hanzi });
+      results.push({ ok: true, skipped: true, kanji: r.kanji });
     } else {
-      results.push({ ok: false, hanzi: hzRaw || '—', error: r.message });
+      results.push({ ok: false, kanji: kjRaw || '—', error: r.message });
     }
   }
 
@@ -115,7 +118,8 @@ usersWords.post('/words/bulk', async (c) => {
 });
 
 usersWords.post('/words', async (c) => {
-  const body = await c.req.json<AdminWordCreateInput & { reject_duplicate?: boolean }>();
+  const body = await readJsonBody<AdminWordCreateInput & { reject_duplicate?: boolean }>(c);
+  if (!body) return jsonBodyInvalid(c);
   const { reject_duplicate: rejectDup, ...rest } = body;
   const dupPol = rejectDup === true ? 'fail' : 'allow';
 

@@ -13,8 +13,8 @@ function alertUser(title: string, message?: string) {
   Alert.alert(title, message ?? '');
 }
 
-function parseHsk(raw: string) {
-  return Math.min(6, Math.max(1, Number(raw) || 1));
+function parseJlpt(raw: string) {
+  return Math.min(5, Math.max(1, Number(raw) || 1));
 }
 
 export function useAdminBulkHanziPaste(token: string | null | undefined, hskLevel: string) {
@@ -25,8 +25,8 @@ export function useAdminBulkHanziPaste(token: string | null | undefined, hskLeve
   const [textbookUnitBulk, setTextbookUnitBulk] = useState('');
   const [dupPolicy, setDupPolicy] = useState<'skip' | 'fail'>('skip');
   const [serverRows, setServerRows] = useState<AdminBulkValidateRow[] | null>(null);
-  const [bulkExZh, setBulkExZh] = useState('');
-  const [bulkExPy, setBulkExPy] = useState('');
+  const [bulkExJp, setBulkExJp] = useState('');
+  const [bulkExRo, setBulkExRo] = useState('');
   const [bulkExMn, setBulkExMn] = useState('');
 
   const okRows = useMemo(
@@ -43,7 +43,7 @@ export function useAdminBulkHanziPaste(token: string | null | undefined, hskLeve
     [serverRows]
   );
 
-  const exArg = { exampleZh: bulkExZh, examplePinyin: bulkExPy, exampleMn: bulkExMn };
+  const exArg = { exampleJp: bulkExJp, exampleRomaji: bulkExRo, exampleMn: bulkExMn };
 
   const runParse = () => {
     const out = parseHanziImportLines(bulkText);
@@ -60,7 +60,7 @@ export function useAdminBulkHanziPaste(token: string | null | undefined, hskLeve
       const { results, fails } = await execAdminBulkValidate({
         token,
         okRows,
-        hsk: parseHsk(hskLevel),
+        jlpt: parseJlpt(hskLevel),
         textbookTrim: textbookUnitBulk.trim(),
         examples: exArg,
       });
@@ -81,7 +81,7 @@ export function useAdminBulkHanziPaste(token: string | null | undefined, hskLeve
       const res = await execAdminBulkCreate({
         token,
         okRows,
-        hsk: parseHsk(hskLevel),
+        jlpt: parseJlpt(hskLevel),
         textbookTrim: textbookUnitBulk.trim(),
         dupPolicy,
         examples: exArg,
@@ -90,10 +90,10 @@ export function useAdminBulkHanziPaste(token: string | null | undefined, hskLeve
       const added = r.filter((x) => x.ok && !('skipped' in x && x.skipped)).length;
       const skipped = r.filter((x) => x.ok && 'skipped' in x && x.skipped).length;
       const failed = r.filter((x) => !x.ok).length;
-      const sampleErr = r.find((x) => !x.ok) as { ok: false; hanzi: string; error: string } | undefined;
+      const sampleErr = r.find((x) => !x.ok) as { ok: false; kanji: string; error: string } | undefined;
       alertUser(
         'Дууссан',
-        `Нэмэгдсэн: ${added}${skipped ? `\nАлгассан (давхар): ${skipped}` : ''}${failed ? `\nАлдаа: ${failed}${sampleErr ? `\nЖишээ: ${sampleErr.hanzi} — ${sampleErr.error}` : ''}` : ''}`
+        `Нэмэгдсэн: ${added}${skipped ? `\nАлгассан (давхар): ${skipped}` : ''}${failed ? `\nАлдаа: ${failed}${sampleErr ? `\nЖишээ: ${sampleErr.kanji} — ${sampleErr.error}` : ''}` : ''}`
       );
       setBulkText('');
       setPreview(null);
@@ -118,10 +118,10 @@ export function useAdminBulkHanziPaste(token: string | null | undefined, hskLeve
     okRows,
     errRows,
     serverFails,
-    bulkExZh,
-    setBulkExZh,
-    bulkExPy,
-    setBulkExPy,
+    bulkExJp,
+    setBulkExJp,
+    bulkExRo,
+    setBulkExRo,
     bulkExMn,
     setBulkExMn,
     runParse,

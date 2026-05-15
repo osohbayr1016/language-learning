@@ -4,43 +4,43 @@ import { mn } from '../../i18n/mn';
 import { colors, spacing, typography } from '../../theme';
 
 type Props = {
-  exampleZh: string;
-  examplePinyin: string;
+  exampleJp: string;
+  exampleRomaji: string;
   exampleMn: string;
-  onExampleZh: (v: string) => void;
-  onExamplePinyin: (v: string) => void;
+  onExampleJp: (v: string) => void;
+  onExampleRomaji: (v: string) => void;
   onExampleMn: (v: string) => void;
   showBulkHint?: boolean;
   disabled?: boolean;
 };
 
 export function AdminHanziExampleFieldsBlock({
-  exampleZh,
-  examplePinyin,
+  exampleJp,
+  exampleRomaji,
   exampleMn,
-  onExampleZh,
-  onExamplePinyin,
+  onExampleJp,
+  onExampleRomaji,
   onExampleMn,
   showBulkHint,
   disabled,
 }: Props) {
   return (
     <View style={styles.wrap}>
-      <Text style={styles.title}>{mn.admin.wordExampleZh}</Text>
+      <Text style={styles.title}>{mn.admin.wordExampleJp}</Text>
       {showBulkHint ? <Text style={styles.hint}>{mn.admin.bulkSharedExampleHint}</Text> : null}
       <TextInput
         style={styles.input}
-        value={exampleZh}
-        onChangeText={onExampleZh}
-        placeholder="···"
+        value={exampleJp}
+        onChangeText={onExampleJp}
+        placeholder="例：今日はいい天気です。"
         multiline
         editable={!disabled}
       />
-      <Text style={styles.label}>{mn.admin.wordExamplePinyin}</Text>
+      <Text style={styles.label}>{mn.admin.wordExampleRomaji}</Text>
       <TextInput
         style={styles.input}
-        value={examplePinyin}
-        onChangeText={onExamplePinyin}
+        value={exampleRomaji}
+        onChangeText={onExampleRomaji}
         autoCapitalize="none"
         editable={!disabled}
       />

@@ -12,9 +12,9 @@ function str(v: unknown): string {
   return typeof v === 'string' ? v.trim() : '';
 }
 
-function hsk(v: unknown): number {
+function jlpt(v: unknown): number {
   const n = Number(String(v ?? '').replace(/[^\d]/g, ''));
-  return Math.min(6, Math.max(1, Number.isFinite(n) && n ? n : 1));
+  return Math.min(5, Math.max(1, Number.isFinite(n) && n ? n : 1));
 }
 
 function notes(rows: unknown): ImportedNote[] {
@@ -29,28 +29,28 @@ function vocab(rows: unknown): ImportedVocab[] {
   return rows
     .map((r) =>
       Array.isArray(r)
-        ? { hanzi: str(r[0]), pinyin: str(r[1]), meaning_mn: str(r[2]), hsk_level: hsk(r[3]) }
+        ? { kanji: str(r[0]), romaji: str(r[1]), meaning_mn: str(r[2]), jlpt_level: jlpt(r[3]) }
         : null
     )
-    .filter((r): r is ImportedVocab => !!r?.hanzi && !!r.pinyin && !!r.meaning_mn);
+    .filter((r): r is ImportedVocab => !!r?.kanji && !!r.romaji && !!r.meaning_mn);
 }
 
 function line(raw: unknown) {
-  if (Array.isArray(raw)) return { speaker: str(raw[0]), cn: str(raw[1]), mn: str(raw[2]) };
+  if (Array.isArray(raw)) return { speaker: str(raw[0]), jp: str(raw[1]), mn: str(raw[2]) };
   const r = (raw ?? {}) as Record<string, unknown>;
-  return { speaker: str(r.speaker), cn: str(r.cn), mn: str(r.mn) };
+  return { speaker: str(r.speaker), jp: str(r.jp ?? r.cn), mn: str(r.mn) };
 }
 
 function dialogues(rows: unknown): ImportedDialogue[] {
   if (!Array.isArray(rows)) return [];
   return rows.map((raw, i) => {
     const r = (raw ?? {}) as Record<string, unknown>;
-    const lines = Array.isArray(r.lines) ? r.lines.map(line).filter((l) => l.cn || l.mn) : undefined;
+    const lines = Array.isArray(r.lines) ? r.lines.map(line).filter((l) => l.jp || l.mn) : undefined;
     return {
       no: Number(r.no ?? i + 1),
       title: str(r.title),
       lines,
-      text_cn: str(r.text_cn),
+      text_jp: str(r.text_jp ?? r.text_cn),
       text_mn: str(r.text_mn),
     };
   });
@@ -97,7 +97,7 @@ export function normalizeLessonImport(raw: unknown): ImportedLessonContent {
   const mockExamId = optionalPositiveInt(lesson.mock_exam_template_id) ?? optionalPositiveInt(root.mock_exam_template_id);
   const content: ImportedLessonContent = {
     external_lesson_id: str(lesson.id),
-    title_cn: str(lesson.title_cn),
+    title_jp: str(lesson.title_jp ?? lesson.title_cn),
     title_mn: str(lesson.title_mn),
     source: str(lesson.source) || 'HTML lesson import',
     summary: str(lesson.summary),
@@ -110,7 +110,7 @@ export function normalizeLessonImport(raw: unknown): ImportedLessonContent {
     ...(mockExamId != null ? { mock_exam_template_id: mockExamId } : {}),
   };
   if (!content.external_lesson_id) throw new Error('lesson.id хоосон байна');
-  if (!content.title_mn && !content.title_cn) throw new Error('Хичээлийн гарчиг хоосон байна');
+  if (!content.title_mn && !content.title_jp) throw new Error('Хичээлийн гарчиг хоосон байна');
   if (!content.vocab.length) throw new Error('Үгийн сан хоосон байна');
   return content;
 }
@@ -118,7 +118,7 @@ export function normalizeLessonImport(raw: unknown): ImportedLessonContent {
 export function previewLessonImport(content: ImportedLessonContent): LessonHtmlPreview {
   return {
     external_lesson_id: content.external_lesson_id,
-    title_cn: content.title_cn,
+    title_jp: content.title_jp,
     title_mn: content.title_mn,
     source: content.source,
     vocab_count: content.vocab.length,

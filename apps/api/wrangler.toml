@@ -1,17 +1,18 @@
-name = "chinese-learning-api"
+name = "nihongo-mn-api"
 main = "src/index.ts"
 compatibility_date = "2025-05-01"
 compatibility_flags = ["nodejs_compat"]
 
-# Local dev defaults — overridden in env.production for the deployed Worker.
+# Local dev uses the same remote-named DB id after `wrangler d1 migrations apply nihongo-mn-db --remote`.
+# Create fresh resources: `wrangler d1 create nihongo-mn-db`, `wrangler r2 bucket create nihongo-mn-media`.
 [[d1_databases]]
 binding = "DB"
-database_name = "chinese-learning-db"
-database_id = "160b44e2-1323-4e51-b788-8fb43e4cb078"
+database_name = "nihongo-mn-db"
+database_id = "696b88cc-4d5a-4751-b25f-49cc2acfd475"
 
 [[r2_buckets]]
 binding = "STORAGE"
-bucket_name = "chinese-learning-assets"
+bucket_name = "nihongo-mn-media"
 
 [vars]
 ENVIRONMENT = "development"
@@ -28,20 +29,19 @@ CORS_ORIGIN = "http://localhost:5173,http://localhost:8081,http://localhost:8085
 # (never commit it).  CORS_ORIGIN should include the live Pages URL.
 # ─────────────────────────────────────────────────────────────────────────────
 [env.production]
-name = "chinese-learning-api"
+name = "nihongo-mn-api"
 
 [[env.production.d1_databases]]
 binding = "DB"
-database_name = "chinese-learning-db"
-database_id = "160b44e2-1323-4e51-b788-8fb43e4cb078"
+database_name = "nihongo-mn-db"
+database_id = "696b88cc-4d5a-4751-b25f-49cc2acfd475"
 
 [[env.production.r2_buckets]]
 binding = "STORAGE"
-bucket_name = "chinese-learning-assets"
+bucket_name = "nihongo-mn-media"
 
 [env.production.vars]
 ENVIRONMENT = "production"
-# Allow the production web Worker plus the legacy Pages domain (kept until DNS
-# expires).  The src/index.ts CORS handler also accepts *.workers.dev /
-# *.pages.dev preview subdomains derived from the entries below.
-CORS_ORIGIN = "https://chinese-learning-web.osohoo691016.workers.dev,https://chinese-learning-tt5.pages.dev"
+# After first `wrangler deploy` of nihongo-mn-web, add its https://….workers.dev URL here.
+# Preview subdomains on the same *.workers.dev zone are accepted by src/index.ts CORS logic.
+CORS_ORIGIN = "https://nihongo-mn-web.osohoo691016.workers.dev"

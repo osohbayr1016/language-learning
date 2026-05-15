@@ -1,13 +1,13 @@
 import { safeAll } from './lessonCatalog';
 
-/** Unlock HSK2+ chapters when user finished all HSK1 lessons OR passed any HSK1 published mock exam. */
-export async function passesHsk1AdvanceGate(db: D1Database, userId: number): Promise<boolean> {
+/** Unlock JLPT N4+ chapters when user finished all N5 lessons OR passed any N5 published mock exam. */
+export async function passesJlptN5AdvanceGate(db: D1Database, userId: number): Promise<boolean> {
   const mockPassRow = await db
     .prepare(
       `SELECT 1 AS ok FROM user_exam_sessions s
        JOIN exam_templates t ON t.id = s.template_id
        WHERE s.user_id = ? AND s.status = 'completed' AND s.passed = 1
-         AND t.hsk_level = 1 AND t.is_published = 1
+         AND t.jlpt_level = 1 AND t.is_published = 1
        LIMIT 1`
     )
     .bind(userId)
@@ -17,15 +17,15 @@ export async function passesHsk1AdvanceGate(db: D1Database, userId: number): Pro
   const chap1 = await safeAll(
     db
       .prepare(
-        `SELECT id FROM chapters WHERE is_published = 1 AND hsk_level = 1 ORDER BY order_num ASC LIMIT 1`
+        `SELECT id FROM chapters WHERE is_published = 1 AND jlpt_level = 1 ORDER BY order_num ASC LIMIT 1`
       )
       .all()
   );
-  const hsk1chapterId = (chap1.results[0] as { id: number } | undefined)?.id;
-  if (!hsk1chapterId) return false;
+  const n5chapterId = (chap1.results[0] as { id: number } | undefined)?.id;
+  if (!n5chapterId) return false;
 
   const ls = await safeAll(
-    db.prepare(`SELECT id FROM lessons WHERE chapter_id = ? AND is_published = 1`).bind(hsk1chapterId).all()
+    db.prepare(`SELECT id FROM lessons WHERE chapter_id = ? AND is_published = 1`).bind(n5chapterId).all()
   );
   const lessonIds = ((ls.results ?? []) as { id: number }[]).map((r) => r.id);
   if (!lessonIds.length) return false;
@@ -50,13 +50,16 @@ export async function passesHsk1AdvanceGate(db: D1Database, userId: number): Pro
   return lessonIds.every((lid) => doneSet.has(lid));
 }
 
-export async function lessonChapterHskLevel(
+// Legacy alias for code that still uses old name
+export const passesHsk1AdvanceGate = passesJlptN5AdvanceGate;
+
+export async function lessonChapterJlptLevel(
   db: D1Database,
   lessonId: number
 ): Promise<number | null> {
   const r = await db
     .prepare(
-      `SELECT c.hsk_level AS h FROM lessons l
+      `SELECT c.jlpt_level AS h FROM lessons l
        JOIN chapters c ON c.id = l.chapter_id
        WHERE l.id = ?`
     )
@@ -67,3 +70,6 @@ export async function lessonChapterHskLevel(
   if (h === null || h === undefined) return null;
   return Number(h);
 }
+
+// Legacy alias
+export const lessonChapterHskLevel = lessonChapterJlptLevel;

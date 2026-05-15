@@ -3,20 +3,20 @@ import type { Word } from '../types';
 export type SpeechPromptScope = 'word' | 'example';
 
 export function getSpeechDisplay(word: Word, speechPrompt: SpeechPromptScope) {
-  if (speechPrompt === 'example' && word.example_zh) {
+  if (speechPrompt === 'example' && word.example_jp) {
     return {
-      hanzi: word.example_zh,
-      pinyin: word.example_pinyin ?? word.pinyin ?? '',
+      hanzi: word.example_jp,
+      pinyin: word.example_romaji ?? word.romaji ?? '',
       tones: null as string | null,
     };
   }
   return {
-    hanzi: word.hanzi,
-    pinyin: word.pinyin ?? '',
-    tones: word.tones,
+    hanzi: word.kanji,
+    pinyin: word.romaji ?? '',
+    tones: null as string | null,
   };
 }
 
 export function speechRecognitionHints(word: Word, displayHanzi: string): string[] {
-  return [...new Set([displayHanzi, word.hanzi, word.example_zh].filter(Boolean) as string[])];
+  return [...new Set([displayHanzi, word.kanji, word.example_jp].filter(Boolean) as string[])];
 }

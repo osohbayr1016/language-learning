@@ -24,48 +24,50 @@ function alertUser(title: string, message?: string) {
   Alert.alert(title, message ?? '');
 }
 
-type Props = { hsk: string; onHskChange: (s: string) => void; onCreated?: (id: number) => void };
+type Props = { jlpt: string; onJlptChange: (s: string) => void; onCreated?: (id: number) => void };
 
-export function AdminSingleHanziCreateCard({ hsk, onHskChange, onCreated }: Props) {
+export function AdminSingleHanziCreateCard({ jlpt, onJlptChange, onCreated }: Props) {
   const { token } = useAuth();
-  const [hanzi, setHanzi] = useState('');
-  const [pinyin, setPinyin] = useState('');
+  const [kanji, setKanji] = useState('');
+  const [romaji, setRomaji] = useState('');
   const [meaningMn, setMeaningMn] = useState('');
   const [textbookUnit, setTextbookUnit] = useState('');
   const [rejectDup, setRejectDup] = useState(false);
-  const [exampleZh, setExampleZh] = useState('');
-  const [examplePy, setExamplePy] = useState('');
+  const [exampleJp, setExampleJp] = useState('');
+  const [exampleRo, setExampleRo] = useState('');
   const [exampleMn, setExampleMn] = useState('');
   const [loading, setLoading] = useState(false);
 
   const submit = async () => {
     if (!token) return alertUser('Алдаа', 'Нэвтэрсэн байх шаардлагатай.');
-    const hz = hanzi.trim();
-    if (!hz) return alertUser('Алдаа', 'Нэг ханз оруулна уу');
+    const kj = kanji.trim();
+    if (!kj) return alertUser('Алдаа', 'Канжи эсвэл кана оруулна уу');
     setLoading(true);
     try {
       const ex = examplePatchFromTriplet({
-        exampleZh,
-        examplePinyin: examplePy,
+        exampleJp,
+        exampleRomaji: exampleRo,
         exampleMn,
       });
+      const jl = Math.min(5, Math.max(1, Number(jlpt) || 1));
       const res = await api.admin.createWord(token, {
-        hanzi: hz,
-        pinyin: pinyin.trim(),
+        kanji: kj,
+        romaji: romaji.trim(),
+        romaji_numbered: romaji.trim(),
         meaning_mn: meaningMn.trim(),
-        hsk_level: Number(hsk) || 1,
+        jlpt_level: jl,
         textbook_unit: textbookUnit.trim() || undefined,
         reject_duplicate: rejectDup,
         ...ex,
       });
       alertUser('Боллоо', `Үгийн id: ${res.data.id}`);
-      setHanzi('');
-      setPinyin('');
+      setKanji('');
+      setRomaji('');
       setMeaningMn('');
-      setExampleZh('');
-      setExamplePy('');
+      setExampleJp('');
+      setExampleRo('');
       setExampleMn('');
-      
+
       if (onCreated) {
         onCreated(res.data.id);
       }
@@ -79,25 +81,25 @@ export function AdminSingleHanziCreateCard({ hsk, onHskChange, onCreated }: Prop
   return (
     <View style={styles.block}>
       <AdminHanziCoreWordInputs
-        hanzi={hanzi}
-        pinyin={pinyin}
+        kanji={kanji}
+        romaji={romaji}
         meaningMn={meaningMn}
-        onHanzi={setHanzi}
-        onPinyin={setPinyin}
+        onKanji={setKanji}
+        onRomaji={setRomaji}
         onMeaningMn={setMeaningMn}
       />
       <AdminHanziExampleFieldsBlock
-        exampleZh={exampleZh}
-        examplePinyin={examplePy}
+        exampleJp={exampleJp}
+        exampleRomaji={exampleRo}
         exampleMn={exampleMn}
-        onExampleZh={setExampleZh}
-        onExamplePinyin={setExamplePy}
+        onExampleJp={setExampleJp}
+        onExampleRomaji={setExampleRo}
         onExampleMn={setExampleMn}
         disabled={!token}
       />
       <AdminSingleHanziTailFields
-        hsk={hsk}
-        onHskChange={onHskChange}
+        jlpt={jlpt}
+        onJlptChange={onJlptChange}
         textbookUnit={textbookUnit}
         onTextbookUnit={setTextbookUnit}
         rejectDup={rejectDup}
@@ -117,7 +119,7 @@ export function AdminSingleHanziCreateCard({ hsk, onHskChange, onCreated }: Prop
         <Text style={styles.btnTxt}>{loading ? 'Илгээж байна…' : 'Нэмэх'}</Text>
       </Pressable>
       <Text style={styles.hint}>
-        Олон ханзтай үед тэмдэг бүрийн зурах шинжийг нэгтгэнэ. Өгөгдөл байхгүй бол уг тэмдэгтээр түр зогсоно.
+        Олон тэмдэгттэй үед зураасны дата тэмдэг бүрээр ажиллана. Дата байхгүй бол түр зогсоно.
       </Text>
     </View>
   );

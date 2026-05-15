@@ -4,8 +4,8 @@ import { colors, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
 
 type Props = {
-  hsk: string;
-  onHskChange: (s: string) => void;
+  jlpt: string;
+  onJlptChange: (s: string) => void;
   textbookUnit: string;
   onTextbookUnit: (s: string) => void;
   rejectDup: boolean;
@@ -13,8 +13,8 @@ type Props = {
 };
 
 export function AdminSingleHanziTailFields({
-  hsk,
-  onHskChange,
+  jlpt,
+  onJlptChange,
   textbookUnit,
   onTextbookUnit,
   rejectDup,
@@ -22,8 +22,8 @@ export function AdminSingleHanziTailFields({
 }: Props) {
   return (
     <>
-      <Text style={styles.label}>HSK (1–6)</Text>
-      <TextInput value={hsk} onChangeText={onHskChange} style={styles.input} keyboardType="number-pad" />
+      <Text style={styles.label}>JLPT түвшин (1=N5 … 5=N1)</Text>
+      <TextInput value={jlpt} onChangeText={onJlptChange} style={styles.input} keyboardType="number-pad" />
       <Text style={styles.label}>{mn.admin.bulkTextbookUnit}</Text>
       <TextInput
         value={textbookUnit}

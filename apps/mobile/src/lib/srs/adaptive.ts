@@ -1,5 +1,5 @@
-import { calculateNextReview } from '@chinese-app/srs';
-import type { ReviewRating } from '@chinese-app/srs';
+import { calculateNextReview } from '@japanese-learning/srs';
+import type { ReviewRating } from '@japanese-learning/srs';
 
 export type ConfidenceLevel = 0 | 1 | 2;
 

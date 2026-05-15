@@ -12,36 +12,35 @@ export const colors = {
   },
 
   accent: {
-    purple: '#58CC02',
-    blue: '#1CB0F6',
+    purple: '#A560E8',
+    blue: '#85B2B8', // Muted Teal
     teal: '#06B6D4',
-    pink: '#FF4B4B',
-    green: '#58CC02',
+    pink: '#FEE4D1', // Cherry Blossom Pink
+    green: '#E39AC1', // Red Plum
     amber: '#FFC800',
   },
 
   brand: {
-    primary: '#58CC02',
-    primaryDark: '#46A302',
-    primaryShadow: '#46A302',
-    secondary: '#1CB0F6',
+    primary: '#E39AC1', // Red Plum
+    primaryDark: '#C77BA3',
+    primaryShadow: '#C77BA3',
+    secondary: '#85B2B8', // Muted Teal
   },
 
   tone: {
-    1: '#FF4B4B',
+    1: '#FEE4D1', // Cherry Blossom Pink
     2: '#FF9600',
-    3: '#58CC02',
-    4: '#1CB0F6',
+    3: '#E39AC1', // Red Plum
+    4: '#85B2B8', // Muted Teal
     0: '#AFAFAF',
   },
 
-  hsk: {
-    1: '#58CC02',
-    2: '#1CB0F6',
-    3: '#A560E8',
-    4: '#FF9600',
-    5: '#FF4B4B',
-    6: '#CE82FF',
+  jlpt: {
+    1: '#FEE4D1', // N5 - Cherry Blossom Pink
+    2: '#85B2B8', // N4 - Muted Teal
+    3: '#E39AC1', // N3 - Red Plum
+    4: '#A560E8', // N2 - Purple
+    5: '#FF9600', // N1 - Orange
   },
 
   text: {
@@ -51,10 +50,10 @@ export const colors = {
     inverse: '#FFFFFF',
   },
 
-  success: '#58CC02',
+  success: '#E39AC1', // Red Plum
   error: '#FF4B4B',
   warning: '#FF9600',
-  info: '#1CB0F6',
+  info: '#85B2B8', // Muted Teal
 
   border: '#E5E7EB',
   borderLight: '#F3F4F6',
@@ -80,12 +79,25 @@ export const radius = {
 };
 
 export const typography = {
+  kanji: {
+    xl: { fontSize: 88, fontWeight: '300' as const, letterSpacing: 4, ...F },
+    lg: { fontSize: 64, fontWeight: '300' as const, letterSpacing: 2, ...F },
+    md: { fontSize: 40, fontWeight: '400' as const, ...F },
+    sm: { fontSize: 28, fontWeight: '400' as const, ...F },
+  },
+  /** @deprecated Use `kanji` — kept for legacy imports */
   hanzi: {
     xl: { fontSize: 88, fontWeight: '300' as const, letterSpacing: 4, ...F },
     lg: { fontSize: 64, fontWeight: '300' as const, letterSpacing: 2, ...F },
     md: { fontSize: 40, fontWeight: '400' as const, ...F },
     sm: { fontSize: 28, fontWeight: '400' as const, ...F },
   },
+  romaji: {
+    lg: { fontSize: 22, letterSpacing: 2, ...F },
+    md: { fontSize: 18, letterSpacing: 1, ...F },
+    sm: { fontSize: 14, letterSpacing: 0.5, ...F },
+  },
+  /** @deprecated Use `romaji` */
   pinyin: {
     lg: { fontSize: 22, letterSpacing: 2, ...F },
     md: { fontSize: 18, letterSpacing: 1, ...F },
@@ -129,9 +141,9 @@ export const shadows = {
 };
 
 export const gradients = {
-  hero: ['#58CC02', '#1CB0F6'] as const,
-  flame: ['#FF9600', '#FF4B4B'] as const,
-  success: ['#58CC02', '#06B6D4'] as const,
+  hero: ['#E39AC1', '#85B2B8'] as const,
+  flame: ['#FF9600', '#FEE4D1'] as const,
+  success: ['#E39AC1', '#FEE4D1'] as const,
 };
 
 /** Web `AppShell`: centered phone-width column for the whole app (including `/admin`). */

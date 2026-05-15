@@ -6,7 +6,7 @@ export type LessonTreeSection = { title: string; data: AdminChapter[] };
 export function groupLessonTreeByHsk(tree: AdminChapter[]): LessonTreeSection[] {
   const map = new Map<number, AdminChapter[]>();
   for (const ch of tree) {
-    const lvl = Math.min(6, Math.max(1, Number(ch.hsk_level) || 1));
+    const lvl = Math.min(6, Math.max(1, Number(ch.jlpt_level) || 1));
     const arr = map.get(lvl) ?? [];
     arr.push(ch);
     map.set(lvl, arr);

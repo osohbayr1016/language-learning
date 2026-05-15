@@ -6,7 +6,7 @@ export async function pickFreshFromLessons(
   need: number,
   seen: Set<number>,
   inProgress: Set<number>,
-  maxHsk: number,
+  maxJlpt: number,
   writerSql: string
 ): Promise<Record<string, unknown>[]> {
   if (wordLessonOrder.length === 0 || need <= 0) return [];
@@ -44,9 +44,9 @@ export async function pickFreshFromLessons(
     .prepare(
       `SELECT w.*, NULL AS ease_factor, 0 AS interval, 0 AS repetitions, NULL AS next_review
        FROM words w WHERE w.id IN (${ph})
-         AND w.hsk_level <= ?${writerSql}`
+         AND w.jlpt_level <= ?${writerSql}`
     )
-    .bind(...candidates, maxHsk)
+    .bind(...candidates, maxJlpt)
     .all();
 
   const byId = new Map(

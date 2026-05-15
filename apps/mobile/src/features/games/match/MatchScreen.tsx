@@ -11,6 +11,7 @@ import { GameHud } from '../GameHud';
 import { GameOverScreen } from '../GameOverScreen';
 import { buildMatchDeck, type MatchCard } from './cards';
 import { MatchTile } from './MatchTile';
+import type { Word } from '../../../lib/types';
 
 const PAIRS = 6;
 
@@ -221,7 +222,6 @@ export default function MatchScreen({ initialWords, onDone }: Props) {
           <MatchTile
             key={c.id}
             card={c}
-            word={wordsById[c.wordId]}
             state={stateOf(c)}
             onPress={() => handleTap(c)}
           />

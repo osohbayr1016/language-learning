@@ -6,7 +6,7 @@ export type QRow = {
   question_type: string;
   audio_text: string;
   question_text: string;
-  question_pinyin: string;
+  question_romaji: string;
   options: string;
   order_num?: number;
   audio_key?: string | null;

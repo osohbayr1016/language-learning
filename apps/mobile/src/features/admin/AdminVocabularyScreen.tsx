@@ -14,8 +14,9 @@ import { mn } from '../../i18n/mn';
 import { colors, spacing } from '../../theme';
 import { adminVocabularyStyles as styles } from './AdminVocabularyStyles';
 import { useAdminVocabularyList } from './useAdminVocabularyList';
+import { jlptNLabel } from '../../lib/jlptLabel';
 
-const HSK_OPTS = [1, 2, 3, 4, 5, 6] as const;
+const JLPT_OPTS = [1, 2, 3, 4, 5] as const;
 
 function Chip({
   active,
@@ -63,8 +64,8 @@ export function AdminVocabularyScreen() {
           keyboardShouldPersistTaps="handled"
         >
           <Chip active={hsk === undefined} label={a.vocabFilterAll} onPress={() => setHsk(undefined)} />
-          {HSK_OPTS.map((lvl) => (
-            <Chip key={lvl} active={hsk === lvl} label={`HSK ${lvl}`} onPress={() => setHsk(lvl)} />
+          {JLPT_OPTS.map((lvl) => (
+            <Chip key={lvl} active={hsk === lvl} label={jlptNLabel(lvl)} onPress={() => setHsk(lvl)} />
           ))}
         </ScrollView>
         <Pressable
@@ -102,9 +103,9 @@ export function AdminVocabularyScreen() {
           }
           renderItem={({ item }) => (
             <Pressable style={styles.row} onPress={() => router.push(`/admin/word/${item.id}`)}>
-              <Text style={styles.hz}>{item.hanzi}</Text>
+              <Text style={styles.hz}>{item.kanji}</Text>
               <Text style={styles.meta} numberOfLines={2}>
-                HSK {item.hsk_level} · {item.pinyin} · {item.meaning_mn}
+                {jlptNLabel(item.jlpt_level)} · {item.romaji} · {item.meaning_mn}
               </Text>
             </Pressable>
           )}

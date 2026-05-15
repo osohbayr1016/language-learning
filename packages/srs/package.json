@@ -1,5 +1,5 @@
 {
-  "name": "@chinese-app/srs",
+  "name": "@japanese-learning/srs",
   "version": "0.0.1",
   "private": true,
   "main": "./src/index.ts",

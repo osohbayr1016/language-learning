@@ -1,7 +1,7 @@
 import Constants from 'expo-constants';
 
-/** Production API (same Cloudflare account as chinese-learning-web in wrangler). */
-export const DEFAULT_PRODUCTION_API = 'https://chinese-learning-api.osohoo691016.workers.dev';
+/** Production API Worker — `nihongo-mn-api` in wrangler. */
+export const DEFAULT_PRODUCTION_API = 'https://nihongo-mn-api.osohoo691016.workers.dev';
 
 function extraApiUrl(): string | undefined {
   const u = Constants.expoConfig?.extra?.apiUrl;

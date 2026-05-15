@@ -1,6 +1,6 @@
 import type { ImportedLessonContent } from './lessonImportTypes';
 
-function quizletHanziKeys(quizletText: string): Set<string> {
+function quizletKanjiKeys(quizletText: string): Set<string> {
   const keys = new Set<string>();
   for (const line of quizletText.split(/\r?\n/)) {
     const t = line.trim();
@@ -9,8 +9,9 @@ function quizletHanziKeys(quizletText: string): Set<string> {
     if (sep < 0) continue;
     const left = t.slice(0, sep).trim();
     if (!left) continue;
-    const hanzi = left.split(/\s+/)[0] ?? '';
-    if (hanzi && /[\u4e00-\u9fff]/.test(hanzi)) keys.add(hanzi);
+    // First token on the left — works for both kanji and kana
+    const kanji = left.split(/\s+/)[0] ?? '';
+    if (kanji) keys.add(kanji);
   }
   return keys;
 }
@@ -24,8 +25,8 @@ export function vocabQuizMismatchWarnings(content: ImportedLessonContent): strin
     }
     return warns;
   }
-  const quizKeys = quizletHanziKeys(content.quizlet_text);
-  const vocabSet = new Set(content.vocab.map((v) => v.hanzi.trim()).filter(Boolean));
+  const quizKeys = quizletKanjiKeys(content.quizlet_text);
+  const vocabSet = new Set(content.vocab.map((v) => v.kanji.trim()).filter(Boolean));
   for (const h of vocabSet) {
     if (!quizKeys.has(h)) warns.push(`JSON vocab «${h}» Quizlet мөрөнд олдсонгүй.`);
   }

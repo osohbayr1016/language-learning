@@ -6,6 +6,7 @@ import { syncUserStatsAggregates } from '../lib/userStatsSync';
 import { buildProgressStatements, bumpStats, type ProgressResult } from '../lib/progress';
 import { studyQueueCount } from '../lib/studyQueue';
 import userVocabularyRoutes from './userVocabulary';
+import { jsonBodyInvalid, readJsonBody } from '../lib/requestJson';
 
 const user = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -23,7 +24,8 @@ user.get('/profile', async (c) => {
 
 user.put('/profile', async (c) => {
   const { sub } = c.get('user');
-  const body = await c.req.json<{ display_name?: string; avatar_url?: string }>();
+  const body = await readJsonBody<{ display_name?: string; avatar_url?: string }>(c);
+  if (!body) return jsonBodyInvalid(c);
   await c.env.DB.prepare(
     `UPDATE users SET display_name = COALESCE(?, display_name),
      avatar_url = COALESCE(?, avatar_url), updated_at = CURRENT_TIMESTAMP
@@ -103,11 +105,12 @@ user.get('/due-words', async (c) => {
 
 user.post('/progress', async (c) => {
   const { sub } = c.get('user');
-  const body = await c.req.json<{
+  const body = await readJsonBody<{
     results: ProgressResult[];
     xp_earned: number;
     session_type: string;
-  }>();
+  }>(c);
+  if (!body) return jsonBodyInvalid(c);
 
   await c.env.DB.batch(buildProgressStatements(c.env.DB, sub, body.results));
   await bumpStats(c.env.DB, sub, body.xp_earned, body.results.length);

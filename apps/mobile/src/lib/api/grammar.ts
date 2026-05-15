@@ -3,9 +3,9 @@ import { request } from './client';
 export type GrammarRow = {
   id: number;
   title_mn: string;
-  title_zh: string;
+  title_jp: string;
   grammar_point: string;
-  hsk_level: number;
+  jlpt_level: number;
   order_num: number;
   best_accuracy?: number | null;
   progress_completed_at?: string | null;
@@ -15,7 +15,7 @@ export type GrammarRow = {
 export type GrammarExercise = {
   id: number;
   exercise_type: string;
-  question_zh: string;
+  question_jp: string;
   question_mn: string;
   options: unknown[];
   explanation_mn: string;
@@ -25,12 +25,12 @@ export type GrammarExercise = {
 export type GrammarDetail = {
   id: number;
   title_mn: string;
-  title_zh: string;
+  title_jp: string;
   grammar_point: string;
   explanation_mn: string;
   pattern: string;
   examples: unknown;
-  hsk_level: number;
+  jlpt_level: number;
   order_num: number;
   progress: { best_accuracy?: number; completed_at?: string | null } | null;
   exercises: GrammarExercise[];

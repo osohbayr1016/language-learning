@@ -4,7 +4,7 @@ import type { Word, WordWithProgress } from '../types';
 export const words = {
   list: (
     params: {
-      hsk?: number;
+      jlpt?: number;
       limit?: number;
       offset?: number;
       q?: string;

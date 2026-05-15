@@ -4,7 +4,7 @@ export const games = {
   recommended: 'Санал болгох тоглоом',
   startNow: 'Тоглох',
   match: 'Холбох',
-  matchDesc: 'Хятад үг ↔ Орчуулга холбож тоглоорой',
+  matchDesc: 'Япон үг ↔ Орчуулга холбож тоглоорой',
   translate: 'Орчуулах',
   translateDesc: 'Зөв орчуулгыг сонгож сурцгаая',
   sentence: 'Дутуу үг',

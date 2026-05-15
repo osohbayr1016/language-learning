@@ -1,9 +1,9 @@
-export type ChineseLevel = 'none' | 'hsk1' | 'hsk2' | 'hsk3' | 'hsk4' | 'hsk5' | 'hsk6';
+export type JlptSelfLevel = 'none' | 'n5' | 'n4' | 'n3' | 'n2' | 'n1';
 
 export type LearningReason = 'university' | 'career' | 'travel' | 'culture' | 'fun';
 
 export type SetupAnswers = {
-  level: ChineseLevel | null;
+  level: JlptSelfLevel | null;
   reason: LearningReason | null;
   name: string;
   email: string;
@@ -11,3 +11,6 @@ export type SetupAnswers = {
 };
 
 export const TOTAL_STEPS = 5;
+
+/** @deprecated */
+export type ChineseLevel = JlptSelfLevel;

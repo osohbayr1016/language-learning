@@ -5,7 +5,7 @@ import type { AdminBulkValidateRow } from '../../lib/api/admin';
 import type { ParsedImportLine } from './parseHanziImportLines';
 import { mn } from '../../i18n/mn';
 
-type SharedEx = { zh: string; py: string; mn: string };
+type SharedEx = { jp: string; ro: string; mn: string };
 
 type Props = {
   preview: ParsedImportLine[];
@@ -20,7 +20,7 @@ export function AdminBulkHanziPreview(props: Props) {
   if (!preview.length) return null;
 
   const showEx = Boolean(
-    sharedExample?.zh?.trim() || sharedExample?.py?.trim() || sharedExample?.mn?.trim()
+    sharedExample?.jp?.trim() || sharedExample?.ro?.trim() || sharedExample?.mn?.trim()
   );
 
   return (
@@ -34,7 +34,7 @@ export function AdminBulkHanziPreview(props: Props) {
       ) : null}
       {serverFails.slice(0, 6).map((er, i) => (
         <Text key={`s-${i}`} style={styles.errLine}>
-          HanziWriter: {er.hanzi} — {er.error}
+          Kanji stroke data: {er.kanji} — {er.error}
         </Text>
       ))}
       {serverFails.length > 6 ? (
@@ -52,7 +52,7 @@ export function AdminBulkHanziPreview(props: Props) {
       {okRows.slice(0, 5).map((r, i) => (
         <View key={`o-${i}`} style={{ marginBottom: 4 }}>
           <Text style={styles.okLine}>
-            {r.hanzi} · {r.pinyin}
+            {r.kanji} · {r.romaji}
           </Text>
           <Text style={styles.okMean}>Монгол: {r.meaning_mn}</Text>
         </View>
@@ -63,14 +63,14 @@ export function AdminBulkHanziPreview(props: Props) {
       {showEx ? (
         <View style={{ marginTop: 8 }}>
           <Text style={styles.previewMeta}>{mn.admin.wordExamplePreviewTitle}</Text>
-          {sharedExample?.zh?.trim() ? (
+          {sharedExample?.jp?.trim() ? (
             <Text style={styles.okSharedEx}>
-              {mn.admin.wordExampleZh}: {sharedExample.zh.trim()}
+              {mn.admin.wordExampleJp}: {sharedExample.jp.trim()}
             </Text>
           ) : null}
-          {sharedExample?.py?.trim() ? (
+          {sharedExample?.ro?.trim() ? (
             <Text style={styles.okSharedEx}>
-              {mn.admin.wordExamplePinyin}: {sharedExample.py.trim()}
+              {mn.admin.wordExampleRomaji}: {sharedExample.ro.trim()}
             </Text>
           ) : null}
           {sharedExample?.mn?.trim() ? (

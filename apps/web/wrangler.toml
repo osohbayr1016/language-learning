@@ -1,4 +1,4 @@
-name = "chinese-learning-web"
+name = "nihongo-mn-web"
 main = "src/index.ts"
 compatibility_date = "2025-09-01"
 
@@ -15,7 +15,7 @@ html_handling = "auto-trailing-slash"
 # from Cloudflare Pages, which has been returning 502s on direct upload).
 # ─────────────────────────────────────────────────────────────────────────────
 [env.production]
-name = "chinese-learning-web"
+name = "nihongo-mn-web"
 
 [env.production.assets]
 directory = "./dist"

@@ -62,8 +62,8 @@ export function LessonScreen({ lessonId, variant = 'learn' }: Props) {
         let example = null;
         for (const d of state.detail!.imported_content!.dialogues || []) {
           for (const line of d.lines || []) {
-            if (line.cn.includes(v.hanzi) && line.cn.length > v.hanzi.length) {
-              example = line.cn;
+            if (line.jp.includes(v.kanji) && line.jp.length > v.kanji.length) {
+              example = line.jp;
               break;
             }
           }
@@ -71,16 +71,16 @@ export function LessonScreen({ lessonId, variant = 'learn' }: Props) {
         }
         return {
           id: -i - 1,
-          hanzi: v.hanzi,
-          pinyin: v.pinyin,
-          pinyin_numbered: null,
-          tones: '',
+          kanji: v.kanji,
+          romaji: v.romaji,
+          romaji_numbered: null,
+          kana: null,
           meaning_mn: v.meaning_mn,
           meaning_en: null,
-          hsk_level: v.hsk_level as any,
+          jlpt_level: v.jlpt_level as any,
           part_of_speech: null,
-          example_zh: example,
-          example_pinyin: null,
+          example_jp: example,
+          example_romaji: null,
           example_mn: null,
           audio_url: null,
           stroke_count: null,
@@ -151,7 +151,7 @@ export function LessonScreen({ lessonId, variant = 'learn' }: Props) {
         chapterId={state.detail?.chapter_id}
         currentOrderNum={state.detail?.order_num}
         importedContent={state.detail?.imported_content}
-        chapterHskLevel={state.detail?.chapter_hsk_level}
+        chapterHskLevel={state.detail?.chapter_jlpt_level}
         enablePostLessonNav={!isPreview}
         minimalComplete={isImportedLearnFlow(state.exercises) || isPreview}
         onContinue={exitLesson}

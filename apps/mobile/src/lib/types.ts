@@ -1,18 +1,17 @@
-export type HskLevel = 1 | 2 | 3 | 4 | 5 | 6;
 export type Tone = 0 | 1 | 2 | 3 | 4;
 
 export type Word = {
   id: number;
-  hanzi: string;
-  pinyin: string;
-  pinyin_numbered: string | null;
-  tones: string;
+  kanji: string;
+  romaji: string;
+  romaji_numbered: string | null;
+  kana: string | null;
   meaning_mn: string;
   meaning_en: string | null;
-  hsk_level: HskLevel;
+  jlpt_level: JlptLevel;
   part_of_speech: string | null;
-  example_zh: string | null;
-  example_pinyin: string | null;
+  example_jp: string | null;
+  example_romaji: string | null;
   example_mn: string | null;
   audio_url: string | null;
   stroke_count: number | null;
@@ -34,12 +33,12 @@ export type LessonProgress = {
   completed_at: string | null;
 };
 
-export type ImportedDialogueLine = { speaker?: string; cn: string; mn: string };
+export type ImportedDialogueLine = { speaker?: string; jp: string; mn: string };
 export type ImportedDialogue = {
   no: number;
   title: string;
   lines?: ImportedDialogueLine[];
-  text_cn?: string;
+  text_jp?: string;
   text_mn?: string;
 };
 export type ImportedNote = { title: string; body: string };
@@ -57,12 +56,12 @@ export type ImportedWorkbookSection = {
 };
 export type ImportedLessonContent = {
   external_lesson_id: string;
-  title_cn: string;
+  title_jp: string;
   title_mn: string;
   source: string;
   summary: string;
   dialogues: ImportedDialogue[];
-  vocab: { hanzi: string; pinyin: string; meaning_mn: string; hsk_level: number }[];
+  vocab: { kanji: string; romaji: string; meaning_mn: string; jlpt_level: number }[];
   grammar: ImportedNote[];
   slang: ImportedNote[];
   workbook: { sections: ImportedWorkbookSection[] };
@@ -87,7 +86,7 @@ export type Chapter = {
   title_mn: string;
   subtitle_mn: string;
   color: string;
-  hsk_level: HskLevel;
+  jlpt_level: JlptLevel;
   order_num: number;
   is_published: number;
   lessons: Lesson[];
@@ -97,7 +96,7 @@ export type Chapter = {
 export type LessonDetail = {
   id: number;
   chapter_id: number;
-  chapter_hsk_level?: HskLevel;
+  chapter_jlpt_level?: JlptLevel;
   title_mn: string;
   subtitle_mn: string;
   icon: string;
@@ -110,7 +109,7 @@ export type LessonDetail = {
 export type SkillKey =
   | 'listening'
   | 'pronunciation'
-  | 'tones'
+  | 'pitch'
   | 'recall'
   | 'reading'
   | 'stroke';
@@ -131,3 +130,6 @@ export type SkillStat = { hits: number; total: number; ratio: number };
 export type InsightsSkills = Record<SkillKey, SkillStat>;
 
 export type DayMinutes = { date: string; minutes: number; sessions?: number };
+
+// Legacy type aliases for smooth migration
+export type HskLevel = JlptLevel;

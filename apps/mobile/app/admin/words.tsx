@@ -7,7 +7,7 @@ import { colors, spacing } from '../../src/theme';
 
 export default function AdminWordsScreen() {
   const { token } = useAuth();
-  const [hsk, setHsk] = useState('1');
+  const [jlpt, setJlpt] = useState('1');
 
   return (
     <KeyboardAvoidingView
@@ -15,8 +15,8 @@ export default function AdminWordsScreen() {
       behavior={Platform.OS === 'ios' ? 'padding' : undefined}
     >
       <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled">
-        <AdminSingleHanziCreateCard hsk={hsk} onHskChange={setHsk} />
-        <AdminBulkHanziPaste token={token} hskLevel={hsk} />
+        <AdminSingleHanziCreateCard jlpt={jlpt} onJlptChange={setJlpt} />
+        <AdminBulkHanziPaste token={token} hskLevel={jlpt} />
       </ScrollView>
     </KeyboardAvoidingView>
   );

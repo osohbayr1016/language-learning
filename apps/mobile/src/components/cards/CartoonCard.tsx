@@ -2,6 +2,7 @@ import React from 'react';
 import { Image, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { useRouter } from 'expo-router';
+import { jlptNLabel } from '../../lib/jlptLabel';
 import { Pill } from '../../primitives';
 import { colors, radius, spacing, typography } from '../../theme';
 import type { Cartoon } from '../../lib/api/cartoons';
@@ -39,10 +40,10 @@ export function CartoonCard({ cartoon }: Props) {
       </View>
       <View style={styles.body}>
         <Text style={styles.title} numberOfLines={2}>{cartoon.title_mn}</Text>
-        {cartoon.hsk_level ? (
+        {cartoon.jlpt_level ? (
           <Pill
-            label={`HSK ${cartoon.hsk_level}`}
-            color={colors.hsk[cartoon.hsk_level as keyof typeof colors.hsk] ?? colors.accent.purple}
+            label={jlptNLabel(cartoon.jlpt_level)}
+            color={colors.jlpt[cartoon.jlpt_level as keyof typeof colors.jlpt] ?? colors.accent.purple}
           />
         ) : null}
       </View>

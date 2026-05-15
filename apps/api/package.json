@@ -1,21 +1,21 @@
 {
-  "name": "@chinese-app/api",
+  "name": "@japanese-learning/api",
   "version": "0.0.1",
   "private": true,
   "scripts": {
     "dev": "wrangler dev --port 8787",
     "deploy": "wrangler deploy --env production",
     "type-check": "tsc --noEmit",
-    "db:migrate": "wrangler d1 migrations apply chinese-learning-db --local",
-    "db:migrate:remote": "wrangler d1 migrations apply chinese-learning-db --remote",
-    "db:migrate:remote:production": "wrangler d1 migrations apply chinese-learning-db --remote --env production",
-    "db:verify:hsk1:local": "pnpm exec wrangler d1 execute chinese-learning-db --local --command \"SELECT (SELECT title_mn FROM chapters WHERE id=1) AS chapter, COUNT(*) AS lessons FROM lessons WHERE chapter_id=1\"",
-    "db:count:local": "wrangler d1 execute chinese-learning-db --local --command \"SELECT (SELECT COUNT(*) FROM words) AS word_count, (SELECT COUNT(*) FROM chapters) AS chapter_count\"",
-    "db:seed": "wrangler d1 execute chinese-learning-db --local --file=./src/db/seed.sql"
+    "db:migrate": "wrangler d1 migrations apply nihongo-mn-db --local",
+    "db:migrate:remote": "wrangler d1 migrations apply nihongo-mn-db --remote",
+    "db:migrate:remote:production": "wrangler d1 migrations apply nihongo-mn-db --remote --env production",
+    "db:verify:n5:local": "pnpm exec wrangler d1 execute nihongo-mn-db --local --command \"SELECT (SELECT title_mn FROM chapters WHERE id=1) AS chapter, COUNT(*) AS lessons FROM lessons WHERE chapter_id=1\"",
+    "db:count:local": "wrangler d1 execute nihongo-mn-db --local --command \"SELECT (SELECT COUNT(*) FROM words) AS word_count, (SELECT COUNT(*) FROM chapters) AS chapter_count\"",
+    "db:seed": "wrangler d1 execute nihongo-mn-db --local --file=./src/db/seed.sql"
   },
   "dependencies": {
-    "@chinese-app/srs": "workspace:*",
-    "@chinese-app/types": "workspace:*",
+    "@japanese-learning/srs": "workspace:*",
+    "@japanese-learning/types": "workspace:*",
     "hono": "^4.7.10"
   },
   "devDependencies": {

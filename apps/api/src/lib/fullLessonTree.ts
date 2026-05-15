@@ -4,7 +4,7 @@ import { safeAll } from './lessonCatalog';
 export async function fetchFullLessonTree(db: D1Database): Promise<unknown[]> {
   const [chaptersRes, lessonsRes] = await Promise.all([
     safeAll(
-      db.prepare(`SELECT id, title_mn, subtitle_mn, color, hsk_level, order_num, is_published,
+      db.prepare(`SELECT id, title_mn, subtitle_mn, color, jlpt_level, order_num, is_published,
                          flashcard_delay_days
                   FROM chapters ORDER BY order_num ASC`).all()
     ),

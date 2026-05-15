@@ -9,7 +9,7 @@ type Props = {
   onAnswer: (correct: boolean) => void;
 };
 
-type Side = 'zh' | 'mn';
+type Side = 'jp' | 'mn';
 type Pick = { side: Side; id: number };
 
 export function MatchPairs({ exercise, disabled, onAnswer }: Props) {
@@ -60,10 +60,10 @@ export function MatchPairs({ exercise, disabled, onAnswer }: Props) {
     <View style={styles.root}>
       <View style={styles.col}>
         {left.map((w) => {
-          const s = stateOf('zh', w.id);
+          const s = stateOf('jp', w.id);
           return (
-            <Tile key={`zh-${w.id}`} state={s} onPress={() => handleTap('zh', w.id)}>
-              {w.hanzi}
+            <Tile key={`jp-${w.id}`} state={s} onPress={() => handleTap('jp', w.id)}>
+              {w.kanji}
             </Tile>
           );
         })}

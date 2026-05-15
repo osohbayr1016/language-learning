@@ -1,9 +1,7 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Sheet } from '../../primitives';
-import { ToneColoredText, PinyinRow } from '../../components/hanzi';
 import { PronounceButton } from '../../components/audio/PronounceButton';
-import { parseTones } from '../../lib/tones';
 import { colors, spacing, typography } from '../../theme';
 import type { CartoonWord } from '../../lib/api/cartoons';
 
@@ -17,14 +15,14 @@ export function VocabSheet({ word, onClose }: Props) {
     <Sheet visible={!!word} onClose={onClose}>
       {word ? (
         <View style={styles.body}>
-          <ToneColoredText hanzi={word.hanzi} tones={parseTones(word.tones)} size="lg" />
-          <PinyinRow pinyin={word.pinyin} size="lg" />
+          <Text style={styles.kanji}>{word.kanji}</Text>
+          <Text style={styles.romaji}>{word.romaji}</Text>
           <Text style={styles.meaning}>{word.meaning_mn}</Text>
           <PronounceButton wordId={word.id} meaningMn={word.meaning_mn} size="lg" showHints style={styles.btn} />
-          {word.example_zh ? (
+          {word.example_jp ? (
             <View style={styles.example}>
-              <Text style={styles.exampleZh}>{word.example_zh}</Text>
-              {word.example_pinyin ? <Text style={styles.examplePinyin}>{word.example_pinyin}</Text> : null}
+              <Text style={styles.exampleJp}>{word.example_jp}</Text>
+              {word.example_romaji ? <Text style={styles.exampleRomaji}>{word.example_romaji}</Text> : null}
               {word.example_mn ? <Text style={styles.exampleMn}>{word.example_mn}</Text> : null}
             </View>
           ) : null}
@@ -36,6 +34,8 @@ export function VocabSheet({ word, onClose }: Props) {
 
 const styles = StyleSheet.create({
   body: { alignItems: 'center', gap: spacing.sm, paddingVertical: spacing.md },
+  kanji: { ...typography.kanji.lg, color: colors.text.primary, textAlign: 'center' },
+  romaji: { ...typography.romaji.lg, color: colors.text.secondary, textAlign: 'center' },
   meaning: { ...typography.heading.lg, color: colors.text.primary, textAlign: 'center', marginVertical: spacing.sm },
   btn: { marginTop: spacing.sm },
   example: {
@@ -46,7 +46,7 @@ const styles = StyleSheet.create({
     marginTop: spacing.md,
     gap: 4,
   },
-  exampleZh: { ...typography.heading.md, color: colors.text.primary, textAlign: 'center' },
-  examplePinyin: { ...typography.pinyin.md, color: colors.text.secondary, textAlign: 'center' },
+  exampleJp: { ...typography.heading.md, color: colors.text.primary, textAlign: 'center' },
+  exampleRomaji: { ...typography.romaji.md, color: colors.text.secondary, textAlign: 'center' },
   exampleMn: { ...typography.body.md, color: colors.text.muted, textAlign: 'center' },
 });

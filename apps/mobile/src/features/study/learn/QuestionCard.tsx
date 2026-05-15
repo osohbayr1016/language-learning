@@ -2,7 +2,6 @@ import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { ToneColoredText, PinyinRow } from '../../../components/hanzi';
 import { PronounceButton } from '../../../components/audio/PronounceButton';
-import { parseTones } from '../../../lib/tones';
 import { Card } from '../../../primitives';
 import { colors, spacing, typography } from '../../../theme';
 import { useDisplayPrefs } from '../../../context/DisplayPrefsContext';
@@ -10,19 +9,18 @@ import type { WordWithProgress } from '../../../lib/types';
 
 type Props = {
   word: WordWithProgress;
-  promptType: 'hanzi-to-mn' | 'mn-to-hanzi';
+  promptType: 'jp-to-mn' | 'mn-to-jp';
 };
 
 export function QuestionCard({ word, promptType }: Props) {
   const { showPinyin } = useDisplayPrefs();
-  const tones = parseTones(word.tones);
 
   return (
     <Card padding="lg" variant="elevated" style={styles.card}>
-      {promptType === 'hanzi-to-mn' ? (
+      {promptType === 'jp-to-mn' ? (
         <View style={styles.center}>
-          <ToneColoredText hanzi={word.hanzi} tones={tones} size="lg" />
-          {showPinyin ? <PinyinRow pinyin={word.pinyin} size="md" /> : null}
+          <ToneColoredText hanzi={word.kanji} size="lg" />
+          {showPinyin ? <PinyinRow pinyin={word.romaji ?? ''} size="md" /> : null}
           <PronounceButton wordId={word.id} meaningMn={word.meaning_mn} size="md" style={{ marginTop: spacing.sm }} />
         </View>
       ) : (

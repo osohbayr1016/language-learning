@@ -1,9 +1,9 @@
-/** Нэг мөр: ханз(ууд) / pinyin ### монгол утга (ж: Quizlet paste). */
+/** Нэг мөр: канжи тэмдэгт / romaji ### монгол утга (ж: сургалтын paste). */
 
 const SPLIT = /\s+###\s+/;
-const LEFT_HANZI_PINYIN = /^(\p{Script=Han}+)\s+(.+)$/u;
+const LEFT_KANJI_ROMAJI = /^(\S+?)\s+(.+)$/u;
 
-export type ParsedImportLineOk = { ok: true; hanzi: string; pinyin: string; meaning_mn: string };
+export type ParsedImportLineOk = { ok: true; kanji: string; romaji: string; meaning_mn: string };
 export type ParsedImportLineErr = { ok: false; line: string; reason: string };
 export type ParsedImportLine = ParsedImportLineOk | ParsedImportLineErr;
 
@@ -26,24 +26,24 @@ export function parseHanziImportLines(text: string): ParsedImportLine[] {
       continue;
     }
 
-    const lm = left.match(LEFT_HANZI_PINYIN);
+    const lm = left.match(LEFT_KANJI_ROMAJI);
     if (!lm) {
       out.push({
         ok: false,
         line,
-        reason: 'Эхлээд ханз, дараа нь pinyin байх ёстой',
+        reason: 'Эхлээд үг (канжи/кана), дараа нь romaji байх ёстой',
       });
       continue;
     }
 
-    const hanzi = lm[1]!.trim();
-    const pinyin = lm[2]!.trim();
-    if (!hanzi || !pinyin) {
-      out.push({ ok: false, line, reason: 'Ханз эсвэл pinyin хоосон' });
+    const kanji = lm[1]!.trim();
+    const romaji = lm[2]!.trim();
+    if (!kanji || !romaji) {
+      out.push({ ok: false, line, reason: 'Канжи эсвэл romaji хоосон' });
       continue;
     }
 
-    out.push({ ok: true, hanzi, pinyin, meaning_mn });
+    out.push({ ok: true, kanji, romaji, meaning_mn });
   }
   return out;
 }

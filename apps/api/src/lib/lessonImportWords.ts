@@ -10,10 +10,10 @@ export type ImportedWordStats = {
   reused: number;
 };
 
-async function existingWordId(db: D1Database, hanzi: string, meaningMn: string): Promise<number | null> {
+async function existingWordId(db: D1Database, kanji: string, meaningMn: string): Promise<number | null> {
   const row = await db
-    .prepare('SELECT id FROM words WHERE hanzi = ? AND meaning_mn = ? LIMIT 1')
-    .bind(hanzi, meaningMn)
+    .prepare('SELECT id FROM words WHERE kanji = ? AND meaning_mn = ? LIMIT 1')
+    .bind(kanji, meaningMn)
     .first<{ id: number }>();
   return Number.isFinite(row?.id) ? Number(row?.id) : null;
 }
@@ -22,12 +22,13 @@ export async function validateImportedWords(words: ImportedVocab[]) {
   for (let i = 0; i < words.length; i++) {
     const w = words[i]!;
     const res = await dryRunValidateAdminWord({
-      hanzi: w.hanzi,
-      pinyin: w.pinyin,
+      kanji: w.kanji,
+      romaji: w.romaji,
+      kana: w.kana,
       meaning_mn: w.meaning_mn,
-      hsk_level: w.hsk_level,
+      jlpt_level: w.jlpt_level,
     });
-    if (!res.ok) throw new Error(`Үг #${i + 1} (${w.hanzi}) алдаатай: ${res.error}`);
+    if (!res.ok) throw new Error(`Үг #${i + 1} (${w.kanji}) алдаатай: ${res.error}`);
   }
 }
 
@@ -38,7 +39,7 @@ export async function resolveImportedWords(db: D1Database, words: ImportedVocab[
 
   for (let i = 0; i < words.length; i++) {
     const w = words[i]!;
-    const found = await existingWordId(db, w.hanzi, w.meaning_mn);
+    const found = await existingWordId(db, w.kanji, w.meaning_mn);
     if (found) {
       reused += 1;
       links.push({ wordId: found, orderNum: i + 1 });
@@ -46,14 +47,15 @@ export async function resolveImportedWords(db: D1Database, words: ImportedVocab[
     }
 
     const created = await insertAdminWord(db, {
-      hanzi: w.hanzi,
-      pinyin: w.pinyin,
+      kanji: w.kanji,
+      romaji: w.romaji,
+      kana: w.kana,
       meaning_mn: w.meaning_mn,
-      hsk_level: w.hsk_level,
+      jlpt_level: w.jlpt_level,
     });
     if (created.kind !== 'inserted') {
       const reason = created.kind === 'error' ? created.message : 'давхардал';
-      throw new Error(`Үг #${i + 1} (${w.hanzi}) хадгалагдсангүй: ${reason}`);
+      throw new Error(`Үг #${i + 1} (${w.kanji}) хадгалагдсангүй: ${reason}`);
     }
     inserted += 1;
     links.push({ wordId: created.id, orderNum: i + 1 });

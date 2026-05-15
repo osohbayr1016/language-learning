@@ -1,5 +1,5 @@
 -- Migration: 0001_initial_schema.sql
--- Chinese Learning App - Full D1 Schema
+-- Japanese Learning App - Full D1 Schema
 
 -- ============================================================
 -- USERS
@@ -36,24 +36,25 @@ CREATE INDEX IF NOT EXISTS idx_refresh_tokens_hash ON refresh_tokens(token_hash)
 -- ============================================================
 CREATE TABLE IF NOT EXISTS words (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
-  hanzi TEXT NOT NULL,
-  pinyin TEXT NOT NULL,
-  pinyin_numbered TEXT NOT NULL,
-  tones TEXT NOT NULL DEFAULT '[]',        -- JSON array e.g. [3,3]
+  kanji TEXT NOT NULL,               -- Japanese word (kanji/kana form)
+  romaji TEXT NOT NULL,              -- Romaji reading (e.g. "konnichiwa")
+  romaji_numbered TEXT NOT NULL,     -- Romaji with pitch/accent hints
+  kana TEXT NOT NULL DEFAULT '',     -- Hiragana/Katakana reading (e.g. "こんにちは")
   meaning_mn TEXT NOT NULL,
   meaning_en TEXT NOT NULL DEFAULT '',
-  hsk_level INTEGER NOT NULL CHECK(hsk_level BETWEEN 1 AND 6),
+  jlpt_level INTEGER NOT NULL CHECK(jlpt_level BETWEEN 1 AND 5),  -- 1=N5 … 5=N1
   part_of_speech TEXT NOT NULL DEFAULT 'noun',
-  example_zh TEXT NOT NULL DEFAULT '',
-  example_pinyin TEXT NOT NULL DEFAULT '',
+  example_jp TEXT NOT NULL DEFAULT '',   -- Example sentence in Japanese
+  example_romaji TEXT NOT NULL DEFAULT '', -- Example in romaji
   example_mn TEXT NOT NULL DEFAULT '',
   audio_url TEXT,
   stroke_count INTEGER NOT NULL DEFAULT 0,
+  textbook_unit TEXT,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_words_hsk ON words(hsk_level);
-CREATE INDEX IF NOT EXISTS idx_words_hanzi ON words(hanzi);
+CREATE INDEX IF NOT EXISTS idx_words_jlpt ON words(jlpt_level);
+CREATE INDEX IF NOT EXISTS idx_words_kanji ON words(kanji);
 
 -- ============================================================
 -- AUDIO CACHE
@@ -74,11 +75,11 @@ CREATE UNIQUE INDEX IF NOT EXISTS idx_audio_cache_word ON audio_cache(word_id);
 CREATE TABLE IF NOT EXISTS courses (
   id INTEGER PRIMARY KEY AUTOINCREMENT,
   title_mn TEXT NOT NULL,
-  title_zh TEXT NOT NULL DEFAULT '',
+  title_jp TEXT NOT NULL DEFAULT '',
   description_mn TEXT NOT NULL DEFAULT '',
   thumbnail_url TEXT,
   video_url TEXT,
-  hsk_level INTEGER NOT NULL DEFAULT 1 CHECK(hsk_level BETWEEN 1 AND 6),
+  jlpt_level INTEGER NOT NULL DEFAULT 1 CHECK(jlpt_level BETWEEN 1 AND 5),
   word_count INTEGER NOT NULL DEFAULT 0,
   is_published INTEGER NOT NULL DEFAULT 0,
   created_by INTEGER REFERENCES users(id),
@@ -86,7 +87,7 @@ CREATE TABLE IF NOT EXISTS courses (
   updated_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP
 );
 
-CREATE INDEX IF NOT EXISTS idx_courses_hsk ON courses(hsk_level);
+CREATE INDEX IF NOT EXISTS idx_courses_jlpt ON courses(jlpt_level);
 CREATE INDEX IF NOT EXISTS idx_courses_published ON courses(is_published);
 
 -- ============================================================
@@ -142,6 +143,7 @@ CREATE TABLE IF NOT EXISTS user_word_progress (
   repetitions INTEGER NOT NULL DEFAULT 0,
   next_review DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   last_reviewed DATETIME,
+  flashcard_eligible_at DATETIME,
   created_at DATETIME NOT NULL DEFAULT CURRENT_TIMESTAMP,
   UNIQUE(user_id, word_id)
 );

@@ -1,12 +1,12 @@
 import type { ExamQuestion } from '../../lib/api/exams';
 
 export function mockExamPromptText(q: ExamQuestion): string {
-  /** Сонсох: дүрэм нь scenario_mn, овстой оролт нь listen_zh; 1–20 дугаарт listen_zh хоосон байж болно. */
+  /** Listening: scenario + Japanese audio script. Reading: Japanese passage + romaji reading aid. */
   if (q.section === 'listening') {
-    const lines = [q.scenario_mn, q.listen_zh].filter((x) => typeof x === 'string' && x.trim() !== '');
+    const lines = [q.scenario_mn, q.listen_jp].filter((x) => typeof x === 'string' && x.trim() !== '');
     return lines.join('\n').trim();
   }
-  return `${q.question_zh ?? ''}\n${q.question_pinyin ?? ''}`.trim();
+  return `${q.question_jp ?? ''}\n${q.question_romaji ?? ''}`.trim();
 }
 
 export function mockExamOptionStrings(q: ExamQuestion): string[] {

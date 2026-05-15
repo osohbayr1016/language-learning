@@ -12,26 +12,28 @@ export type AdminUserRow = {
 };
 
 export type AdminCreateWordBody = {
-  hanzi: string;
-  pinyin: string;
+  kanji: string;
+  romaji: string;
+  romaji_numbered?: string;
+  kana?: string;
   meaning_mn: string;
   meaning_en?: string;
-  hsk_level?: number;
+  jlpt_level?: number;
   part_of_speech?: string;
-  example_zh?: string;
-  example_pinyin?: string;
+  example_jp?: string;
+  example_romaji?: string;
   example_mn?: string;
   textbook_unit?: string | null;
 };
 
 export type AdminBulkResultRow =
-  | { ok: true; id: number; hanzi: string }
-  | { ok: true; skipped: true; hanzi: string }
-  | { ok: false; hanzi: string; error: string };
+  | { ok: true; id: number; kanji: string }
+  | { ok: true; skipped: true; kanji: string }
+  | { ok: false; kanji: string; error: string };
 
 export type AdminBulkValidateRow =
-  | { ok: true; hanzi: string; strokeCount: number }
-  | { ok: false; hanzi: string; error: string };
+  | { ok: true; kanji: string; strokeCount: number }
+  | { ok: false; kanji: string; error: string };
 
 export type LessonHtmlPreview = {
   external_lesson_id: string;
@@ -58,7 +60,7 @@ export const adminApi = {
     request<{ data: AdminUserRow[] }>(`/api/admin/users${buildQuery(params)}`, { token }),
   validateWordsBulk: (
     token: string,
-    body: { words: AdminCreateWordBody[]; hsk_level?: number; textbook_unit?: string | null }
+    body: { words: AdminCreateWordBody[]; jlpt_level?: number; textbook_unit?: string | null }
   ) =>
     request<{ data: { results: AdminBulkValidateRow[] } }>('/api/admin/words/bulk/validate', {
       method: 'POST',
@@ -69,7 +71,7 @@ export const adminApi = {
     token: string,
     body: {
       words: AdminCreateWordBody[];
-      hsk_level?: number;
+      jlpt_level?: number;
       textbook_unit?: string | null;
       duplicate_policy?: 'fail' | 'skip';
     }

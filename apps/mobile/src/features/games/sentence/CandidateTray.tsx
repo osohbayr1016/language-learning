@@ -1,7 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, View } from 'react-native';
 import { ToneColoredText } from '../../../components/hanzi';
-import { parseTones } from '../../../lib/tones';
 import { colors, radius, spacing } from '../../../theme';
 import type { Word } from '../../../lib/types';
 
@@ -32,7 +31,7 @@ export function CandidateTray({ candidates, selectedId, state, onPick }: Props) 
             disabled={state !== 'idle'}
             style={[styles.tile, stateStyle]}
           >
-            <ToneColoredText hanzi={c.hanzi} tones={parseTones(c.tones)} size="sm" />
+            <ToneColoredText hanzi={c.kanji} size="sm" />
           </Pressable>
         );
       })}

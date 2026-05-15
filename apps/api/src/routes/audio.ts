@@ -1,6 +1,6 @@
 import { Hono } from 'hono';
 import type { Env, Variables } from '../types';
-import { fetchEdgeTTS, zhSsmlBody } from '../lib/edgeTts';
+import { fetchEdgeTTS, jaSsmlBody } from '../lib/edgeTts';
 
 const audio = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -36,7 +36,7 @@ audio.get('/tts', async (c) => {
   }
 
   try {
-    const ssml = zhSsmlBody(text, speed);
+    const ssml = jaSsmlBody(text, speed);
     const audioBuffer = await fetchEdgeTTS(ssml);
     if (audioBuffer) {
       await c.env.STORAGE.put(cacheKey, audioBuffer, {
@@ -77,16 +77,20 @@ audio.get('/:wordId', async (c) => {
     });
   }
 
-  const word = await c.env.DB.prepare('SELECT hanzi, pinyin FROM words WHERE id = ?')
+  const word = await c.env.DB.prepare(
+    'SELECT kanji, kana, romaji FROM words WHERE id = ?'
+  )
     .bind(wordId)
-    .first<{ hanzi: string; pinyin: string }>();
+    .first<{ kanji: string; kana: string | null; romaji: string | null }>();
 
   if (!word) {
     return c.json({ error: 'Үг олдсонгүй' }, 404);
   }
 
+  const speakText = (word.kana?.trim() || word.kanji?.trim() || word.romaji?.trim() || '').trim();
+
   try {
-    const ssml = zhSsmlBody(word.hanzi, speed);
+    const ssml = jaSsmlBody(speakText, speed);
     const audioBuffer = await fetchEdgeTTS(ssml);
 
     if (audioBuffer) {

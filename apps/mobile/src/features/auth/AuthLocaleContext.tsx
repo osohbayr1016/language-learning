@@ -22,7 +22,8 @@ export function AuthLocaleProvider({ children }: { children: React.ReactNode }) 
   useEffect(() => {
     void (async () => {
       const raw = await getItem(KEY);
-      if (raw === 'zh' || raw === 'en' || raw === 'mn') setState(raw);
+      if (raw === 'ja' || raw === 'en' || raw === 'mn') setState(raw);
+      else if (raw === 'zh') setState('ja');
     })();
   }, []);
 

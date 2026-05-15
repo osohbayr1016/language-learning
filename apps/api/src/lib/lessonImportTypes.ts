@@ -1,13 +1,14 @@
 export type ImportedVocab = {
-  hanzi: string;
-  pinyin: string;
+  kanji: string;
+  romaji: string;
+  kana?: string;
   meaning_mn: string;
-  hsk_level: number;
+  jlpt_level: number;
 };
 
 export type ImportedDialogueLine = {
   speaker?: string;
-  cn: string;
+  jp: string;
   mn: string;
 };
 
@@ -15,7 +16,7 @@ export type ImportedDialogue = {
   no: number;
   title: string;
   lines?: ImportedDialogueLine[];
-  text_cn?: string;
+  text_jp?: string;
   text_mn?: string;
 };
 
@@ -40,7 +41,7 @@ export type ImportedWorkbookSection = {
 
 export type ImportedLessonContent = {
   external_lesson_id: string;
-  title_cn: string;
+  title_jp: string;
   title_mn: string;
   source: string;
   summary: string;
@@ -55,7 +56,7 @@ export type ImportedLessonContent = {
 
 export type LessonHtmlPreview = {
   external_lesson_id: string;
-  title_cn: string;
+  title_jp: string;
   title_mn: string;
   source: string;
   vocab_count: number;

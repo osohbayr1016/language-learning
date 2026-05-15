@@ -8,18 +8,23 @@ import {
   issueRefreshToken,
 } from '../lib/tokens';
 import type { Env, Variables } from '../types';
-import type { LoginRequest, RegisterRequest } from '@chinese-app/types';
+import type { LoginRequest, RegisterRequest } from '@japanese-learning/types';
 import { userIsAdminFromDb } from '../lib/userIsAdminFromDb';
+import { jsonBodyInvalid, readJsonBody } from '../lib/requestJson';
 
 const auth = new Hono<{ Bindings: Env; Variables: Variables }>();
 
 auth.post('/register', async (c) => {
-  const body = await c.req.json<RegisterRequest>();
+  const body = await readJsonBody<RegisterRequest>(c);
+  if (!body) return jsonBodyInvalid(c);
 
-  if (!body.email || !body.password || !body.display_name) {
+  const pwd = typeof body.password === 'string' ? body.password : String(body.password ?? '');
+  const displayNameRaw = typeof body.display_name === 'string' ? body.display_name : String(body.display_name ?? '');
+
+  if (!body.email || !pwd || !displayNameRaw) {
     return c.json({ error: 'Бүх талбарыг бөглөнө үү' }, 400);
   }
-  if (body.password.length < 8) {
+  if (pwd.length < 8) {
     return c.json({ error: 'Нууц үг дор хаяж 8 тэмдэгт байх ёстой' }, 400);
   }
 
@@ -32,8 +37,8 @@ auth.post('/register', async (c) => {
     return c.json({ error: 'Энэ имэйл хаяг бүртгэлтэй байна' }, 409);
   }
 
-  const password_hash = await hashPassword(body.password);
-  const displayName = typeof body.display_name === 'string' ? body.display_name.trim() : '';
+  const password_hash = await hashPassword(pwd);
+  const displayName = displayNameRaw.trim();
   if (!displayName) {
     return c.json({ error: 'Нэрээ оруулна уу' }, 400);
   }
@@ -64,9 +69,11 @@ auth.post('/register', async (c) => {
 });
 
 auth.post('/login', async (c) => {
-  const body = await c.req.json<LoginRequest>();
+  const body = await readJsonBody<LoginRequest>(c);
+  if (!body) return jsonBodyInvalid(c);
   const email = typeof body.email === 'string' ? body.email.trim().toLowerCase() : '';
-  if (!email || !body.password) {
+  const password = typeof body.password === 'string' ? body.password : String(body.password ?? '');
+  if (!email || !password) {
     return c.json({ error: 'Имэйл болон нууц үгээ оруулна уу' }, 400);
   }
 
@@ -76,7 +83,7 @@ auth.post('/login', async (c) => {
     id: number; email: string; password_hash: string; is_admin: number; display_name: string;
   }>();
 
-  if (!user || !(await verifyPassword(body.password, user.password_hash))) {
+  if (!user || !(await verifyPassword(password, user.password_hash))) {
     const dev = (c.env.ENVIRONMENT ?? '').toLowerCase() === 'development';
     return c.json(
       {
@@ -109,7 +116,8 @@ auth.post('/login', async (c) => {
 });
 
 auth.post('/refresh', async (c) => {
-  const body = await c.req.json<{ refresh_token: string }>();
+  const body = await readJsonBody<{ refresh_token: string }>(c);
+  if (!body) return jsonBodyInvalid(c);
   if (!body.refresh_token) {
     return c.json({ error: 'Refresh token шаардлагатай' }, 400);
   }
@@ -140,7 +148,8 @@ auth.post('/refresh', async (c) => {
 });
 
 auth.post('/logout', async (c) => {
-  const body = await c.req.json<{ refresh_token: string }>();
+  const body = await readJsonBody<{ refresh_token: string }>(c);
+  if (!body) return jsonBodyInvalid(c);
   if (body.refresh_token) {
     await deleteRefreshToken(c.env.DB, body.refresh_token);
   }

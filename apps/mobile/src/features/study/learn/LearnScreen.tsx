@@ -5,7 +5,7 @@ import { useStudyWords, type StudyWordSource } from '../../../hooks/useStudyWord
 import { useSrsRating } from '../../../hooks/useSrsRating';
 import { useAdaptiveTimer } from '../../../hooks/useAdaptiveTimer';
 import { useAudio } from '../../../context/AudioContext';
-import { calculateXP } from '@chinese-app/srs';
+import { calculateXP } from '@japanese-learning/srs';
 import { colors, spacing } from '../../../theme';
 import { mn } from '../../../i18n/mn';
 import { StudyHeader } from '../StudyHeader';
@@ -37,7 +37,7 @@ export function LearnScreen({ source = 'due' }: Props) {
   const accuracy = idx > 0 ? correctCount / idx : 0;
   const difficulty = difficultyForAccuracy(accuracy);
 
-  const promptType: 'hanzi-to-mn' | 'mn-to-hanzi' = idx % 2 === 0 ? 'hanzi-to-mn' : 'mn-to-hanzi';
+  const promptType: 'jp-to-mn' | 'mn-to-jp' = idx % 2 === 0 ? 'jp-to-mn' : 'mn-to-jp';
 
   const options = useMemo(() => {
     if (!current) return [] as WordWithProgress[];
@@ -121,7 +121,7 @@ export function LearnScreen({ source = 'due' }: Props) {
             <AnswerOption
               key={o.id}
               word={o}
-              show={promptType === 'hanzi-to-mn' ? 'mn' : 'hanzi'}
+              show={promptType === 'jp-to-mn' ? 'mn' : 'jp'}
               state={state}
               onPress={() => handleSelect(o)}
             />

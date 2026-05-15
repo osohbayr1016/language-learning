@@ -15,7 +15,7 @@ CREATE TABLE exam_questions_new (
   )),
   audio_text TEXT NOT NULL DEFAULT '',
   question_text TEXT NOT NULL DEFAULT '',
-  question_pinyin TEXT NOT NULL DEFAULT '',
+  question_romaji TEXT NOT NULL DEFAULT '',
   options JSON DEFAULT '[]',
   correct_answer TEXT NOT NULL,
   order_num INTEGER NOT NULL DEFAULT 0,
@@ -24,11 +24,11 @@ CREATE TABLE exam_questions_new (
 
 INSERT INTO exam_questions_new (
   id, template_id, section, part_num, question_num, question_type,
-  audio_text, question_text, question_pinyin, options, correct_answer, order_num, audio_key
+  audio_text, question_text, question_romaji, options, correct_answer, order_num, audio_key
 )
 SELECT
   id, template_id, section, part_num, question_num, question_type,
-  audio_text, question_text, question_pinyin, options, correct_answer, order_num,
+  audio_text, question_text, question_romaji, options, correct_answer, order_num,
   NULL
 FROM exam_questions;
 

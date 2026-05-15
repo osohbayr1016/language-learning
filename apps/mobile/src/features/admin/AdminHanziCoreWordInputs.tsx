@@ -3,28 +3,28 @@ import { StyleSheet, Text, TextInput, View } from 'react-native';
 import { colors, spacing, typography } from '../../theme';
 
 type Props = {
-  hanzi: string;
-  pinyin: string;
+  kanji: string;
+  romaji: string;
   meaningMn: string;
-  onHanzi: (v: string) => void;
-  onPinyin: (v: string) => void;
+  onKanji: (v: string) => void;
+  onRomaji: (v: string) => void;
   onMeaningMn: (v: string) => void;
 };
 
 export function AdminHanziCoreWordInputs({
-  hanzi,
-  pinyin,
+  kanji,
+  romaji,
   meaningMn,
-  onHanzi,
-  onPinyin,
+  onKanji,
+  onRomaji,
   onMeaningMn,
 }: Props) {
   return (
     <View>
-      <Text style={styles.label}>Ханз (үг эсвэл нэг тэмдэгт)</Text>
-      <TextInput value={hanzi} onChangeText={onHanzi} style={styles.input} />
-      <Text style={styles.label}>Pinyin</Text>
-      <TextInput value={pinyin} onChangeText={onPinyin} style={styles.input} autoCapitalize="none" />
+      <Text style={styles.label}>Канжи / кана (Үг эсвэл нэг бүлэг тэмдэгт)</Text>
+      <TextInput value={kanji} onChangeText={onKanji} style={styles.input} />
+      <Text style={styles.label}>Romaji</Text>
+      <TextInput value={romaji} onChangeText={onRomaji} style={styles.input} autoCapitalize="none" />
       <Text style={styles.label}>Монгол утга</Text>
       <TextInput value={meaningMn} onChangeText={onMeaningMn} style={styles.input} multiline />
     </View>

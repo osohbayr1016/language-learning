@@ -14,8 +14,8 @@
     "eas:build:preview": "eas build --profile preview"
   },
   "dependencies": {
-    "@chinese-app/srs": "workspace:*",
-    "@chinese-app/types": "workspace:*",
+    "@japanese-learning/srs": "workspace:*",
+    "@japanese-learning/types": "workspace:*",
     "@expo/metro-runtime": "~6.1.2",
     "@expo/vector-icons": "^15.1.1",
     "@react-native-async-storage/async-storage": "^2.2.0",

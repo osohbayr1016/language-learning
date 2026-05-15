@@ -27,13 +27,23 @@ async function getKey(secret: string): Promise<CryptoKey> {
   );
 }
 
+function jsonSafeReplacer(_key: string, value: unknown): unknown {
+  return typeof value === 'bigint' ? Number(value) : value;
+}
+
 export async function signJWT(payload: Omit<JWTPayload, 'iat'>, secret: string): Promise<string> {
+  if (typeof secret !== 'string' || secret.length === 0) {
+    throw new Error('JWT_SECRET is not configured');
+  }
+
   const header = { alg: 'HS256', typ: 'JWT' };
   const fullPayload = { ...payload, iat: Math.floor(Date.now() / 1000) };
 
   const encoder = new TextEncoder();
   const headerB64 = base64UrlEncode(encoder.encode(JSON.stringify(header)));
-  const payloadB64 = base64UrlEncode(encoder.encode(JSON.stringify(fullPayload)));
+  const payloadB64 = base64UrlEncode(
+    encoder.encode(JSON.stringify(fullPayload, jsonSafeReplacer))
+  );
   const signingInput = `${headerB64}.${payloadB64}`;
 
   const key = await getKey(secret);
@@ -69,13 +79,17 @@ export async function verifyJWT(token: string, secret: string): Promise<JWTPaylo
 
 export async function hashPassword(password: string): Promise<string> {
   const encoder = new TextEncoder();
-  const data = encoder.encode(password);
+  const data = encoder.encode(String(password));
   const hashBuffer = await crypto.subtle.digest('SHA-256', data);
   const hashArray = Array.from(new Uint8Array(hashBuffer));
   return hashArray.map((b) => b.toString(16).padStart(2, '0')).join('');
 }
 
-export async function verifyPassword(password: string, hash: string): Promise<boolean> {
+export async function verifyPassword(
+  password: string,
+  hash: string | null | undefined
+): Promise<boolean> {
+  if (hash == null || typeof hash !== 'string') return false;
   const computedHash = await hashPassword(password);
   return computedHash === hash;
 }

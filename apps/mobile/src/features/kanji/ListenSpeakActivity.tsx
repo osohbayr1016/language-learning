@@ -68,8 +68,8 @@ function ListenSpeakSpeakPhase({
     <>
       <Text style={styles.instruction}>Одоо та дараах байдлаар хэлж үзээрэй:</Text>
       <View style={styles.pinyinBox}>
-        <Text style={styles.hanziLarge}>{word.hanzi}</Text>
-        <Text style={styles.pinyinLarge}>{word.pinyin}</Text>
+        <Text style={styles.hanziLarge}>{word.kanji}</Text>
+        <Text style={styles.pinyinLarge}>{word.romaji}</Text>
       </View>
       <Text style={styles.meaning}>{word.meaning_mn}</Text>
 

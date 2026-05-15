@@ -37,7 +37,7 @@ export function useLessonHtmlImportChapters(token: string | null) {
           title_mn: `HSK ${hsk}`,
           subtitle_mn: 'HTML импорт',
           hsk_level: hsk,
-          color: colors.hsk[k],
+          color: colors.jlpt[k],
           order_num: maxOrder + 1,
         });
         await loadTree({ selectId: res.data.id });

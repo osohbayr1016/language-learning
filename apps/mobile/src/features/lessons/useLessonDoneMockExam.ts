@@ -12,7 +12,7 @@ export type LessonDoneMockExam = {
 };
 
 function pickByHsk(templates: ExamTemplate[], hsk: HskLevel): { id: number; multiple: boolean } | null {
-  const match = templates.filter((t) => t.hsk_level === hsk);
+  const match = templates.filter((t) => t.jlpt_level === hsk);
   if (!match.length) return null;
   if (match.length === 1) return { id: match[0]!.id, multiple: false };
   const maxId = Math.max(...match.map((t) => t.id));

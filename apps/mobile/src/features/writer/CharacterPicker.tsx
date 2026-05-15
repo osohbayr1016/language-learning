@@ -1,7 +1,6 @@
 import React from 'react';
 import { Pressable, ScrollView, StyleSheet, Text, View } from 'react-native';
 import { ToneColoredText } from '../../components/hanzi';
-import { parseTones } from '../../lib/tones';
 import { colors, radius, spacing, typography } from '../../theme';
 import type { WordWithProgress } from '../../lib/types';
 
@@ -20,15 +19,14 @@ export function CharacterPicker({ words, current, onPick }: Props) {
     >
       {words.map((w) => {
         const active = w.id === current.id;
-        const firstChar = Array.from(w.hanzi)[0];
-        const tones = parseTones(w.tones);
+        const firstChar = Array.from(w.kanji)[0];
         return (
           <Pressable
             key={w.id}
             onPress={() => onPick(w)}
             style={[styles.chip, active && styles.activeChip]}
           >
-            <ToneColoredText hanzi={firstChar} tones={[tones[0] ?? 0]} size="sm" />
+            <ToneColoredText hanzi={firstChar} tones={undefined} size="sm" />
             <Text style={styles.label} numberOfLines={1}>{w.meaning_mn}</Text>
           </Pressable>
         );

@@ -5,7 +5,7 @@ import { AdminSingleHanziCreateCard } from '../../../src/features/admin/AdminSin
 import { colors, spacing } from '../../../src/theme';
 
 export default function AdminNewWordScreen() {
-  const [hsk, setHsk] = useState('1');
+  const [jlpt, setJlpt] = useState('1');
   const router = useRouter();
 
   return (
@@ -15,8 +15,8 @@ export default function AdminNewWordScreen() {
     >
       <ScrollView contentContainerStyle={styles.pad} keyboardShouldPersistTaps="handled">
         <AdminSingleHanziCreateCard 
-          hsk={hsk} 
-          onHskChange={setHsk} 
+          jlpt={jlpt} 
+          onJlptChange={setJlpt} 
           onCreated={(id) => {
             router.replace(`/admin/word/${id}`);
           }}

@@ -21,10 +21,10 @@ function uniqueBases(): string[] {
 }
 
 /** Вэб дээр request() эсвэл буруу суурь → хоосон; шууд fetch нь илүү найдвартай. */
-async function fetchPublicWordsViaFetch(limit: number, hsk?: number, singleChar?: boolean): Promise<Word[]> {
+async function fetchPublicWordsViaFetch(limit: number, jlpt?: number, singleChar?: boolean): Promise<Word[]> {
   const n = Math.max(limit, 30);
   const sp = new URLSearchParams({ limit: String(n) });
-  if (hsk != null) sp.set('hsk', String(hsk));
+  if (jlpt != null) sp.set('jlpt', String(jlpt));
   if (singleChar) sp.set('single_char', '1');
 
   for (const base of uniqueBases()) {
@@ -61,7 +61,7 @@ export async function fetchStudyWords(
   let rows: WordWithProgress[] = [];
   const singleChar = mode === 'writer' ? 1 : undefined;
   try {
-    const pub = await api.words.list({ limit: Math.max(limit, 30), hsk: 1, single_char: singleChar });
+    const pub = await api.words.list({ limit: Math.max(limit, 30), jlpt: 1, single_char: singleChar });
     rows = asProgress(pub.data);
   } catch {
     rows = [];

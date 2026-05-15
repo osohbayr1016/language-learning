@@ -1,6 +1,7 @@
 import { Hono } from 'hono';
 import { authMiddleware, adminMiddleware } from '../middleware/auth';
 import type { Env, Variables } from '../types';
+import { jsonBodyInvalid, readJsonBody } from '../lib/requestJson';
 
 const cartoons = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -11,12 +12,12 @@ function publicUrl(req: Request, key: string): string {
 
 // GET /api/cartoons — public list
 cartoons.get('/', async (c) => {
-  const hsk = c.req.query('hsk');
+  const jlptRaw = c.req.query('jlpt') ?? c.req.query('hsk');
   let query = 'SELECT * FROM cartoons WHERE is_published = 1';
   const params: (string | number)[] = [];
-  if (hsk) {
-    query += ' AND hsk_level = ?';
-    params.push(Number(hsk));
+  if (jlptRaw) {
+    query += ' AND jlpt_level = ?';
+    params.push(Number(jlptRaw));
   }
   query += ' ORDER BY created_at DESC LIMIT 50';
 
@@ -89,21 +90,22 @@ cartoons.post('/upload', authMiddleware, adminMiddleware, async (c) => {
 
 // POST /api/cartoons — admin: create cartoon
 cartoons.post('/', authMiddleware, adminMiddleware, async (c) => {
-  const body = await c.req.json<{
+  const body = await readJsonBody<{
     title_mn: string;
     description_mn?: string;
     video_key: string;
     thumbnail_key?: string;
-    hsk_level?: number;
+    jlpt_level?: number;
     duration_s?: number;
     is_published?: boolean;
-  }>();
+  }>(c);
+  if (!body) return jsonBodyInvalid(c);
   const result = await c.env.DB.prepare(
-    `INSERT INTO cartoons (title_mn, description_mn, video_key, thumbnail_key, hsk_level, duration_s, is_published, created_by)
+    `INSERT INTO cartoons (title_mn, description_mn, video_key, thumbnail_key, jlpt_level, duration_s, is_published, created_by)
      VALUES (?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
   ).bind(
     body.title_mn, body.description_mn ?? '', body.video_key,
-    body.thumbnail_key ?? null, body.hsk_level ?? null, body.duration_s ?? 0,
+    body.thumbnail_key ?? null, body.jlpt_level ?? null, body.duration_s ?? 0,
     body.is_published ? 1 : 0, c.get('user').sub
   ).first<{ id: number }>();
   return c.json({ data: { id: result?.id }, message: 'Хүүхэлдэй үүслээ' }, 201);
@@ -111,21 +113,29 @@ cartoons.post('/', authMiddleware, adminMiddleware, async (c) => {
 
 // PUT /api/cartoons/:id — admin: update
 cartoons.put('/:id', authMiddleware, adminMiddleware, async (c) => {
-  const body = await c.req.json<any>();
+  const body = await readJsonBody<{
+    title_mn?: string;
+    description_mn?: string;
+    thumbnail_key?: string | null;
+    jlpt_level?: number;
+    duration_s?: number;
+    is_published?: boolean;
+  }>(c);
+  if (!body) return jsonBodyInvalid(c);
   const id = c.req.param('id');
   await c.env.DB.prepare(
     `UPDATE cartoons SET
        title_mn = COALESCE(?, title_mn),
        description_mn = COALESCE(?, description_mn),
        thumbnail_key = COALESCE(?, thumbnail_key),
-       hsk_level = COALESCE(?, hsk_level),
+       jlpt_level = COALESCE(?, jlpt_level),
        duration_s = COALESCE(?, duration_s),
        is_published = COALESCE(?, is_published),
        updated_at = CURRENT_TIMESTAMP
      WHERE id = ?`
   ).bind(
     body.title_mn ?? null, body.description_mn ?? null,
-    body.thumbnail_key ?? null, body.hsk_level ?? null,
+    body.thumbnail_key ?? null, body.jlpt_level ?? null,
     body.duration_s ?? null,
     body.is_published != null ? (body.is_published ? 1 : 0) : null,
     id
@@ -136,9 +146,10 @@ cartoons.put('/:id', authMiddleware, adminMiddleware, async (c) => {
 // POST /api/cartoons/:id/words — admin: attach vocab with timestamps
 cartoons.post('/:id/words', authMiddleware, adminMiddleware, async (c) => {
   const id = c.req.param('id');
-  const body = await c.req.json<{
+  const body = await readJsonBody<{
     items: { word_id: number; start_s: number; end_s: number }[];
-  }>();
+  }>(c);
+  if (!body) return jsonBodyInvalid(c);
   const stmts = body.items.map((it) =>
     c.env.DB.prepare(
       `INSERT OR REPLACE INTO cartoon_words (cartoon_id, word_id, start_s, end_s)

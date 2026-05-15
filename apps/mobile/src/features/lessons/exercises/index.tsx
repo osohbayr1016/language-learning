@@ -80,19 +80,19 @@ export function exercisePromptFor(exercise: Exercise): string {
 export function exerciseCorrectAnswer(exercise: Exercise): string {
   switch (exercise.kind) {
     case 'memorize':
-      return exercise.word.hanzi;
+      return exercise.word.kanji;
     case 'choose-word':
     case 'listen-mcq':
     case 'fill-blank':
-      return `${exercise.word.hanzi} (${exercise.word.pinyin})`;
+      return `${exercise.word.kanji} (${exercise.word.romaji})`;
     case 'arrange-words':
-      return exercise.word.example_zh ?? exercise.word.hanzi;
+      return exercise.word.example_jp ?? exercise.word.kanji;
     case 'match-pairs':
-      return exercise.pairs.map((w) => w.hanzi).join(' · ');
+      return exercise.pairs.map((w) => w.kanji).join(' · ');
     case 'true-false':
       return exercise.isTrue ? 'Үнэн' : 'Худал';
     case 'say-sentence':
-      return exercise.word.example_zh ?? exercise.word.hanzi;
+      return exercise.word.example_jp ?? exercise.word.kanji;
     case 'imported-section':
       return 'Үзсэн';
     case 'imported-workbook':

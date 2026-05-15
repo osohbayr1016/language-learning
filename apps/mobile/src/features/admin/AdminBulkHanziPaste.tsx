@@ -12,10 +12,10 @@ export function AdminBulkHanziPaste({ token, hskLevel }: Props) {
 
   return (
     <View style={styles.block}>
-      <Text style={styles.sectionTitle}>Олон мөр (ханз + pinyin + ### + утга)</Text>
+      <Text style={styles.sectionTitle}>Олон мөр (канжи/кана + romaji + ### + утга)</Text>
       <Text style={styles.hintTiny}>
-        Жишээ: 你好 nǐhǎo ### Сайн байна уу{'\n'}
-        Олон ханз бол: 拐卖 guǎimài ### хүн худалдах
+        Жишээ: こんにちは konnichiwa ### Сайн байна уу{'\n'}
+        Олон үгтэй: がくせい gakusei ### оюутан
       </Text>
       <AdminBulkHanziPasteTools
         token={Boolean(token)}
@@ -51,11 +51,11 @@ export function AdminBulkHanziPaste({ token, hskLevel }: Props) {
           errRows={p.errRows}
           serverFails={p.serverFails}
           token={Boolean(token)}
-          bulkExZh={p.bulkExZh}
-          bulkExPy={p.bulkExPy}
+          bulkExJp={p.bulkExJp}
+          bulkExRo={p.bulkExRo}
           bulkExMn={p.bulkExMn}
-          onBulkExZh={p.setBulkExZh}
-          onBulkExPy={p.setBulkExPy}
+          onBulkExJp={p.setBulkExJp}
+          onBulkExRo={p.setBulkExRo}
           onBulkExMn={p.setBulkExMn}
         />
       ) : null}

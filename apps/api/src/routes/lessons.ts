@@ -13,6 +13,7 @@ import { publishedLessonTree, safeAll } from '../lib/lessonCatalog';
 import { fetchPublishedLessonDetail } from '../lib/lessonDetail';
 import { computeLessonFlashcardEligibleAt } from '../lib/lessonFlashcardDelay';
 import { lessonChapterHskLevel, passesHsk1AdvanceGate } from '../lib/hskGate';
+import { jsonBodyInvalid, readJsonBody } from '../lib/requestJson';
 
 const lessons = new Hono<{ Bindings: Env; Variables: Variables }>();
 
@@ -61,10 +62,10 @@ lessons.get('/', async (c) => {
   }
   const dataRaw = await publishedLessonTree(c.env.DB, progress);
   const gateOk = await passesHsk1AdvanceGate(c.env.DB, sub);
-  const data = (dataRaw as { hsk_level?: number; lessons?: unknown[] }[]).map((ch) => ({
+  const data = (dataRaw as { jlpt_level?: number; lessons?: unknown[] }[]).map((ch) => ({
     ...ch,
     locked_below_advance_gate:
-      typeof ch.hsk_level === 'number' && ch.hsk_level >= 2 && !gateOk,
+      typeof ch.jlpt_level === 'number' && ch.jlpt_level >= 2 && !gateOk,
   }));
   return c.json({ data, advance_gate_ok: gateOk });
 });
@@ -80,8 +81,8 @@ lessons.get('/:id', async (c) => {
     if (!gateOk) {
       return c.json(
         {
-          error: 'HSK 1-хийг дуусгана уу эсвэл mock шалгалтад тэнцнэ үү.',
-          code: 'HSK_ADVANCE_GATE',
+          error: 'JLPT N5-ийг дуусгана уу эсвэл mock шалгалтад тэнцнэ үү.',
+          code: 'JLPT_ADVANCE_GATE',
         },
         403
       );
@@ -104,21 +105,22 @@ lessons.post('/:id/complete', async (c) => {
     if (!gateOk) {
       return c.json(
         {
-          error: 'HSK 1-хийг дуусгана уу эсвэл mock шалгалтад тэнцнэ үү.',
-          code: 'HSK_ADVANCE_GATE',
+          error: 'JLPT N5-ийг дуусгана уу эсвэл mock шалгалтад тэнцнэ үү.',
+          code: 'JLPT_ADVANCE_GATE',
         },
         403
       );
     }
   }
 
-  const body = await c.req.json<{
+  const body = await readJsonBody<{
     accuracy: number;
     xp_earned: number;
     duration_seconds?: number;
     results?: ProgressResult[];
     skill_results?: SkillResults;
-  }>();
+  }>(c);
+  if (!body) return jsonBodyInvalid(c);
 
   const accuracy = Math.max(0, Math.min(1, body.accuracy));
   const xp = Math.max(0, Math.floor(body.xp_earned));

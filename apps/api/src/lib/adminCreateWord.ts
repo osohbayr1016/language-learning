@@ -1,25 +1,26 @@
-import { fetchHanziWriterMeta } from './hanziWriterCdn';
+import { fetchKanjiWriterMeta } from './kanjiWriterCdn';
 
-const MAX_HANZI_CODEPOINTS = 48;
+const MAX_KANJI_CODEPOINTS = 48;
 const MAX_TEXTBOOK_UNIT_LEN = 120;
 
 export type AdminWordCreateInput = {
-  hanzi: string;
-  pinyin: string;
+  kanji: string;
+  romaji: string;
+  kana?: string;
   meaning_mn: string;
   meaning_en?: string;
-  hsk_level?: number;
+  jlpt_level?: number;
   part_of_speech?: string;
-  example_zh?: string;
-  example_pinyin?: string;
+  example_jp?: string;
+  example_romaji?: string;
   example_mn?: string;
   textbook_unit?: string | null;
 };
 
 export type InsertAdminWordResult =
-  | { kind: 'inserted'; id: number; hanzi: string }
-  | { kind: 'skipped_dup'; hanzi: string }
-  | { kind: 'error'; hanzi: string; message: string };
+  | { kind: 'inserted'; id: number; kanji: string }
+  | { kind: 'skipped_dup'; kanji: string }
+  | { kind: 'error'; kanji: string; message: string };
 
 function normTextbookUnit(raw: unknown): string | null {
   if (typeof raw !== 'string') return null;
@@ -29,40 +30,36 @@ function normTextbookUnit(raw: unknown): string | null {
   return t;
 }
 
-export function validateHanziField(raw: string): { ok: string } | { error: string } {
-  const hz = raw.trim();
-  if (!hz) return { error: 'Ханз оруулна уу' };
-  if ([...hz].length > MAX_HANZI_CODEPOINTS) {
-    return { error: `Ханз хамгийн ихдээ ${MAX_HANZI_CODEPOINTS} тэмдэгт` };
+export function validateKanjiField(raw: string): { ok: string } | { error: string } {
+  const kj = raw.trim();
+  if (!kj) return { error: 'Үг оруулна уу' };
+  if ([...kj].length > MAX_KANJI_CODEPOINTS) {
+    return { error: `Үг хамгийн ихдээ ${MAX_KANJI_CODEPOINTS} тэмдэгт` };
   }
-  if (!/^\p{Script=Han}+$/u.test(hz)) {
-    return { error: 'Зөвхөн ханз текст оруулна уу' };
-  }
-  return { ok: hz };
+  return { ok: kj };
 }
 
-export async function sumStrokesForHanziPhrase(hanzi: string): Promise<{ strokeCount: number } | { error: string }> {
+export async function sumStrokesForKanjiPhrase(kanji: string): Promise<{ strokeCount: number } | { error: string }> {
   let total = 0;
-  for (const ch of hanzi) {
-    const meta = await fetchHanziWriterMeta(ch);
+  for (const ch of kanji) {
+    const meta = await fetchKanjiWriterMeta(ch);
     if (!meta) {
-      return {
-        error: `Тэмдэгт "${ch}"-д HanziWriter stroke өгөгдөл байхгүй.`,
-      };
+      // Not all Japanese chars have stroke data — return 0 gracefully
+      return { strokeCount: 0 };
     }
     total += meta.strokeCount;
   }
   return { strokeCount: total };
 }
 
-function dupKey(hz: string, mn: string): string {
-  return `${hz}\u0001${mn}`;
+function dupKey(kj: string, mn: string): string {
+  return `${kj}\u0001${mn}`;
 }
 
-async function duplicateExists(db: D1Database, hz: string, mn: string): Promise<boolean> {
+async function duplicateExists(db: D1Database, kj: string, mn: string): Promise<boolean> {
   const row = await db
-    .prepare('SELECT id FROM words WHERE hanzi = ? AND meaning_mn = ? LIMIT 1')
-    .bind(hz, mn)
+    .prepare('SELECT id FROM words WHERE kanji = ? AND meaning_mn = ? LIMIT 1')
+    .bind(kj, mn)
     .first<{ id: number }>();
   return row != null && Number.isFinite(row.id);
 }
@@ -78,68 +75,69 @@ export async function insertAdminWord(
   raw: AdminWordCreateInput,
   opts?: InsertAdminWordOptions
 ): Promise<InsertAdminWordResult> {
-  const v = validateHanziField(typeof raw.hanzi === 'string' ? raw.hanzi : '');
-  if ('error' in v) return { kind: 'error', hanzi: (typeof raw.hanzi === 'string' ? raw.hanzi.trim() : '') || '—', message: v.error };
+  const v = validateKanjiField(typeof raw.kanji === 'string' ? raw.kanji : '');
+  if ('error' in v) return { kind: 'error', kanji: (typeof raw.kanji === 'string' ? raw.kanji.trim() : '') || '—', message: v.error };
 
-  const hz = v.ok;
+  const kj = v.ok;
 
-  const pinyin = typeof raw.pinyin === 'string' ? raw.pinyin.trim() : '';
+  const romaji = typeof raw.romaji === 'string' ? raw.romaji.trim() : '';
   const meaning_mn = typeof raw.meaning_mn === 'string' ? raw.meaning_mn.trim() : '';
-  if (!pinyin || !meaning_mn) {
-    return { kind: 'error', hanzi: hz, message: 'Pinyin болон монгол утга заавал' };
+  if (!romaji || !meaning_mn) {
+    return { kind: 'error', kanji: kj, message: 'Romaji болон монгол утга заавал' };
   }
 
   const dupPolicy = opts?.duplicatePolicy ?? 'allow';
-  const k = dupKey(hz, meaning_mn);
+  const k = dupKey(kj, meaning_mn);
   let isDup = opts?.existingDupKeys?.has(k) ?? false;
   if (!isDup && dupPolicy !== 'allow') {
-    isDup = await duplicateExists(db, hz, meaning_mn);
+    isDup = await duplicateExists(db, kj, meaning_mn);
   }
   if (isDup) {
     if (dupPolicy === 'fail') {
-      return { kind: 'error', hanzi: hz, message: 'Энэ ханз ба монгол утга өгөгдөлд байна (давхардал)' };
+      return { kind: 'error', kanji: kj, message: 'Энэ үг ба монгол утга өгөгдөлд байна (давхардал)' };
     }
     if (dupPolicy === 'skip') {
-      return { kind: 'skipped_dup', hanzi: hz };
+      return { kind: 'skipped_dup', kanji: kj };
     }
   }
 
-  const strokes = await sumStrokesForHanziPhrase(hz);
-  if ('error' in strokes) return { kind: 'error', hanzi: hz, message: strokes.error };
+  const strokes = await sumStrokesForKanjiPhrase(kj);
+  if ('error' in strokes) return { kind: 'error', kanji: kj, message: strokes.error };
 
-  const hsk = Math.min(6, Math.max(1, Number(raw.hsk_level ?? 1)));
+  const jlpt = Math.min(5, Math.max(1, Number(raw.jlpt_level ?? 1)));
   const meaning_en = typeof raw.meaning_en === 'string' ? raw.meaning_en.trim() : '';
   const pos = typeof raw.part_of_speech === 'string' ? raw.part_of_speech.trim() || 'noun' : 'noun';
-  const exZh = typeof raw.example_zh === 'string' ? raw.example_zh.trim() : '';
-  const exPy = typeof raw.example_pinyin === 'string' ? raw.example_pinyin.trim() : '';
+  const exJp = typeof raw.example_jp === 'string' ? raw.example_jp.trim() : '';
+  const exRomaji = typeof raw.example_romaji === 'string' ? raw.example_romaji.trim() : '';
   const exMn = typeof raw.example_mn === 'string' ? raw.example_mn.trim() : '';
+  const kana = typeof raw.kana === 'string' ? raw.kana.trim() : '';
   const textbookUnit = normTextbookUnit(raw.textbook_unit);
 
   const row = await db
     .prepare(
       `INSERT INTO words (
-      hanzi, pinyin, pinyin_numbered, tones, meaning_mn, meaning_en, hsk_level,
-      part_of_speech, example_zh, example_pinyin, example_mn, stroke_count, textbook_unit
+      kanji, romaji, romaji_numbered, kana, meaning_mn, meaning_en, jlpt_level,
+      part_of_speech, example_jp, example_romaji, example_mn, stroke_count, textbook_unit
     ) VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?, ?) RETURNING id`
     )
     .bind(
-      hz,
-      pinyin,
-      pinyin,
-      '[]',
+      kj,
+      romaji,
+      romaji,
+      kana,
       meaning_mn,
       meaning_en,
-      hsk,
+      jlpt,
       pos,
-      exZh,
-      exPy,
+      exJp,
+      exRomaji,
       exMn,
       strokes.strokeCount,
       textbookUnit
     )
     .first<{ id: number }>();
 
-  if (!row?.id) return { kind: 'error', hanzi: hz, message: 'Өгөгдөл хадгалагдаагүй' };
+  if (!row?.id) return { kind: 'error', kanji: kj, message: 'Өгөгдөл хадгалагдаагүй' };
   opts?.existingDupKeys?.add(k);
-  return { kind: 'inserted', id: row.id, hanzi: hz };
+  return { kind: 'inserted', id: row.id, kanji: kj };
 }

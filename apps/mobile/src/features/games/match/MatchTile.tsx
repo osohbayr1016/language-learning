@@ -1,7 +1,6 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { ToneColoredText } from '../../../components/hanzi';
-import { parseTones } from '../../../lib/tones';
 import { colors, radius, shadows, spacing, typography } from '../../../theme';
 import type { MatchCard } from './cards';
 import type { Word } from '../../../lib/types';
@@ -10,13 +9,11 @@ type State = 'idle' | 'selected' | 'matched' | 'wrong';
 
 type Props = {
   card: MatchCard;
-  word: Word;
   state: State;
   onPress: () => void;
 };
 
-export function MatchTile({ card, word, state, onPress }: Props) {
-  const tones = parseTones(word.tones);
+export function MatchTile({ card, state, onPress }: Props) {
   const styleByState = {
     idle: styles.idle,
     selected: styles.selected,
@@ -31,8 +28,8 @@ export function MatchTile({ card, word, state, onPress }: Props) {
       onPress={onPress}
       style={[styles.tile, styleByState[state]]}
     >
-      {card.type === 'hanzi' ? (
-        <ToneColoredText hanzi={card.text} tones={tones} size="sm" />
+      {card.type === 'kanji' ? (
+        <ToneColoredText hanzi={card.text} tones={undefined} size="sm" />
       ) : (
         <Text style={styles.text}>{card.text}</Text>
       )}

@@ -33,7 +33,7 @@ export function OnboardingTopBar({ step, total }: Props) {
         <View style={styles.langRow}>
           {ONBOARDING_LOCALE_CODES.map((code) => {
             const active = locale === code;
-            const label = code === 'mn' ? 'MN' : code === 'en' ? 'EN' : '中文';
+            const label = code === 'mn' ? 'MN' : code === 'en' ? 'EN' : '日本語';
             return (
               <Pressable
                 key={code}

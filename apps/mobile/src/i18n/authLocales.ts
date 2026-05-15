@@ -1,4 +1,4 @@
-export type AuthLocaleCode = 'mn' | 'zh' | 'en';
+export type AuthLocaleCode = 'mn' | 'ja' | 'en';
 
 export type AuthLocaleStrings = {
   loginTitle: string;
@@ -53,30 +53,31 @@ const mn: AuthLocaleStrings = {
   requestFailed: 'Алдаа гарлаа',
 };
 
-const zh: AuthLocaleStrings = {
-  loginTitle: '登录账户',
-  loginSubtitle: '欢迎',
-  registerTitle: '创建账户',
-  registerSubtitle: '几秒钟即可完成',
-  email: '电子邮箱',
-  password: '密码',
-  signIn: '登录',
-  signUp: '注册',
-  noAccount: '还没有账户？',
-  hasAccount: '已有账户？',
-  emailInvalid: '请输入有效邮箱',
-  requiredEmail: '请输入邮箱',
-  requiredPassword: '请输入密码',
-  weakPassword: '密码至少 8 个字符',
-  passwordPlaceholder: '请输入密码',
-  forgotPassword: '忘记密码？',
-  forgotPasswordMsg: '应用暂不支持找回密码。请联系支持或重新注册。',
-  googleSoon: 'Google 登录即将推出。',
-  redirectLoginRequired: '请先登录以继续。',
-  signInWithGoogle: '使用 Google 登录',
-  showPassword: '显示',
-  hidePassword: '隐藏',
-  requestFailed: '出错了，请重试',
+const ja: AuthLocaleStrings = {
+  loginTitle: 'ログイン',
+  loginSubtitle: 'おかえりなさい',
+  registerTitle: 'アカウントを作成',
+  registerSubtitle: 'すぐに始められます',
+  email: 'メールアドレス',
+  password: 'パスワード',
+  signIn: 'ログイン',
+  signUp: '新規登録',
+  noAccount: 'アカウントをお持ちでないですか？',
+  hasAccount: 'すでに登録済みですか？',
+  emailInvalid: '有効なメールアドレスを入力してください',
+  requiredEmail: 'メールアドレスを入力してください',
+  requiredPassword: 'パスワードを入力してください',
+  weakPassword: 'パスワードは8文字以上にしてください',
+  passwordPlaceholder: 'パスワードを入力',
+  forgotPassword: 'パスワードをお忘れですか？',
+  forgotPasswordMsg:
+    'パスワードの再設定はアプリではまだ利用できません。サポートへ連絡するか、新規登録してください。',
+  googleSoon: 'Google でのログインは近日対応予定です。',
+  redirectLoginRequired: '続行するにはログインしてください。',
+  signInWithGoogle: 'Google で続行',
+  showPassword: '表示',
+  hidePassword: '非表示',
+  requestFailed: 'エラーが発生しました。もう一度お試しください。',
 };
 
 const en: AuthLocaleStrings = {
@@ -106,10 +107,10 @@ const en: AuthLocaleStrings = {
   requestFailed: 'Something went wrong',
 };
 
-export const AUTH_LOCALE_COPY: Record<AuthLocaleCode, AuthLocaleStrings> = { mn, zh, en };
+export const AUTH_LOCALE_COPY: Record<AuthLocaleCode, AuthLocaleStrings> = { mn, ja, en };
 
 export const AUTH_LOCALE_DISPLAY: Record<AuthLocaleCode, string> = {
   mn: 'Монгол',
-  zh: '中文',
+  ja: '日本語',
   en: 'English',
 };

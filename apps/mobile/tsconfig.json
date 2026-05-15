@@ -10,10 +10,10 @@
     ],
     "strict": true,
     "paths": {
-      "@chinese-app/types": [
+      "@japanese-learning/types": [
         "../../packages/types/src/index.ts"
       ],
-      "@chinese-app/srs": [
+      "@japanese-learning/srs": [
         "../../packages/srs/src/index.ts"
       ],
       "@/*": [

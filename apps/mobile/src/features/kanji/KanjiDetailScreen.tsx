@@ -14,6 +14,7 @@ import { api } from '../../lib/api';
 import type { Word } from '../../lib/types';
 import type { ProgressBody } from '../../lib/api/user';
 import { colors, radius, shadows, spacing, typography } from '../../theme';
+import { jlptNLabel } from '../../lib/jlptLabel';
 import { safeBack } from '../../lib/navigation/safeBack';
 import { useAuth } from '../../context/AuthContext';
 import { ListenSpeakActivity } from './ListenSpeakActivity';
@@ -48,10 +49,10 @@ function SentencePanel({
 }) {
   const [revealed, setRevealed] = useState(false);
 
-  if (!word.example_zh) {
+  if (!word.example_jp) {
     return (
       <View style={sp.wrap}>
-        <Text style={sp.noExample}>Энэ ханзанд жишээ өгүүлбэр байхгүй байна.</Text>
+        <Text style={sp.noExample}>Энэ үгэнд жишээ өгүүлбэр байхгүй байна.</Text>
         <Button label="Ойлголоо ✓" onPress={onComplete} style={sp.btn} />
       </View>
     );
@@ -59,9 +60,9 @@ function SentencePanel({
 
   return (
     <View style={sp.wrap}>
-      <Text style={sp.label}>Хятад өгүүлбэр:</Text>
-      <Text style={sp.exZh}>{word.example_zh}</Text>
-      {word.example_pinyin && <Text style={sp.exPinyin}>{word.example_pinyin}</Text>}
+      <Text style={sp.label}>Япон өгүүлбэр:</Text>
+      <Text style={sp.exJp}>{word.example_jp}</Text>
+      {word.example_romaji && <Text style={sp.exRomaji}>{word.example_romaji}</Text>}
 
       {!revealed ? (
         <Pressable style={sp.revealBtn} onPress={() => setRevealed(true)}>
@@ -83,8 +84,8 @@ function SentencePanel({
 const sp = StyleSheet.create({
   wrap: { gap: spacing.md },
   label: { ...typography.body.sm, color: colors.text.muted, fontWeight: '700', textTransform: 'uppercase' },
-  exZh: { fontSize: 24, fontWeight: '700', color: colors.text.primary, textAlign: 'center', lineHeight: 36 },
-  exPinyin: { ...typography.body.md, color: colors.brand.secondary, textAlign: 'center' },
+  exJp: { fontSize: 24, fontWeight: '700', color: colors.text.primary, textAlign: 'center', lineHeight: 36 },
+  exRomaji: { ...typography.body.md, color: colors.brand.secondary, textAlign: 'center' },
   revealBtn: {
     flexDirection: 'row',
     alignItems: 'center',
@@ -199,7 +200,7 @@ export function KanjiDetailScreen() {
       };
       await api.user.saveProgress(token, body);
       await clearKanjiActivities(wordId); // clear session progress after saving
-      setDialogContent({ title: '🎉 Амжилттай!', message: `"${word.hanzi}" суралцсанаар тэмдэглэгдлээ! +20 XP авлаа.` });
+      setDialogContent({ title: '🎉 Амжилттай!', message: `"${word.kanji}" суралцсанаар тэмдэглэгдлээ! +20 XP авлаа.` });
       setDialogVisible(true);
     } catch (e) {
       setDialogContent({ title: 'Алдаа', message: (e as Error).message });
@@ -234,7 +235,7 @@ export function KanjiDetailScreen() {
     );
   }
 
-  const hskColor = colors.hsk[word.hsk_level as keyof typeof colors.hsk] || colors.brand.primary;
+  const hskColor = colors.jlpt[word.jlpt_level as keyof typeof colors.jlpt] || colors.brand.primary;
 
   return (
     <Screen scroll scrollBottomInset={120}>
@@ -248,13 +249,13 @@ export function KanjiDetailScreen() {
         >
           <Ionicons name="arrow-back" size={26} color={colors.text.primary} />
         </Pressable>
-        <Pill label={`HSK ${word.hsk_level}`} color={hskColor} />
+        <Pill label={jlptNLabel(word.jlpt_level)} color={hskColor} />
       </View>
 
       {/* Hero card */}
       <View style={styles.heroCard}>
-        <Text style={styles.hanziHuge}>{word.hanzi}</Text>
-        <Text style={styles.pinyin}>{word.pinyin}</Text>
+        <Text style={styles.hanziHuge}>{word.kanji}</Text>
+        <Text style={styles.pinyin}>{word.romaji}</Text>
         <Text style={styles.meaning}>{word.meaning_mn}</Text>
       </View>
 

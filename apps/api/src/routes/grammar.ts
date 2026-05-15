@@ -7,7 +7,8 @@ import { safeAll } from '../lib/lessonCatalog';
 type ExerciseRow = {
   id: number;
   exercise_type: string;
-  question_zh: string;
+  question_jp: string;
+  question_mn: string;
   options: string;
   explanation_mn?: string;
   order_num?: number;
@@ -25,8 +26,8 @@ function publicExercisePayload(r: ExerciseRow): Record<string, unknown> {
   return {
     id: r.id,
     exercise_type: r.exercise_type,
-    question_zh: r.question_zh,
-    question_mn: '',
+    question_jp: r.question_jp,
+    question_mn: r.question_mn ?? '',
     options: opts,
     explanation_mn: r.explanation_mn ?? '',
     order_num: r.order_num ?? 0,
@@ -41,14 +42,14 @@ grammar.get('/', async (c) => {
   const gRes = await safeAll<{ id?: number }>(
     c.env.DB
       .prepare(
-        `SELECT g.id, g.title_mn, g.title_zh, g.grammar_point, g.hsk_level, g.order_num,
+        `SELECT g.id, g.title_mn, g.title_jp, g.grammar_point, g.jlpt_level, g.order_num,
                 p.best_accuracy, p.completed_at AS progress_completed_at,
                 (SELECT COUNT(*) FROM grammar_exercises e WHERE e.grammar_lesson_id = g.id) AS exercise_count
          FROM grammar_lessons g
          LEFT JOIN user_grammar_progress p
            ON p.grammar_lesson_id = g.id AND p.user_id = ?
          WHERE g.is_published = 1
-         ORDER BY g.hsk_level ASC, g.order_num ASC`
+         ORDER BY g.jlpt_level ASC, g.order_num ASC`
       )
       .bind(sub)
       .all()
@@ -62,8 +63,8 @@ grammar.get('/:id', async (c) => {
   if (!Number.isFinite(id)) return c.json({ error: 'Буруу id' }, 400);
   const lesson = await c.env.DB
     .prepare(
-      `SELECT id, title_mn, title_zh, grammar_point, explanation_mn, pattern, examples,
-              hsk_level, order_num
+      `SELECT id, title_mn, title_jp, grammar_point, explanation_mn, pattern, examples,
+              jlpt_level, order_num
        FROM grammar_lessons WHERE id = ? AND is_published = 1`
     )
     .bind(id)
@@ -85,7 +86,7 @@ grammar.get('/:id', async (c) => {
     (
       await c.env.DB
         .prepare(
-          `SELECT id, exercise_type, question_zh,
+          `SELECT id, exercise_type, question_jp, question_mn,
                   options, explanation_mn, order_num
            FROM grammar_exercises WHERE grammar_lesson_id = ? ORDER BY order_num ASC`
         )

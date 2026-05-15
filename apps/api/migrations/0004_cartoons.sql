@@ -6,7 +6,7 @@ CREATE TABLE IF NOT EXISTS cartoons (
   description_mn TEXT NOT NULL DEFAULT '',
   video_key TEXT NOT NULL,           -- R2 object key
   thumbnail_key TEXT,                -- R2 object key for thumbnail
-  hsk_level INTEGER CHECK(hsk_level BETWEEN 1 AND 6),
+  jlpt_level INTEGER CHECK(jlpt_level BETWEEN 1 AND 5),
   duration_s INTEGER NOT NULL DEFAULT 0,
   is_published INTEGER NOT NULL DEFAULT 0,
   created_by INTEGER REFERENCES users(id),
@@ -15,7 +15,7 @@ CREATE TABLE IF NOT EXISTS cartoons (
 );
 
 CREATE INDEX IF NOT EXISTS idx_cartoons_published ON cartoons(is_published);
-CREATE INDEX IF NOT EXISTS idx_cartoons_hsk ON cartoons(hsk_level);
+CREATE INDEX IF NOT EXISTS idx_cartoons_jlpt ON cartoons(jlpt_level);
 
 CREATE TABLE IF NOT EXISTS cartoon_words (
   id INTEGER PRIMARY KEY AUTOINCREMENT,

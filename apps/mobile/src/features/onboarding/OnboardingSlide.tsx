@@ -15,11 +15,11 @@ export function OnboardingSlide({ slide, strings }: Props) {
         <Image source={slide.image} style={styles.image} resizeMode="contain" />
       </View>
       <View style={styles.text}>
-        <View style={styles.hanziRow}>
-          <Text style={styles.hanzi}>{slide.hanzi}</Text>
-          <SpeakPhraseButton hanzi={slide.hanzi} accessibilityLabel={strings.speakHanzi} />
+        <View style={styles.headlineRow}>
+          <Text style={styles.japanese}>{slide.japanese}</Text>
+          <SpeakPhraseButton phrase={slide.japanese} accessibilityLabel={strings.speakJapanese} />
         </View>
-        <Text style={styles.pinyin}>{slide.pinyin}</Text>
+        <Text style={styles.romaji}>{slide.romaji}</Text>
         <Text style={styles.title}>{caption}</Text>
       </View>
     </View>
@@ -36,13 +36,13 @@ const styles = StyleSheet.create({
   },
   image: { width: '100%', height: '100%' },
   text: { alignItems: 'center', paddingHorizontal: spacing.xl, marginTop: spacing.lg },
-  hanziRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
-  hanzi: {
-    ...typography.hanzi.md,
+  headlineRow: { flexDirection: 'row', alignItems: 'center', justifyContent: 'center' },
+  japanese: {
+    ...typography.kanji.md,
     color: colors.text.primary,
   },
-  pinyin: {
-    ...typography.pinyin.md,
+  romaji: {
+    ...typography.romaji.md,
     color: colors.accent.purple,
     marginTop: spacing.xs,
     marginBottom: spacing.lg,

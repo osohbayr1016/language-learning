@@ -12,17 +12,17 @@ type Props = {
 };
 
 export function SentencePrompt({ word, filled }: Props) {
-  const example = word.example_zh ?? '';
-  const masked = example.includes(word.hanzi)
-    ? example.replace(word.hanzi, BLANK)
+  const example = word.example_jp ?? '';
+  const masked = example.includes(word.kanji)
+    ? example.replace(word.kanji, BLANK)
     : `${BLANK} ${example}`.trim();
   const display = filled ? masked.replace(BLANK, filled) : masked;
 
   return (
     <Card padding="lg" variant="elevated" style={styles.card}>
       <Text style={styles.label}>Дутуу үгийг нөх</Text>
-      <Text style={styles.zh}>{display}</Text>
-      {word.example_pinyin ? <Text style={styles.pinyin}>{word.example_pinyin}</Text> : null}
+      <Text style={styles.jp}>{display}</Text>
+      {word.example_romaji ? <Text style={styles.romaji}>{word.example_romaji}</Text> : null}
       {word.example_mn ? <Text style={styles.mn}>{word.example_mn}</Text> : null}
     </Card>
   );
@@ -31,12 +31,12 @@ export function SentencePrompt({ word, filled }: Props) {
 const styles = StyleSheet.create({
   card: { marginBottom: spacing.md, gap: spacing.xs, alignItems: 'center' },
   label: { ...typography.body.md, color: colors.text.secondary },
-  zh: {
+  jp: {
     ...typography.heading.lg,
     color: colors.text.primary,
     textAlign: 'center',
     marginVertical: spacing.sm,
   },
-  pinyin: { ...typography.pinyin.md, color: colors.text.secondary, textAlign: 'center' },
+  romaji: { ...typography.romaji.md, color: colors.text.secondary, textAlign: 'center' },
   mn: { ...typography.body.md, color: colors.text.muted, textAlign: 'center', marginTop: 4 },
 });

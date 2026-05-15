@@ -15,11 +15,11 @@ export type AdminStats = {
   game_sessions: number;
   cartoons: number;
   lesson_word_links: number;
-  distinct_hanzi: number;
-  /** keys "1" … "6" */
-  words_by_hsk: Record<string, number>;
-  chapters_by_hsk: Record<string, number>;
-  lessons_by_hsk: Record<string, number>;
+  distinct_kanji: number;
+  /** keys "1" … "5" (JLPT band index: 1=N5 … 5=N1) */
+  words_by_jlpt: Record<string, number>;
+  chapters_by_jlpt: Record<string, number>;
+  lessons_by_jlpt: Record<string, number>;
 };
 
 export type AdminLesson = {
@@ -38,7 +38,7 @@ export type AdminChapter = {
   title_mn: string;
   subtitle_mn: string;
   color: string;
-  hsk_level: number;
+  jlpt_level: number;
   order_num: number;
   is_published: number;
   flashcard_delay_days: number;
@@ -50,10 +50,10 @@ export type LessonWordLink = {
   lesson_id: number;
   word_id: number;
   order_num: number;
-  hanzi: string;
-  pinyin: string;
+  kanji: string;
+  romaji: string;
   meaning_mn: string;
-  hsk_level: number;
+  jlpt_level: number;
 };
 
 export const adminPaths = {
@@ -67,7 +67,7 @@ export const adminPaths = {
       title_mn: string;
       subtitle_mn: string;
       color: string;
-      hsk_level: number;
+      jlpt_level: number;
       order_num: number;
       is_published: number;
       flashcard_delay_days: number;
@@ -85,7 +85,7 @@ export const adminPaths = {
       title_mn: string;
       subtitle_mn?: string;
       color?: string;
-      hsk_level?: number;
+      jlpt_level?: number;
       order_num?: number;
       is_published?: number;
       flashcard_delay_days?: number;

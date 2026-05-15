@@ -11,12 +11,12 @@ type Props = {
 };
 
 function splitChars(text: string): string[] {
-  return Array.from(text).filter((ch) => /[\u4e00-\u9fff\u3000-\u303f\uff00-\uffef]/.test(ch));
+  return Array.from(text.replace(/\s+/g, ''));
 }
 
 export function ArrangeWords({ exercise, disabled, onAnswer }: Props) {
   const target = useMemo(
-    () => splitChars(exercise.word.example_zh ?? exercise.word.hanzi),
+    () => splitChars(exercise.word.example_jp ?? exercise.word.kanji),
     [exercise]
   );
   const tray = useMemo(() => [...target].sort(() => Math.random() - 0.5), [target]);

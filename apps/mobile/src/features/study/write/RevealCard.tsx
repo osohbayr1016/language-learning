@@ -3,7 +3,6 @@ import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { ToneColoredText, PinyinRow } from '../../../components/hanzi';
 import { Card } from '../../../primitives';
-import { parseTones } from '../../../lib/tones';
 import { colors, spacing, typography } from '../../../theme';
 import { mn } from '../../../i18n/mn';
 import type { WordWithProgress } from '../../../lib/types';
@@ -29,8 +28,8 @@ export function RevealCard({ word, isCorrect }: Props) {
           {isCorrect ? mn.study.correct : mn.study.wrong}
         </Text>
       </View>
-      <ToneColoredText hanzi={word.hanzi} tones={parseTones(word.tones)} size="md" />
-      <PinyinRow pinyin={word.pinyin} size="md" />
+      <ToneColoredText hanzi={word.kanji} tones={undefined} size="md" />
+      <PinyinRow pinyin={word.romaji} size="md" />
       <Text style={styles.meaning}>{word.meaning_mn}</Text>
     </Card>
   );

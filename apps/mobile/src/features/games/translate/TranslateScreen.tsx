@@ -39,7 +39,7 @@ export default function TranslateScreen({ initialWords, onDone }: Props) {
 
   const queue = useMemo(() => words, [words]);
   const current = queue[idx];
-  const direction = idx % 2 === 0 ? 'zh-to-mn' : 'mn-to-zh';
+  const direction = idx % 2 === 0 ? 'jp-to-mn' : 'mn-to-jp';
 
   const options = useMemo(() => {
     if (!current) return [] as Word[];
@@ -138,7 +138,7 @@ export default function TranslateScreen({ initialWords, onDone }: Props) {
           <AnswerOption
             key={o.id}
             word={{ ...o, ease_factor: null, interval: null, repetitions: null, next_review: null, last_reviewed: null }}
-            show={direction === 'zh-to-mn' ? 'mn' : 'hanzi'}
+            show={direction === 'jp-to-mn' ? 'mn' : 'jp'}
             state={state}
             onPress={() => handlePick(o)}
           />
