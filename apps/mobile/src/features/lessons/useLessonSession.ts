@@ -20,6 +20,7 @@ export type LessonState = {
   xpEarned: number;
   durationSec: number;
   error: string | null;
+  accuracyOverride: number | null;
 };
 
 export function useLessonSession(lessonId: number, opts: { mode?: LessonSessionMode } = {}) {
@@ -36,6 +37,7 @@ export function useLessonSession(lessonId: number, opts: { mode?: LessonSessionM
     xpEarned: 0,
     durationSec: 0,
     error: null,
+    accuracyOverride: null,
   });
   const startedAt = useRef(Date.now());
   const exerciseStartAt = useRef(Date.now());
@@ -51,6 +53,7 @@ export function useLessonSession(lessonId: number, opts: { mode?: LessonSessionM
       xpEarned: 0,
       durationSec: 0,
       error: null,
+      accuracyOverride: null,
     });
     void (async () => {
       try {
@@ -146,6 +149,15 @@ export function useLessonSession(lessonId: number, opts: { mode?: LessonSessionM
     });
   }, []);
 
+  const forceLessonComplete = useCallback((overrideAccuracy: number) => {
+    setState((s) => ({
+      ...s,
+      accuracyOverride: overrideAccuracy,
+      status: 'done',
+      durationSec: Math.round((Date.now() - startedAt.current) / 1000),
+    }));
+  }, []);
+
   const finalize = useCallback(async () => {
     if (adminPreview || !token || state.status !== 'done') return;
     try {
@@ -178,9 +190,10 @@ export function useLessonSession(lessonId: number, opts: { mode?: LessonSessionM
   ]);
 
   const accuracy = useMemo(() => {
+    if (state.accuracyOverride !== null) return state.accuracyOverride;
     if (state.results.length === 0) return 0;
     return state.results.filter((r) => r.correct).length / state.results.length;
-  }, [state.results]);
+  }, [state.results, state.accuracyOverride]);
 
-  return { state, current, submit, advance, submitImportedStep, finalize, accuracy };
+  return { state, current, submit, advance, submitImportedStep, forceLessonComplete, finalize, accuracy };
 }

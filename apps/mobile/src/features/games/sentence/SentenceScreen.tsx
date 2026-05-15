@@ -17,14 +17,20 @@ import type { Word } from '../../../lib/types';
 const ROUNDS = 6;
 const OPTIONS = 4;
 
-export default function SentenceScreen() {
-  const { words: pool, loading } = useRandomWords(ROUNDS + OPTIONS + 4);
+type Props = {
+  initialWords?: Word[];
+  onDone?: (score: number, accuracy: number) => void;
+};
+
+export default function SentenceScreen({ initialWords, onDone }: Props) {
+  const { words: randomPool, loading } = useRandomWords(ROUNDS + OPTIONS + 4);
+  const pool = initialWords ?? randomPool;
   const { save } = useGameSession();
   const timer = useAdaptiveTimer();
   const { playWord } = useAudio();
 
   const queue = useMemo(
-    () => pool.filter((w) => (w.example_zh ?? '').length > 0).slice(0, ROUNDS),
+    () => pool.filter((w) => (w.example_zh ?? '').length > 0),
     [pool]
   );
   const distractorPool = useMemo(() => pool, [pool]);
@@ -46,9 +52,15 @@ export default function SentenceScreen() {
 
   useEffect(() => { if (current) timer.start(); }, [current, timer]);
 
-  if (loading) {
+  if (!initialWords && loading) {
     return <Screen><View style={styles.center}><ActivityIndicator color={colors.accent.purple} /></View></Screen>;
   }
+
+  useEffect(() => {
+    if (!loading && queue.length === 0 && onDone && !done) {
+      onDone(0, 0);
+    }
+  }, [loading, queue.length, onDone, done]);
 
   if (queue.length === 0) {
     return (
@@ -61,6 +73,9 @@ export default function SentenceScreen() {
   }
 
   if (done) {
+    if (onDone) {
+      return null;
+    }
     return (
       <GameOverScreen
         score={score}
@@ -91,15 +106,17 @@ export default function SentenceScreen() {
         const elapsed = Math.max(1, Math.round((Date.now() - start) / 1000));
         const finalScore = score + delta;
         const xp = Math.round(finalScore / 4);
+        const acc = queue.length > 0 ? (correctCount + (ok ? 1 : 0)) / queue.length : 0;
         await save({
           game_type: 'sentence',
           score: Math.max(0, finalScore),
-          accuracy: queue.length > 0 ? (correctCount + (ok ? 1 : 0)) / queue.length : 0,
+          accuracy: acc,
           duration_seconds: elapsed,
           words_practiced: queue.length,
           xp_earned: xp,
         });
         setDone(true);
+        if (onDone) onDone(finalScore, acc);
       } else {
         setIdx((i) => i + 1);
       }

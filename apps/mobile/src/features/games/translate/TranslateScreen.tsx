@@ -18,8 +18,14 @@ import type { Word } from '../../../lib/types';
 const ROUNDS = 8;
 const OPTIONS = 4;
 
-export default function TranslateScreen() {
-  const { words, loading } = useRandomWords(ROUNDS + OPTIONS + 4);
+type Props = {
+  initialWords?: Word[];
+  onDone?: (score: number, accuracy: number) => void;
+};
+
+export default function TranslateScreen({ initialWords, onDone }: Props) {
+  const { words: randomPool, loading } = useRandomWords(ROUNDS + OPTIONS + 4);
+  const words = initialWords ?? randomPool;
   const { save } = useGameSession();
   const timer = useAdaptiveTimer();
   const { playWord } = useAudio();
@@ -31,7 +37,7 @@ export default function TranslateScreen() {
   const [start, setStart] = useState<number>(Date.now());
   const [done, setDone] = useState(false);
 
-  const queue = useMemo(() => words.slice(0, ROUNDS), [words]);
+  const queue = useMemo(() => words, [words]);
   const current = queue[idx];
   const direction = idx % 2 === 0 ? 'zh-to-mn' : 'mn-to-zh';
 
@@ -45,11 +51,30 @@ export default function TranslateScreen() {
 
   useEffect(() => { if (current) timer.start(); }, [current, timer]);
 
-  if (loading) {
+  if (!initialWords && loading) {
     return <Screen><View style={styles.center}><ActivityIndicator color={colors.accent.purple} /></View></Screen>;
   }
 
+  useEffect(() => {
+    if (!loading && queue.length === 0 && onDone && !done) {
+      onDone(0, 0);
+    }
+  }, [loading, queue.length, onDone, done]);
+
+  if (queue.length === 0) {
+    return (
+      <Screen>
+        <View style={styles.center}>
+          <GameHud title={mn.games.translate} score={0} />
+        </View>
+      </Screen>
+    );
+  }
+
   if (done) {
+    if (onDone) {
+      return null;
+    }
     return (
       <GameOverScreen
         score={score}
@@ -78,15 +103,17 @@ export default function TranslateScreen() {
         const elapsed = Math.max(1, Math.round((Date.now() - start) / 1000));
         const finalScore = score + timingScore(ms, ok);
         const xp = Math.round(finalScore / 4);
+        const acc = queue.length > 0 ? (correctCount + (ok ? 1 : 0)) / queue.length : 0;
         await save({
           game_type: 'translate',
           score: Math.max(0, finalScore),
-          accuracy: queue.length > 0 ? (correctCount + (ok ? 1 : 0)) / queue.length : 0,
+          accuracy: acc,
           duration_seconds: elapsed,
           words_practiced: queue.length,
           xp_earned: xp,
         });
         setDone(true);
+        if (onDone) onDone(finalScore, acc);
       } else {
         setIdx((i) => i + 1);
       }

@@ -14,8 +14,14 @@ import { MatchTile } from './MatchTile';
 
 const PAIRS = 6;
 
-export default function MatchScreen() {
-  const { words, loading } = useRandomWords(PAIRS);
+type Props = {
+  initialWords?: Word[];
+  onDone?: (score: number, accuracy: number) => void;
+};
+
+export default function MatchScreen({ initialWords, onDone }: Props) {
+  const { words: randomPool, loading } = useRandomWords(PAIRS);
+  const words = initialWords ?? randomPool;
   const { save } = useGameSession();
   const { playWord } = useAudio();
 
@@ -27,15 +33,26 @@ export default function MatchScreen() {
   const [start, setStart] = useState<number>(Date.now());
   const [done, setDone] = useState(false);
   const [combo, setCombo] = useState(1);
+  const [roundIdx, setRoundIdx] = useState(0);
   const comboTimer = useRef<NodeJS.Timeout | null>(null);
   const [, bumpTick] = useState(0);
 
-  useEffect(() => {
-    if (words.length > 0) {
-      setDeck(buildMatchDeck(words));
-      setStart(Date.now());
+  const chunks = useMemo(() => {
+    const res: Word[][] = [];
+    for (let i = 0; i < words.length; i += 5) {
+      res.push(words.slice(i, i + 5));
     }
+    return res;
   }, [words]);
+
+  const currentChunk = chunks[roundIdx] || [];
+
+  useEffect(() => {
+    if (currentChunk.length > 0) {
+      setDeck(buildMatchDeck(currentChunk));
+      if (roundIdx === 0) setStart(Date.now());
+    }
+  }, [currentChunk, roundIdx]);
 
   useEffect(() => {
     if (loading || done || deck.length === 0) return;
@@ -54,7 +71,8 @@ export default function MatchScreen() {
 
   const restartMidRound = () => {
     if (words.length === 0) return;
-    setDeck(buildMatchDeck(words));
+    setRoundIdx(0);
+    setDeck(buildMatchDeck(chunks[0]));
     setMatchedPairs(0);
     setScore(0);
     setCombo(1);
@@ -66,18 +84,20 @@ export default function MatchScreen() {
   const finish = async () => {
     const elapsed = Math.max(1, Math.round((Date.now() - start) / 1000));
     const xp = Math.round(score / 5);
+    const acc = total > 0 ? matchedPairs / total : 0;
     await save({
       game_type: 'match',
       score,
-      accuracy: total > 0 ? matchedPairs / total : 0,
+      accuracy: acc,
       duration_seconds: elapsed,
       words_practiced: total,
       xp_earned: xp,
     });
     setDone(true);
+    if (onDone) onDone(score, acc);
   };
 
-  if (loading) {
+  if (!initialWords && loading) {
     return (
       <Screen>
         <View style={styles.center}><ActivityIndicator color={colors.accent.purple} /></View>
@@ -85,14 +105,34 @@ export default function MatchScreen() {
     );
   }
 
+  useEffect(() => {
+    if (!loading && words.length === 0 && onDone && !done) {
+      onDone(0, 0);
+    }
+  }, [loading, words.length, onDone, done]);
+
+  if (words.length === 0) {
+    return (
+      <Screen>
+        <View style={styles.center}>
+          <GameHud title={mn.games.match} score={0} />
+        </View>
+      </Screen>
+    );
+  }
+
   if (done) {
+    if (onDone) {
+      return null;
+    }
     return (
       <GameOverScreen
         score={score}
         xp={Math.round(score / 5)}
         durationSeconds={Math.round((Date.now() - start) / 1000)}
         onPlayAgain={() => {
-          setDeck(buildMatchDeck(words));
+          setRoundIdx(0);
+          setDeck(buildMatchDeck(chunks[0]));
           setMatchedPairs(0);
           setScore(0);
           setCombo(1);
@@ -135,9 +175,16 @@ export default function MatchScreen() {
       setMatchedPairs(next);
       void playWord(card.wordId);
       
-      if (next >= total) {
+      if (next >= currentChunk.length) {
         if (comboTimer.current) clearTimeout(comboTimer.current);
-        void finish();
+        if (roundIdx + 1 >= chunks.length) {
+          void finish();
+        } else {
+          setTimeout(() => {
+            setRoundIdx(r => r + 1);
+            setMatchedPairs(0);
+          }, 800);
+        }
       }
     } else {
       // Wrong match
@@ -157,6 +204,8 @@ export default function MatchScreen() {
     return 'idle';
   };
 
+  const overallMatched = Math.min((roundIdx * 5) + matchedPairs, total);
+
   return (
     <Screen scroll>
       <GameHud
@@ -165,7 +214,7 @@ export default function MatchScreen() {
         combo={combo}
         elapsedSeconds={elapsedSeconds}
         onRestart={restartMidRound}
-        progressLabel={`${matchedPairs}/${total}`}
+        progressLabel={`${overallMatched}/${total}`}
       />
       <View style={styles.grid}>
         {deck.map((c) => (

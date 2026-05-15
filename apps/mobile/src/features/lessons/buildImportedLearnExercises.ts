@@ -36,5 +36,11 @@ export function buildImportedLearnExercises(content: ImportedLessonContent): Exe
     pushIf(out, 'summary', content, true);
   }
 
+  out.push({
+    kind: 'in-lesson-games-hub',
+    id: `hub-${content.external_lesson_id}`,
+    content,
+  });
+
   return out;
 }

@@ -19,7 +19,8 @@ export type ExerciseKind =
   | 'true-false'
   | 'say-sentence'
   | 'imported-section'
-  | 'imported-workbook';
+  | 'imported-workbook'
+  | 'in-lesson-games-hub';
 
 export type Exercise =
   | { kind: 'memorize'; id: string; word: WordWithProgress }
@@ -59,6 +60,11 @@ export type Exercise =
       sectionType: string;
       item: ImportedWorkbookItem;
       bank?: string[];
+    }
+  | {
+      kind: 'in-lesson-games-hub';
+      id: string;
+      content: ImportedLessonContent;
     };
 
 export type ExerciseResult = {
@@ -71,7 +77,7 @@ export type ExerciseResult = {
 export type LessonStatus = 'loading' | 'running' | 'done' | 'error';
 
 export function isImportedLearnFlow(exercises: Exercise[]): boolean {
-  return exercises.length > 0 && exercises.every((e) => e.kind === 'imported-section');
+  return exercises.length > 0 && exercises.every((e) => e.kind === 'imported-section' || e.kind === 'in-lesson-games-hub');
 }
 
 const IMPORTED_SECTION_TITLES: Record<ImportedLearnSection, string> = {
@@ -94,6 +100,7 @@ export const EXERCISE_TITLES: Record<Exclude<ExerciseKind, 'imported-section'>, 
   'true-false': 'Үнэн худал',
   'say-sentence': 'Хэлж сонсго',
   'imported-workbook': 'Workbook',
+  'in-lesson-games-hub': 'Тоглоом',
 };
 
 export function exerciseDisplayTitle(ex: Exercise): string {
