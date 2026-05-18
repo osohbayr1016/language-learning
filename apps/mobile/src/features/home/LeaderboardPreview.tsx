@@ -29,7 +29,7 @@ export function LeaderboardPreview() {
     <View style={styles.section}>
       <Text style={styles.title}>{mn.home.leaderboard}</Text>
       {rows.map((r, i) => (
-        <LeaderboardRow key={`${r.display_name}-${i}`} row={r} rank={i + 1} />
+        <LeaderboardRow key={r.user_id} row={r} rank={i + 1} />
       ))}
     </View>
   );

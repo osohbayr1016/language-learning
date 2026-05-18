@@ -61,7 +61,7 @@ async function doFetch(
     ...(token ? { Authorization: `Bearer ${token}` } : {}),
     ...((rest.headers as Record<string, string>) ?? {}),
   };
-  if (rest.body != null && rest.body !== '') {
+  if (rest.body != null && rest.body !== '' && !(typeof FormData !== 'undefined' && rest.body instanceof FormData)) {
     headers['Content-Type'] = 'application/json';
   }
   const base = getApiBase();

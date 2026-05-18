@@ -1,4 +1,5 @@
 import { request, buildQuery } from './client';
+import { postFormDataWithUploadProgress } from './formDataUploadProgress';
 import { adminPaths } from './adminPaths';
 
 export type { AdminStats, AdminLesson, AdminChapter, LessonWordLink } from './adminPaths';
@@ -99,5 +100,41 @@ export const adminApi = {
       method: 'POST',
       token,
       body: JSON.stringify(body),
+    }),
+  previewLessonPackageZip: (token: string, formData: FormData) =>
+    request<{ data: LessonHtmlPreview }>('/api/admin/lessons/import-zip/preview', {
+      method: 'POST',
+      token,
+      body: formData as unknown as RequestInit['body'],
+    }),
+  importLessonPackageZip: (token: string, formData: FormData) =>
+    request<{ data: LessonHtmlImportResult }>('/api/admin/lessons/import-zip', {
+      method: 'POST',
+      token,
+      body: formData as unknown as RequestInit['body'],
+    }),
+  /** ZIP → server preview with upload % (XHR). */
+  previewLessonPackageZipWithProgress: (
+    token: string,
+    buildBody: () => FormData | Promise<FormData>,
+    onProgress?: (percent: number) => void
+  ) =>
+    postFormDataWithUploadProgress<{ data: LessonHtmlPreview }>({
+      path: '/api/admin/lessons/import-zip/preview',
+      token,
+      buildBody,
+      onProgress,
+    }),
+  /** ZIP → full import with upload % (XHR). */
+  importLessonPackageZipWithProgress: (
+    token: string,
+    buildBody: () => FormData | Promise<FormData>,
+    onProgress?: (percent: number) => void
+  ) =>
+    postFormDataWithUploadProgress<{ data: LessonHtmlImportResult }>({
+      path: '/api/admin/lessons/import-zip',
+      token,
+      buildBody,
+      onProgress,
     }),
 };

@@ -1,31 +1,33 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { Screen } from '../../../primitives';
-import { useRandomWords } from '../../../hooks/useRandomWords';
 import { useGameSession } from '../../../hooks/useGameSession';
 import { useAdaptiveTimer } from '../../../hooks/useAdaptiveTimer';
 import { useAudio } from '../../../context/AudioContext';
-import { colors, spacing } from '../../../theme';
 import { mn } from '../../../i18n/mn';
-import { GameHud } from '../GameHud';
 import { GameOverScreen } from '../GameOverScreen';
-import { AnswerOption } from '../../study/learn/AnswerOption';
 import { pickDistractors, shuffle } from '../../study/learn/distractors';
-import { TranslateQuestion } from './TranslateQuestion';
 import { timingScore } from './scoring';
 import type { Word } from '../../../lib/types';
+import { useGameScreenWordPool } from '../useGameScreenWordPool';
+import { canPlayLessonTranslate } from '../lessonGameUtils';
+import { LessonGameGate } from '../LessonGameGate';
+import { TranslatePlayPanel } from './TranslatePlayPanel';
 
 const ROUNDS = 8;
 const OPTIONS = 4;
 
 type Props = {
+  lessonId?: string;
   initialWords?: Word[];
   onDone?: (score: number, accuracy: number) => void;
 };
 
-export default function TranslateScreen({ initialWords, onDone }: Props) {
-  const { words: randomPool, loading } = useRandomWords(ROUNDS + OPTIONS + 4);
-  const words = initialWords ?? randomPool;
+export default function TranslateScreen({ lessonId, initialWords, onDone }: Props) {
+  const { words, loading, lessonErr, useLesson, lessonIdNum } = useGameScreenWordPool({
+    lessonId,
+    initialWords,
+    randomCount: ROUNDS + OPTIONS + 4,
+  });
+
   const { save } = useGameSession();
   const timer = useAdaptiveTimer();
   const { playWord } = useAudio();
@@ -43,49 +45,28 @@ export default function TranslateScreen({ initialWords, onDone }: Props) {
 
   const options = useMemo(() => {
     if (!current) return [] as Word[];
-    const wordsAsProgress = words.map((w) => ({ ...w, ease_factor: null, interval: null, repetitions: null, next_review: null, last_reviewed: null }));
+    const wordsAsProgress = words.map((w) => ({
+      ...w,
+      ease_factor: null,
+      interval: null,
+      repetitions: null,
+      next_review: null,
+      last_reviewed: null,
+    }));
     const cur = wordsAsProgress.find((w) => w.id === current.id)!;
     const ds = pickDistractors(wordsAsProgress, cur, OPTIONS - 1, 'medium');
     return shuffle([cur, ...ds]) as Word[];
   }, [current, words]);
 
-  useEffect(() => { if (current) timer.start(); }, [current, timer]);
-
-  if (!initialWords && loading) {
-    return <Screen><View style={styles.center}><ActivityIndicator color={colors.accent.purple} /></View></Screen>;
-  }
+  useEffect(() => {
+    if (current) timer.start();
+  }, [current, timer]);
 
   useEffect(() => {
     if (!loading && queue.length === 0 && onDone && !done) {
       onDone(0, 0);
     }
   }, [loading, queue.length, onDone, done]);
-
-  if (queue.length === 0) {
-    return (
-      <Screen>
-        <View style={styles.center}>
-          <GameHud title={mn.games.translate} score={0} />
-        </View>
-      </Screen>
-    );
-  }
-
-  if (done) {
-    if (onDone) {
-      return null;
-    }
-    return (
-      <GameOverScreen
-        score={score}
-        xp={Math.round(score / 4)}
-        durationSeconds={Math.round((Date.now() - start) / 1000)}
-        onPlayAgain={() => {
-          setIdx(0); setScore(0); setCorrectCount(0); setPicked(null); setStart(Date.now()); setDone(false);
-        }}
-      />
-    );
-  }
 
   const handlePick = async (chosen: Word) => {
     if (!current || picked) return;
@@ -111,6 +92,7 @@ export default function TranslateScreen({ initialWords, onDone }: Props) {
           duration_seconds: elapsed,
           words_practiced: queue.length,
           xp_earned: xp,
+          ...(lessonIdNum != null ? { lesson_id: lessonIdNum } : {}),
         });
         setDone(true);
         if (onDone) onDone(finalScore, acc);
@@ -121,33 +103,44 @@ export default function TranslateScreen({ initialWords, onDone }: Props) {
   };
 
   return (
-    <Screen scroll>
-      <GameHud
-        title={mn.games.translate}
-        score={score}
-        progressLabel={`${idx + 1}/${queue.length}`}
-      />
-      <TranslateQuestion word={current!} direction={direction} />
-      {options.map((o) => {
-        let state: 'idle' | 'correct' | 'wrong' | 'reveal' = 'idle';
-        if (picked) {
-          if (o.id === current!.id) state = 'correct';
-          else if (o.id === picked.id) state = 'wrong';
-        }
-        return (
-          <AnswerOption
-            key={o.id}
-            word={{ ...o, ease_factor: null, interval: null, repetitions: null, next_review: null, last_reviewed: null }}
-            show={direction === 'zh-to-mn' ? 'mn' : 'hanzi'}
-            state={state}
-            onPress={() => handlePick(o)}
+    <LessonGameGate
+      initialWords={initialWords}
+      loading={loading}
+      useLesson={useLesson}
+      lessonErr={lessonErr}
+      words={words}
+      canPlay={canPlayLessonTranslate(words)}
+      tooFewMessage={mn.games.lessonWordsHintTranslate}
+      emptyTitle={mn.games.translate}
+    >
+      {done ? (
+        onDone ? null : (
+          <GameOverScreen
+            score={score}
+            xp={Math.round(score / 4)}
+            durationSeconds={Math.round((Date.now() - start) / 1000)}
+            onPlayAgain={() => {
+              setIdx(0);
+              setScore(0);
+              setCorrectCount(0);
+              setPicked(null);
+              setStart(Date.now());
+              setDone(false);
+            }}
           />
-        );
-      })}
-    </Screen>
+        )
+      ) : (
+        <TranslatePlayPanel
+          current={current}
+          direction={direction}
+          options={options}
+          picked={picked}
+          idx={idx}
+          queueLen={queue.length}
+          score={score}
+          handlePick={handlePick}
+        />
+      )}
+    </LessonGameGate>
   );
 }
-
-const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-});

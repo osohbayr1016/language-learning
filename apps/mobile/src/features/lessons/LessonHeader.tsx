@@ -10,17 +10,34 @@ type Props = {
   onClose: () => void;
   onMore: () => void;
   onAdminEdit?: () => void;
+  /** Admin preview: show back arrow instead of close (X) */
+  leadingIcon?: 'close' | 'back';
+  /** When false, hides the ellipsis menu (practice / kiosk flows). */
+  showTrailingMenu?: boolean;
 };
 
-export function LessonHeader({ progress, onClose, onMore, onAdminEdit }: Props) {
+export function LessonHeader({
+  progress,
+  onClose,
+  onMore,
+  onAdminEdit,
+  leadingIcon = 'close',
+  showTrailingMenu = true,
+}: Props) {
   return (
     <View style={styles.row}>
       <Pressable
         onPress={onClose}
         hitSlop={12}
+        accessibilityRole="button"
+        accessibilityLabel={leadingIcon === 'back' ? mn.common.back : 'Хаах'}
         style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}
       >
-        <Ionicons name="close" size={26} color={colors.text.secondary} />
+        <Ionicons
+          name={leadingIcon === 'back' ? 'chevron-back' : 'close'}
+          size={leadingIcon === 'back' ? 28 : 26}
+          color={colors.text.secondary}
+        />
       </Pressable>
       <View style={styles.barWrap}>
         <ProgressBar
@@ -41,13 +58,17 @@ export function LessonHeader({ progress, onClose, onMore, onAdminEdit }: Props) 
           <Ionicons name="create-outline" size={24} color={colors.brand.primary} />
         </Pressable>
       ) : null}
-      <Pressable
-        onPress={onMore}
-        hitSlop={12}
-        style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}
-      >
-        <Ionicons name="ellipsis-vertical" size={22} color={colors.text.secondary} />
-      </Pressable>
+      {showTrailingMenu ? (
+        <Pressable
+          onPress={onMore}
+          hitSlop={12}
+          style={({ pressed }) => [styles.iconBtn, pressed && styles.pressed]}
+        >
+          <Ionicons name="ellipsis-vertical" size={22} color={colors.text.secondary} />
+        </Pressable>
+      ) : (
+        <View style={styles.trailSpacer} />
+      )}
     </View>
   );
 }
@@ -63,4 +84,5 @@ const styles = StyleSheet.create({
   barWrap: { flex: 1 },
   iconBtn: { padding: spacing.xs },
   pressed: { opacity: 0.6 },
+  trailSpacer: { width: 34 },
 });

@@ -1,8 +1,18 @@
+/** ZIP JSON: optional `radical` / `radical_char` on vocabulary row. */
 export type ImportedVocab = {
   hanzi: string;
   pinyin: string;
   meaning_mn: string;
   hsk_level: number;
+  radical?: string;
+};
+
+/** ZIP JSON: optional top-level `radicals` — `char`/`glyph`, `name_mn`/`mn`/`name`. */
+export type ImportedRadical = {
+  char: string;
+  name_mn: string;
+  variant?: string;
+  note_mn?: string;
 };
 
 export type ImportedDialogueLine = {
@@ -17,6 +27,8 @@ export type ImportedDialogue = {
   lines?: ImportedDialogueLine[];
   text_cn?: string;
   text_mn?: string;
+  /** Relative path in ZIP before import; HTTPS URL after R2 upload + rewrite. */
+  audio_url?: string;
 };
 
 export type ImportedNote = {
@@ -29,6 +41,13 @@ export type ImportedWorkbookItem = {
   options?: string[];
   answer?: string | boolean | null;
   parts?: string[];
+  /** Segment / exercise clip; full lesson track optional */
+  audio_url?: string;
+  full_track_url?: string;
+  /** From package JSON when auto-gradable reference exists. */
+  gradable?: boolean;
+  /** Raw `type` field from workbook_exercises (fill_blank, multiple_choice, …). */
+  packageExerciseType?: string;
 };
 
 export type ImportedWorkbookSection = {
@@ -46,8 +65,11 @@ export type ImportedLessonContent = {
   summary: string;
   dialogues: ImportedDialogue[];
   vocab: ImportedVocab[];
+  radicals: ImportedRadical[];
   grammar: ImportedNote[];
   slang: ImportedNote[];
+  /** lesson JSON `common_mistakes` — гарчиг + тайлбар */
+  common_mistakes?: ImportedNote[];
   workbook: { sections: ImportedWorkbookSection[] };
   quizlet_text: string;
   mock_exam_template_id?: number;

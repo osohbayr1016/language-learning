@@ -8,14 +8,18 @@ export type ChapterPickRow =
 
 /** One row per HSK 1–6: real chapter chips or a placeholder when no chapter exists for that level. */
 export function buildChapterPickRows(chapters: AdminChapter[]): ChapterPickRow[] {
-  return HSK_LEVELS.flatMap((hsk) => {
+  const rows: ChapterPickRow[] = [];
+  for (const hsk of HSK_LEVELS) {
     const list = chapters
       .filter((c) => c.hsk_level === hsk)
       .slice()
       .sort((a, b) => a.order_num - b.order_num || a.id - b.id);
-    if (!list.length) return [{ type: 'missing' as const, hsk }];
-    return list.map((chapter) => ({ type: 'chapter' as const, chapter }));
-  });
+    if (!list.length) rows.push({ type: 'missing', hsk });
+    else {
+      for (const chapter of list) rows.push({ type: 'chapter', chapter });
+    }
+  }
+  return rows;
 }
 
 export function firstSelectableChapterId(chapters: AdminChapter[]): number | null {

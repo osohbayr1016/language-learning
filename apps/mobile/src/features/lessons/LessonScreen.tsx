@@ -20,11 +20,6 @@ import {
   exercisePromptFor,
 } from './exercises';
 import { exerciseDisplayTitle, isImportedLearnFlow } from './types';
-import { InLessonGamesHub } from './games/InLessonGamesHub';
-import SentenceScreen from '../games/sentence/SentenceScreen';
-import MatchScreen from '../games/match/MatchScreen';
-import TranslateScreen from '../games/translate/TranslateScreen';
-import type { Word } from '../../lib/types';
 
 export type LessonScreenVariant = 'learn' | 'adminPreview';
 
@@ -34,7 +29,7 @@ export function LessonScreen({ lessonId, variant = 'learn' }: Props) {
   const router = useRouter();
   const { isAdmin } = useAuth();
   const isPreview = variant === 'adminPreview';
-  const { state, current, submit, advance, submitImportedStep, forceLessonComplete, finalize, accuracy } = useLessonSession(
+  const { state, current, submit, advance, submitImportedStep, finalize, accuracy } = useLessonSession(
     lessonId,
     {
       mode: isPreview ? 'adminPreview' : 'default',
@@ -43,8 +38,6 @@ export function LessonScreen({ lessonId, variant = 'learn' }: Props) {
   const [banner, setBanner] = useState<{ correct: boolean } | null>(null);
   const [moreOpen, setMoreOpen] = useState(false);
   const [leaveOpen, setLeaveOpen] = useState(false);
-  const [gamePhase, setGamePhase] = useState<'sentence' | 'match' | 'translate' | null>(null);
-
   const exitLesson = () => {
     if (isPreview) {
       safeBack(router, '/admin/learning-path');
@@ -52,43 +45,6 @@ export function LessonScreen({ lessonId, variant = 'learn' }: Props) {
     }
     router.replace('/(tabs)/home');
   };
-
-  const gameWords = React.useMemo(() => {
-    if (!state.detail) return undefined;
-    if (state.detail.words && state.detail.words.length > 0) return state.detail.words as Word[];
-    if (state.detail.imported_content?.vocab) {
-      const vocab = state.detail.imported_content.vocab;
-      return vocab.map((v, i) => {
-        let example = null;
-        for (const d of state.detail!.imported_content!.dialogues || []) {
-          for (const line of d.lines || []) {
-            if (line.cn.includes(v.hanzi) && line.cn.length > v.hanzi.length) {
-              example = line.cn;
-              break;
-            }
-          }
-          if (example) break;
-        }
-        return {
-          id: -i - 1,
-          hanzi: v.hanzi,
-          pinyin: v.pinyin,
-          pinyin_numbered: null,
-          tones: '',
-          meaning_mn: v.meaning_mn,
-          meaning_en: null,
-          hsk_level: v.hsk_level as any,
-          part_of_speech: null,
-          example_zh: example,
-          example_pinyin: null,
-          example_mn: null,
-          audio_url: null,
-          stroke_count: null,
-        } as Word;
-      });
-    }
-    return undefined;
-  }, [state.detail]);
 
   useEffect(() => {
     if (state.status === 'done') void finalize();
@@ -153,6 +109,8 @@ export function LessonScreen({ lessonId, variant = 'learn' }: Props) {
         importedContent={state.detail?.imported_content}
         chapterHskLevel={state.detail?.chapter_hsk_level}
         enablePostLessonNav={!isPreview}
+        lessonId={lessonId}
+        workbookPracticeUsesAdminLessonDetail={isPreview}
         minimalComplete={isImportedLearnFlow(state.exercises) || isPreview}
         onContinue={exitLesson}
       />
@@ -162,34 +120,17 @@ export function LessonScreen({ lessonId, variant = 'learn' }: Props) {
   const total = state.exercises.length;
   const progress = total > 0 ? (state.index + (banner ? 1 : 0)) / total : 0;
 
-  if (current?.kind === 'in-lesson-games-hub') {
-    if (gamePhase === 'sentence') {
-      return <SentenceScreen initialWords={gameWords} onDone={() => setGamePhase('match')} />;
-    }
-    if (gamePhase === 'match') {
-      return <MatchScreen initialWords={gameWords} onDone={() => setGamePhase('translate')} />;
-    }
-    if (gamePhase === 'translate') {
-      return <TranslateScreen initialWords={gameWords} onDone={() => forceLessonComplete(1.0)} />;
-    }
-    return (
-      <InLessonGamesHub
-        onContinue={() => setGamePhase('sentence')}
-        onDone={() => forceLessonComplete(1.0)}
-      />
-    );
-  }
-
   return (
     <Screen edges={['top', 'bottom']} padded={false}>
       <View style={styles.headerWrap}>
         <LessonHeader
           progress={progress}
-          onClose={() => setLeaveOpen(true)}
+          onClose={isPreview ? exitLesson : () => setLeaveOpen(true)}
           onMore={() => setMoreOpen(true)}
           onAdminEdit={
             isAdmin && !isPreview ? () => router.push(`/admin/lesson/${lessonId}` as never) : undefined
           }
+          leadingIcon={isPreview ? 'back' : 'close'}
         />
       </View>
 

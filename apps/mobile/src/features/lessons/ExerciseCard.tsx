@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { colors, radius, spacing, typography } from '../../theme';
+import { colors, radius, shadows, spacing, typography } from '../../theme';
 import { MascotBubble } from './MascotBubble';
 
 type Props = {
@@ -27,12 +27,14 @@ const styles = StyleSheet.create({
     padding: spacing.lg,
     borderWidth: 2,
     borderColor: colors.border,
+    ...shadows.sm,
   },
   title: {
     ...typography.heading.md,
-    color: colors.text.muted,
-    textTransform: 'uppercase',
-    letterSpacing: 1.5,
+    fontWeight: '800',
+    fontSize: 16,
+    color: colors.brand.primaryDark,
+    letterSpacing: 0.8,
     marginBottom: spacing.sm,
   },
   body: { flex: 1, minHeight: 0, marginTop: spacing.sm },

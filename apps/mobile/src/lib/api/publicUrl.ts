@@ -1,4 +1,5 @@
 import Constants from 'expo-constants';
+import { Platform } from 'react-native';
 
 /** Production API (same Cloudflare account as chinese-learning-web in wrangler). */
 export const DEFAULT_PRODUCTION_API = 'https://chinese-learning-api.osohoo691016.workers.dev';
@@ -55,19 +56,50 @@ function pickApiBaseCandidate(raw: string | undefined): string | undefined {
   return rejectLocalhostApiWhenNotOnLocalWeb(rejectIfWebAppOrigin(asAbsoluteHttpBase(raw)));
 }
 
+function stripTrailingSlashes(base: string): string {
+  return base.replace(/\/+$/, '');
+}
+
+/** Web: loopback суурь биш эхний нэршил зөв суурийг сонгоно (`EXPO_PUBLIC_API_URL`/extra). */
+function firstNonLoopbackApiCandidate(): string | undefined {
+  const sources = [process.env.EXPO_PUBLIC_API_URL?.trim(), extraApiUrl()] as const;
+
+  for (const raw of sources) {
+    const c = pickApiBaseCandidate(raw);
+    if (!c) continue;
+    try {
+      const h = new URL(c).hostname;
+      if (h !== 'localhost' && h !== '127.0.0.1') return c;
+    } catch {
+      continue;
+    }
+  }
+  return undefined;
+}
+
+const USE_LOCAL_WEB_API_LOOPBACK =
+  process.env.EXPO_PUBLIC_USE_LOCAL_WEB_API === '1' ||
+  process.env.EXPO_PUBLIC_USE_LOCAL_WEB_API === 'true';
+
 export function resolveApiBase(): string {
-  const fromEnv = pickApiBaseCandidate(process.env.EXPO_PUBLIC_API_URL?.trim());
-  if (fromEnv) return fromEnv;
+  if (Platform.OS === 'web') {
+    if (USE_LOCAL_WEB_API_LOOPBACK) {
+      const fromEnv = pickApiBaseCandidate(process.env.EXPO_PUBLIC_API_URL?.trim());
+      const fromExtra = pickApiBaseCandidate(extraApiUrl());
+      return stripTrailingSlashes(fromEnv ?? fromExtra ?? 'http://localhost:8787');
+    }
 
-  const fromExtra = pickApiBaseCandidate(extraApiUrl());
-  if (fromExtra) return fromExtra;
+    const remote = firstNonLoopbackApiCandidate();
+    if (remote) return stripTrailingSlashes(remote);
 
-  const loc = (globalThis as { window?: { location?: { hostname?: string } } }).window?.location;
-  if (loc?.hostname) {
-    const h = loc.hostname;
-    if (h === 'localhost' || h === '127.0.0.1') return 'http://localhost:8787';
-    return DEFAULT_PRODUCTION_API.replace(/\/+$/, '');
+    return stripTrailingSlashes(DEFAULT_PRODUCTION_API);
   }
 
-  return DEFAULT_PRODUCTION_API.replace(/\/+$/, '');
+  const fromEnv = pickApiBaseCandidate(process.env.EXPO_PUBLIC_API_URL?.trim());
+  if (fromEnv) return stripTrailingSlashes(fromEnv);
+
+  const fromExtra = pickApiBaseCandidate(extraApiUrl());
+  if (fromExtra) return stripTrailingSlashes(fromExtra);
+
+  return stripTrailingSlashes(DEFAULT_PRODUCTION_API);
 }

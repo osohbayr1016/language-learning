@@ -14,12 +14,16 @@ export default function RegisterScreen() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const handleSubmit = async (email: string, password: string) => {
+  const handleSubmit = async (payload: { email: string; password: string; displayName?: string }) => {
     setLoading(true);
     setError('');
     try {
-      const display_name = email.split('@')[0];
-      const res = await api.auth.register({ email, password, display_name });
+      const display_name = payload.displayName?.trim() ?? '';
+      const res = await api.auth.register({
+        email: payload.email,
+        password: payload.password,
+        display_name,
+      });
       await signIn(res.data);
     } catch (err) {
       setError((err as Error).message || strings.requestFailed);

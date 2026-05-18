@@ -8,6 +8,7 @@ import {
   DialoguePane,
   EasyTextsPane,
   NotesPane,
+  RadicalsPane,
   SummaryPane,
   VocabPane,
 } from './importedSectionPanes';
@@ -31,6 +32,8 @@ export function ImportedSectionCard({
     switch (exercise.section) {
       case 'summary':
         return <SummaryPane content={c} />;
+      case 'radicals':
+        return <RadicalsPane content={c} />;
       case 'kanjis':
         return <VocabPane rows={kanjiRows(c.vocab)} lessonWords={lessonWords} />;
       case 'phrases':

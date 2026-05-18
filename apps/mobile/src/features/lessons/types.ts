@@ -2,6 +2,7 @@ import type { ImportedLessonContent, ImportedWorkbookItem, WordWithProgress } fr
 
 export type ImportedLearnSection =
   | 'summary'
+  | 'radicals'
   | 'kanjis'
   | 'phrases'
   | 'easy-texts'
@@ -77,11 +78,12 @@ export type ExerciseResult = {
 export type LessonStatus = 'loading' | 'running' | 'done' | 'error';
 
 export function isImportedLearnFlow(exercises: Exercise[]): boolean {
-  return exercises.length > 0 && exercises.every((e) => e.kind === 'imported-section' || e.kind === 'in-lesson-games-hub');
+  return exercises.length > 0 && exercises.every((e) => e.kind === 'imported-section');
 }
 
 const IMPORTED_SECTION_TITLES: Record<ImportedLearnSection, string> = {
   summary: 'Summary',
+  radicals: 'Radicals',
   kanjis: 'New Kanjis',
   phrases: 'Phrases',
   'easy-texts': 'Easy texts',

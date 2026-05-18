@@ -10,24 +10,27 @@ type Props = {
   icon: React.ComponentProps<typeof Ionicons>['name'];
   color: string;
   best: number;
+  disabled?: boolean;
   onPress: () => void;
 };
 
-export function GameModeCard({ title, subtitle, icon, color, best, onPress }: Props) {
+export function GameModeCard({ title, subtitle, icon, color, best, disabled, onPress }: Props) {
   return (
     <Pressable
       onPress={onPress}
+      disabled={disabled}
       style={({ pressed }) => [
         styles.card,
         { borderTopColor: color },
-        pressed && styles.pressed,
+        disabled && styles.cardDisabled,
+        pressed && !disabled && styles.pressed,
       ]}
     >
       <View style={[styles.iconBox, { backgroundColor: color }]}>
         <Ionicons name={icon} size={28} color="#FFFFFF" />
       </View>
       <Text style={styles.title} numberOfLines={1}>{title}</Text>
-      <Text style={styles.subtitle} numberOfLines={2}>{subtitle}</Text>
+      <Text style={styles.subtitle} numberOfLines={4}>{subtitle}</Text>
       <View style={styles.footer}>
         {best > 0 ? (
           <View style={[styles.badge, { backgroundColor: `${color}1A` }]}>
@@ -58,6 +61,7 @@ const styles = StyleSheet.create({
     ...shadows.sm,
   },
   pressed: { opacity: 0.92, transform: [{ scale: 0.98 }] },
+  cardDisabled: { opacity: 0.45 },
   iconBox: {
     width: 52,
     height: 52,

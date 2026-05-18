@@ -7,7 +7,8 @@ import type { Tone } from '../../lib/types';
 type Size = keyof typeof typography.hanzi;
 
 type Props = {
-  hanzi: string;
+  /** API / UI заримдаа null/undefined буцаадаг — алгасвал Array.from-д унадаг */
+  hanzi?: string | null;
   tones?: string | Tone[] | null;
   size?: Size;
   align?: 'left' | 'center' | 'right';
@@ -22,7 +23,8 @@ function resolveTones(input: Props['tones']): number[] {
 
 export function ToneColoredText({ hanzi, tones, size = 'md', align = 'center', style }: Props) {
   const toneList = resolveTones(tones);
-  const chars = Array.from(hanzi);
+  const text = hanzi == null ? '' : String(hanzi);
+  const chars = Array.from(text);
 
   return (
     <View style={[styles.row, { justifyContent: align === 'center' ? 'center' : align === 'right' ? 'flex-end' : 'flex-start' }]}>

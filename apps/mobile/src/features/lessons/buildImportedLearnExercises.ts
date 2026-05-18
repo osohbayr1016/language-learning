@@ -23,8 +23,10 @@ export function buildImportedLearnExercises(content: ImportedLessonContent): Exe
   const pRows = phraseRows(content.vocab);
   const hasEasy = content.dialogues.some((d) => Boolean(d.text_cn?.trim()));
   const hasDialogueLines = content.dialogues.some((d) => (d.lines?.length ?? 0) > 0);
+  const radicalRows = content.radicals ?? [];
 
   pushIf(out, 'summary', content, Boolean(content.summary?.trim()));
+  pushIf(out, 'radicals', content, radicalRows.length > 0);
   pushIf(out, 'kanjis', content, kRows.length > 0);
   pushIf(out, 'phrases', content, pRows.length > 0);
   pushIf(out, 'easy-texts', content, hasEasy);
@@ -35,12 +37,6 @@ export function buildImportedLearnExercises(content: ImportedLessonContent): Exe
   if (out.length === 0) {
     pushIf(out, 'summary', content, true);
   }
-
-  out.push({
-    kind: 'in-lesson-games-hub',
-    id: `hub-${content.external_lesson_id}`,
-    content,
-  });
 
   return out;
 }

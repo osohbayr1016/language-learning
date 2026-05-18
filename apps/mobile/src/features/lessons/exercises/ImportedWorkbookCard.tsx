@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import type { Exercise } from '../types';
 import { colors, radius, spacing, typography } from '../../../theme';
+import { MockExamAudioButton } from '../../study/MockExamAudioButton';
 
 type Ex = Extract<Exercise, { kind: 'imported-workbook' }>;
 
@@ -28,6 +29,7 @@ export function ImportedWorkbookCard({
       <Text style={styles.section}>{exercise.sectionTitle}</Text>
       {exercise.bank?.length ? <Text style={styles.bank}>Үгс: {exercise.bank.join(' / ')}</Text> : null}
       {exercise.item.parts?.length ? <Text style={styles.bank}>{exercise.item.parts.join(' / ')}</Text> : null}
+      {exercise.item.audio_url ? <MockExamAudioButton uri={exercise.item.audio_url} /> : null}
       <Text style={styles.q}>{exercise.item.q}</Text>
       {options.length ? (
         <View style={styles.options}>

@@ -13,3 +13,11 @@ export function validateAuthPassword(raw: string, mode: 'login' | 'register'): s
   if (mode === 'register' && raw.length < 8) return 'weak';
   return undefined;
 }
+
+/** Leaderboard & profile use this; refuse empty / purely numeric email-style slugs. */
+export function validateAuthDisplayName(raw: string): string | undefined {
+  const t = raw.trim();
+  if (!t) return 'required';
+  if (t.length < 2) return 'tooShort';
+  return undefined;
+}

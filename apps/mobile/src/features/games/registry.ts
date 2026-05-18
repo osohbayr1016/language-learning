@@ -42,6 +42,15 @@ export const GAMES: GameMeta[] = [
     href: '/games/sentence',
   },
   {
+    key: 'arrange',
+    title: mn.games.arrange,
+    subtitle: mn.games.arrangeDesc,
+    icon: 'git-compare-outline',
+    iconSolid: 'git-compare',
+    color: colors.accent.amber,
+    href: '/games/arrange',
+  },
+  {
     key: 'stroke',
     title: mn.games.stroke,
     subtitle: mn.games.strokeDesc,

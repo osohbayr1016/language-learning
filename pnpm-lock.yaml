@@ -78,6 +78,9 @@ importers:
       '@chinese-app/types':
         specifier: workspace:*
         version: link:../../packages/types
+      fflate:
+        specifier: ^0.8.2
+        version: 0.8.3
       hono:
         specifier: ^4.7.10
         version: 4.12.16
@@ -3312,6 +3315,9 @@ packages:
 
   fetch-retry@4.1.1:
     resolution: {integrity: sha512-e6eB7zN6UBSwGVwrbWVH+gdLnkW9WwHhmq2YDK1Sh30pzx1onRVGBvogTlUeWxwTa+L86NYdo4hFkh7O8ZjSnA==}
+
+  fflate@0.8.3:
+    resolution: {integrity: sha512-tbZNuJrLwGUp3zshBtdy4W+ORxZuIh8a5ilyIEQDC5rY1f3U20JMry0Ll3WBzU58EZKsEuJFXhb5gwv8CsPvgA==}
 
   figures@3.2.0:
     resolution: {integrity: sha512-yaduQFRKLXYOGgEn6AZau90j3ggSOyiqXU0F9JZfeXYhNa+Jk4X+s45A2zg5jns87GAFa34BBm2kXw4XpNcbdg==}
@@ -9257,6 +9263,8 @@ snapshots:
       picomatch: 4.0.4
 
   fetch-retry@4.1.1: {}
+
+  fflate@0.8.3: {}
 
   figures@3.2.0:
     dependencies:

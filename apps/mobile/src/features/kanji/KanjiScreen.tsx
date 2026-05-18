@@ -1,7 +1,7 @@
 import React, { useEffect, useState, useCallback } from 'react';
 import { ActivityIndicator, Pressable, StyleSheet, Text, View } from 'react-native';
 import { Screen } from '../../primitives';
-import { colors, radius, spacing, typography, shadows } from '../../theme';
+import { colors, radius, spacing, typography, shadows, sansFontFamily } from '../../theme';
 import { mn } from '../../i18n/mn';
 import { api } from '../../lib/api';
 import type { Word, WordWithProgress } from '../../lib/types';
@@ -10,6 +10,8 @@ import { useAuth } from '../../context/AuthContext';
 import { Ionicons } from '@expo/vector-icons';
 
 type ProgressState = 'none' | 'learned' | 'mastered';
+
+const webHanziFont = sansFontFamily ? ({ fontFamily: sansFontFamily } as const) : {};
 
 function getProgressState(wp: WordWithProgress): ProgressState {
   if ((wp.repetitions ?? 0) >= 3) return 'mastered';
@@ -269,6 +271,7 @@ const styles = StyleSheet.create({
     fontWeight: '700',
     color: colors.text.primary,
     marginBottom: 2,
+    ...webHanziFont,
   },
   hanziLearned: {
     color: colors.brand.primaryDark,
@@ -277,6 +280,7 @@ const styles = StyleSheet.create({
     fontSize: 10,
     color: colors.text.secondary,
     textAlign: 'center',
+    ...webHanziFont,
   },
   meaning: {
     fontSize: 10,

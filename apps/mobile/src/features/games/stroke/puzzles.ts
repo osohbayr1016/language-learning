@@ -1,3 +1,5 @@
+import type { Word } from '../../../lib/types';
+
 export type StrokePuzzle = {
   id: string;
   hanzi: string;
@@ -85,4 +87,14 @@ export const STROKE_PUZZLES: StrokePuzzle[] = [
 
 export function shufflePuzzles<T>(arr: T[]): T[] {
   return [...arr].sort(() => Math.random() - 0.5);
+}
+
+/** Хичээлийн үг дотор байгаа ханзнуудаар тааруулсан дасгал; тохирохгүй бол бүх сан. */
+export function puzzlesForLessonWords(words: Word[]): StrokePuzzle[] {
+  const chars = new Set<string>();
+  for (const w of words) {
+    for (const ch of Array.from(w.hanzi.trim())) chars.add(ch);
+  }
+  const matched = STROKE_PUZZLES.filter((p) => chars.has(p.hanzi));
+  return matched.length > 0 ? matched : STROKE_PUZZLES;
 }

@@ -83,8 +83,15 @@ export const user = {
     }),
   vocabulary: (
     token: string,
-    params?: { limit?: number; offset?: number; textbook_unit?: string }
-  ) => request<VocabularyPage>(`/api/user/vocabulary${buildQuery(params ?? {})}`, { token }),
+    params?: {
+      limit?: number;
+      offset?: number;
+      textbook_unit?: string;
+      /** 1 = зөвхөн давталт хийсэн (repetitions ≥ 1) үгс */
+      learned_only?: 0 | 1;
+    }
+  ) =>
+    request<VocabularyPage>(`/api/user/vocabulary${buildQuery(params ?? {})}`, { token }),
   vocabularyWeak: (token: string, params?: { limit?: number }) =>
     request<{ data: WordWithProgress[] }>(
       `/api/user/vocabulary/weak${buildQuery(params ?? {})}`,
@@ -97,6 +104,8 @@ export const user = {
     }),
   vocabularyWordEntry: (token: string, wordId: number) =>
     request<{ data: WordWithProgress }>(`/api/user/vocabulary/word/${wordId}`, { token }),
+  deleteAccount: (token: string) =>
+    request<{ message: string }>('/api/user/account', { method: 'DELETE', token }),
 };
 
 export type { Word, WordWithProgress };

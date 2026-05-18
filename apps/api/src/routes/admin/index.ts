@@ -6,6 +6,7 @@ import { registerChapterRoutes } from './chaptersRoutes';
 import { registerLessonRoutes } from './lessonsRoutes';
 import { registerLessonWordRoutes } from './lessonWordsRoutes';
 import { registerLessonHtmlImportRoutes } from './lessonHtmlImportRoutes';
+import { registerLessonZipImportRoutes } from './lessonZipImportRoutes';
 import usersWordsRoutes from './usersWordsRoutes';
 
 const admin = new Hono<{ Bindings: Env; Variables: Variables }>();
@@ -18,6 +19,7 @@ registerChapterRoutes(admin);
 registerLessonWordRoutes(admin);
 registerLessonRoutes(admin);
 registerLessonHtmlImportRoutes(admin);
+registerLessonZipImportRoutes(admin);
 admin.route('/', usersWordsRoutes);
 
 export default admin;

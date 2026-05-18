@@ -61,22 +61,25 @@ vocab.get('/', async (c) => {
   const limit = Math.min(Math.max(Number(c.req.query('limit') ?? 40), 1), 100);
   const offset = Math.max(Number(c.req.query('offset') ?? 0), 0);
   const textbookUnit = (c.req.query('textbook_unit') ?? '').trim();
+  const learnedOnly = c.req.query('learned_only') === '1';
 
   const countParams: (string | number)[] = [sub];
-  let countWhere = `${JOIN_WHERE}`;
+  let listWhere = `${JOIN_WHERE}`;
   if (textbookUnit) {
-    countWhere += ' AND w.textbook_unit = ?';
+    listWhere += ' AND w.textbook_unit = ?';
     countParams.push(textbookUnit);
+  }
+  if (learnedOnly) {
+    listWhere += ' AND COALESCE(uwp.repetitions, 0) >= 1';
   }
 
   const totalRow = await c.env.DB
-    .prepare(`SELECT COUNT(*) AS n ${countWhere}`)
+    .prepare(`SELECT COUNT(*) AS n ${listWhere}`)
     .bind(...countParams)
     .first<{ n: number }>();
   const total = Number(totalRow?.n ?? 0);
 
   const listParams = [...countParams, limit, offset];
-  const listWhere = textbookUnit ? `${JOIN_WHERE} AND w.textbook_unit = ?` : JOIN_WHERE;
 
   const rows = await c.env.DB.prepare(
     `SELECT w.*, uwp.ease_factor, uwp.interval, uwp.repetitions, uwp.next_review,
@@ -88,7 +91,7 @@ vocab.get('/', async (c) => {
        uwp.next_review ASC
      LIMIT ? OFFSET ?`
   )
-    .bind(sub, ...(textbookUnit ? [textbookUnit] : []), limit, offset)
+    .bind(...listParams)
     .all();
 
   return c.json({

@@ -14,15 +14,6 @@ export const lessonHtmlImportStyles = StyleSheet.create({
   title: { ...typography.heading.md, color: colors.text.primary, fontWeight: '800' },
   label: { ...typography.body.sm, color: colors.text.secondary, fontWeight: '700' },
   hint: { ...typography.body.sm, color: colors.text.muted, lineHeight: 20 },
-  textarea: {
-    minHeight: 160,
-    borderWidth: 1,
-    borderColor: colors.border,
-    borderRadius: radius.md,
-    padding: spacing.sm,
-    color: colors.text.primary,
-    backgroundColor: colors.bg.primary,
-  },
   row: { flexDirection: 'row', flexWrap: 'wrap', gap: spacing.sm, alignItems: 'center' },
   btn: {
     backgroundColor: colors.brand.primary,
@@ -60,4 +51,18 @@ export const lessonHtmlImportStyles = StyleSheet.create({
   chipTextMuted: { ...typography.body.sm, color: colors.text.muted },
   stat: { ...typography.body.md, color: colors.text.primary },
   error: { ...typography.body.sm, color: colors.error },
+  progressWrap: { gap: spacing.xs, marginTop: spacing.xs },
+  progressTrack: {
+    height: 8,
+    borderRadius: radius.sm,
+    backgroundColor: colors.borderLight,
+    overflow: 'hidden',
+    width: '100%',
+  },
+  progressFill: {
+    height: '100%',
+    backgroundColor: colors.brand.primary,
+    borderRadius: radius.sm,
+  },
+  progressLabel: { ...typography.body.sm, color: colors.text.muted, fontWeight: '600' },
 });

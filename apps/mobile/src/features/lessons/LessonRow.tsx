@@ -26,12 +26,17 @@ export function LessonRow({ lesson, color, current, locked }: Props) {
   const iconName = ICON_MAP[lesson.icon] ?? 'book';
   const completed = !!lesson.progress?.completed_at;
   const accuracy = lesson.progress?.best_accuracy ?? 0;
+  const emphasis = current && !locked;
 
   return (
     <Pressable
       onPress={() => !locked && router.push(`/lessons/${lesson.id}` as never)}
       disabled={locked}
-      style={({ pressed }) => [styles.row, pressed && !locked && styles.pressed]}
+      style={({ pressed }) => [
+        styles.row,
+        emphasis && [styles.rowCurrent, { borderColor: color, backgroundColor: `${color}12` }],
+        pressed && !locked && styles.pressed,
+      ]}
     >
       <View style={styles.circleWrap}>
         {current && !locked ? <View style={[styles.ring, { borderColor: color }]} /> : null}
@@ -56,20 +61,27 @@ export function LessonRow({ lesson, color, current, locked }: Props) {
       </View>
 
       <View style={styles.middle}>
-        <Text style={[styles.title, locked && { color: colors.text.muted }]} numberOfLines={1}>
-          {lesson.title_mn}
-        </Text>
-        {lesson.subtitle_mn ? (
-          <Text style={styles.subtitle} numberOfLines={1}>
-            {completed ? `${Math.round(accuracy * 100)}% нарийвчлал` : lesson.subtitle_mn}
-          </Text>
-        ) : null}
+        <View style={styles.titleRow}>
+          <View style={[styles.orderBadge, { backgroundColor: locked ? colors.borderLight : `${color}26` }]}>
+            <Text style={[styles.orderTxt, locked && { color: colors.text.muted }]}>{lesson.order_num}</Text>
+          </View>
+          <View style={styles.titleCol}>
+            <Text style={[styles.title, locked && styles.titleLocked]} numberOfLines={2}>
+              {lesson.title_mn}
+            </Text>
+            {lesson.subtitle_mn ? (
+              <Text style={[styles.subtitle, locked && styles.subLocked]} numberOfLines={1}>
+                {completed ? `${Math.round(accuracy * 100)}% нарийвчлал` : lesson.subtitle_mn}
+              </Text>
+            ) : null}
+          </View>
+        </View>
       </View>
 
       <Ionicons
         name="chevron-forward"
-        size={20}
-        color={locked ? colors.text.muted : colors.text.secondary}
+        size={22}
+        color={locked ? colors.text.muted : emphasis ? color : colors.text.primary}
       />
     </Pressable>
   );
@@ -81,14 +93,15 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     backgroundColor: colors.bg.card,
     borderRadius: radius.lg,
-    paddingVertical: spacing.sm + 2,
+    paddingVertical: spacing.md,
     paddingHorizontal: spacing.md,
     marginBottom: spacing.sm,
-    borderWidth: 2,
+    borderWidth: 1,
     borderColor: colors.border,
     ...shadows.sm,
   },
-  pressed: { opacity: 0.9, transform: [{ scale: 0.99 }] },
+  rowCurrent: { borderWidth: 2, shadowColor: colors.text.primary, shadowOpacity: 0.08, shadowRadius: 8 },
+  pressed: { opacity: 0.92, transform: [{ scale: 0.997 }] },
   circleWrap: {
     width: 56,
     height: 56,
@@ -110,7 +123,33 @@ const styles = StyleSheet.create({
     alignItems: 'center',
     justifyContent: 'center',
   },
-  middle: { flex: 1 },
-  title: { ...typography.heading.sm, color: colors.text.primary },
-  subtitle: { ...typography.body.sm, color: colors.text.secondary, marginTop: 2 },
+  middle: { flex: 1, minWidth: 0 },
+  titleRow: { flexDirection: 'row', alignItems: 'flex-start', gap: spacing.sm },
+  titleCol: { flex: 1, minWidth: 0 },
+  orderBadge: {
+    minWidth: 28,
+    paddingHorizontal: spacing.xs + 2,
+    paddingVertical: 4,
+    borderRadius: radius.sm,
+    alignItems: 'center',
+    justifyContent: 'center',
+    marginTop: 2,
+  },
+  orderTxt: { fontSize: 13, fontWeight: '900', color: colors.text.primary },
+  title: {
+    flex: 1,
+    fontSize: 17,
+    fontWeight: '800',
+    lineHeight: 22,
+    color: colors.text.primary,
+    letterSpacing: -0.2,
+  },
+  titleLocked: { color: colors.text.muted, fontWeight: '700' },
+  subtitle: {
+    ...typography.body.md,
+    fontWeight: '600',
+    color: colors.text.secondary,
+    marginTop: spacing.xs,
+  },
+  subLocked: { color: colors.text.muted, fontWeight: '500' },
 });

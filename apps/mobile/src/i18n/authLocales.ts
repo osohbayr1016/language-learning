@@ -6,6 +6,10 @@ export type AuthLocaleStrings = {
   registerTitle: string;
   registerSubtitle: string;
   email: string;
+  displayName: string;
+  displayNamePlaceholder: string;
+  requiredDisplayName: string;
+  displayNameTooShort: string;
   password: string;
   signIn: string;
   signUp: string;
@@ -32,6 +36,10 @@ const mn: AuthLocaleStrings = {
   registerTitle: 'Бүртгэл үүсгэх',
   registerSubtitle: 'Хэдэн секундэд бэлэн боллоо',
   email: 'И-мэйл хаяг',
+  displayName: 'Нэр',
+  displayNamePlaceholder: 'Таны нэр (тэргүүлэгчдэд харагдана)',
+  requiredDisplayName: 'Нэр оруулна уу',
+  displayNameTooShort: 'Хамгийн багадаа 2 тэмдэгт',
   password: 'Нууц үг',
   signIn: 'Нэвтрэх',
   signUp: 'Бүртгүүлэх',
@@ -59,6 +67,10 @@ const zh: AuthLocaleStrings = {
   registerTitle: '创建账户',
   registerSubtitle: '几秒钟即可完成',
   email: '电子邮箱',
+  displayName: '昵称 / 姓名',
+  displayNamePlaceholder: '例如在排行榜上显示的名称',
+  requiredDisplayName: '请输入昵称或姓名',
+  displayNameTooShort: '至少需要 2 个字符',
   password: '密码',
   signIn: '登录',
   signUp: '注册',
@@ -85,6 +97,10 @@ const en: AuthLocaleStrings = {
   registerTitle: 'Create account',
   registerSubtitle: 'Ready in seconds',
   email: 'Email',
+  displayName: 'Display name',
+  displayNamePlaceholder: 'Name shown on the leaderboard',
+  requiredDisplayName: 'Display name is required',
+  displayNameTooShort: 'Use at least 2 characters',
   password: 'Password',
   signIn: 'Log in',
   signUp: 'Sign up',

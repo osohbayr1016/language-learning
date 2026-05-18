@@ -3,6 +3,7 @@ import { StyleSheet, Text, View } from 'react-native';
 import type { ImportedLessonContent } from '../../../lib/types';
 import { colors, radius, spacing, typography } from '../../../theme';
 import { mn } from '../../../i18n/mn';
+import { MockExamAudioButton } from '../../study/MockExamAudioButton';
 
 const styles = StyleSheet.create({
   cn: { ...typography.heading.md, color: colors.text.primary },
@@ -40,6 +41,7 @@ export function DialoguePane({ content }: { content: ImportedLessonContent }) {
       {blocks.map((d) => (
         <View key={`${d.no}-${d.title}`} style={styles.block}>
           <Text style={styles.h}>{d.title}</Text>
+          {d.audio_url ? <MockExamAudioButton uri={d.audio_url} /> : null}
           {d.lines!.map((l, i) => (
             <View key={`${l.cn}-${i}`} style={styles.line}>
               {l.speaker ? <Text style={styles.speaker}>{l.speaker}</Text> : null}
@@ -72,6 +74,7 @@ export function EasyTextsPane({ content }: { content: ImportedLessonContent }) {
 }
 
 export { VocabPane } from './VocabPane';
+export { RadicalsPane } from './RadicalsPane';
 
 export function NotesPane({
   title,

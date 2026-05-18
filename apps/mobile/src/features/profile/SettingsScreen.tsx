@@ -1,6 +1,7 @@
 import React from 'react';
 import { Pressable, StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
+import { useRouter } from 'expo-router';
 import { Card, Screen } from '../../primitives';
 import { useGamification } from '../../context/GamificationContext';
 import { MicrophoneTestPanel } from './MicrophoneTestPanel';
@@ -8,16 +9,34 @@ import { SettingsRoleRefreshCard } from './SettingsRoleRefreshCard';
 import { ProfileScreenBackBar } from './ProfileScreenBackBar';
 import { colors, radius, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
+import { useAuth } from '../../context/AuthContext';
+import { openLegalPage } from '../legal/openLegalPage';
 
 const GOALS = [10, 30, 60, 120];
 
 export function SettingsScreen() {
+  const router = useRouter();
   const { dailyGoal, setDailyGoal } = useGamification();
+  const { isAuthenticated } = useAuth();
 
   return (
     <Screen scroll>
       <ProfileScreenBackBar title={mn.profile.settings} fallback="/(tabs)/profile" style={{ marginBottom: spacing.lg }} />
+
       <Card padding="lg">
+        <Text style={styles.section}>{mn.profile.legalSectionTitle}</Text>
+        <LegalRow label={mn.profile.privacyPolicy} onPress={() => openLegalPage(router, '/privacy')} />
+        <View style={styles.divider} />
+        <LegalRow label={mn.profile.termsOfService} onPress={() => openLegalPage(router, '/terms')} />
+        {isAuthenticated ? (
+          <>
+            <View style={styles.divider} />
+            <LegalRow label={mn.profile.deleteAccount} onPress={() => router.push('/profile/delete-account')} />
+          </>
+        ) : null}
+      </Card>
+
+      <Card padding="lg" style={{ marginTop: spacing.md }}>
         <Text style={styles.section}>{mn.home.dailyGoal}</Text>
         <Text style={styles.hint}>Өдөрт хичнээн XP цуглуулах вэ?</Text>
         <View style={styles.row}>
@@ -84,4 +103,21 @@ const styles = StyleSheet.create({
   chipLabelActive: { color: colors.text.primary },
   tipRow: { flexDirection: 'row', alignItems: 'center', gap: spacing.sm, marginTop: spacing.sm },
   tip: { ...typography.body.md, color: colors.text.secondary, flex: 1 },
+  divider: { height: StyleSheet.hairlineWidth, backgroundColor: colors.border, marginVertical: spacing.sm },
+  legalRow: {
+    flexDirection: 'row',
+    alignItems: 'center',
+    justifyContent: 'space-between',
+    paddingVertical: spacing.sm,
+  },
+  legalLabel: { ...typography.body.md, color: colors.text.primary, flex: 1 },
 });
+
+function LegalRow({ label, onPress }: { label: string; onPress: () => void }) {
+  return (
+    <Pressable onPress={onPress} style={({ pressed }) => [styles.legalRow, pressed && { opacity: 0.72 }]}>
+      <Text style={styles.legalLabel}>{label}</Text>
+      <Ionicons name="chevron-forward" size={20} color={colors.text.secondary} />
+    </Pressable>
+  );
+}

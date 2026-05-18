@@ -1,64 +1,93 @@
 import React, { useCallback, useRef, useState } from 'react';
-import { Pressable, StyleSheet, Text, TextInput, View } from 'react-native';
+import { Pressable, StyleSheet, TextInput, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
-import { Button, Input } from '../../primitives';
-import { colors, spacing, typography } from '../../theme';
+import { Input } from '../../primitives';
+import { colors, spacing } from '../../theme';
 import { useAuthLocale } from './AuthLocaleContext';
-import { validateAuthEmail, validateAuthPassword } from './authFormValidate';
+import {
+  validateAuthDisplayName,
+  validateAuthEmail,
+  validateAuthPassword,
+} from './authFormValidate';
+import {
+  mapDisplayNameFieldError,
+  mapEmailFieldError,
+  mapPasswordFieldError,
+} from './authLocaleFieldErrors';
 import { AuthFormShell } from './AuthFormShell';
 import { AuthForgotLink } from './AuthForgotLink';
-import { AuthGoogleButton } from './AuthGoogleButton';
+import { AuthFormActions } from './AuthFormActions';
+import { RegisterDisplayNameField } from './RegisterDisplayNameField';
+
+export type AuthFormCredentials = {
+  email: string;
+  password: string;
+  /** Register flow only — persisted as users.display_name (leaderboard, profile). */
+  displayName?: string;
+};
 
 type Props = {
   mode: 'login' | 'register';
   loading: boolean;
   error: string;
-  onSubmit: (email: string, password: string) => void;
+  onSubmit: (credentials: AuthFormCredentials) => void;
 };
 
 export function AuthForm({ mode, loading, error, onSubmit }: Props) {
   const { strings } = useAuthLocale();
+  const [displayName, setDisplayName] = useState('');
   const [email, setEmail] = useState('');
   const [password, setPassword] = useState('');
   const [showPassword, setShowPassword] = useState(false);
+  const [dnErr, setDnErr] = useState<string | undefined>();
   const [emailErr, setEmailErr] = useState<string | undefined>();
   const [pwErr, setPwErr] = useState<string | undefined>();
+  const nameRef = useRef<TextInput>(null);
+  const emailRef = useRef<TextInput>(null);
   const pwRef = useRef<TextInput>(null);
 
-  const mapEmailErr = useCallback(
-    (k: string | undefined) => {
-      if (k === 'required') return strings.requiredEmail;
-      if (k === 'invalid') return strings.emailInvalid;
-      return undefined;
-    },
-    [strings],
-  );
-
-  const mapPwErr = useCallback(
-    (k: string | undefined) => {
-      if (k === 'required') return strings.requiredPassword;
-      if (k === 'weak') return strings.weakPassword;
-      return undefined;
-    },
-    [strings],
-  );
-
   const runSubmit = useCallback(() => {
+    const dnTrim = displayName.trim();
+    const dnV = mode === 'register' ? validateAuthDisplayName(displayName) : undefined;
     const eV = validateAuthEmail(email);
     const pV = validateAuthPassword(password, mode);
-    setEmailErr(mapEmailErr(eV));
-    setPwErr(mapPwErr(pV));
-    if (eV || pV) return;
-    onSubmit(email.trim(), password);
-  }, [email, password, mode, mapEmailErr, mapPwErr, onSubmit]);
+    setDnErr(mapDisplayNameFieldError(strings, dnV));
+    setEmailErr(mapEmailFieldError(strings, eV));
+    setPwErr(mapPasswordFieldError(strings, pV));
+    if (dnV || eV || pV) return;
+    onSubmit({
+      email: email.trim(),
+      password,
+      displayName: mode === 'register' ? dnTrim : undefined,
+    });
+  }, [displayName, email, password, mode, strings, onSubmit]);
 
-  const onBlurEmail = () => setEmailErr(mapEmailErr(validateAuthEmail(email)));
-  const onBlurPw = () => setPwErr(mapPwErr(validateAuthPassword(password, mode)));
+  const onBlurDn = () =>
+    setDnErr(mapDisplayNameFieldError(strings, validateAuthDisplayName(displayName)));
+  const onBlurEmail = () => setEmailErr(mapEmailFieldError(strings, validateAuthEmail(email)));
+  const onBlurPw = () =>
+    setPwErr(mapPasswordFieldError(strings, validateAuthPassword(password, mode)));
 
   return (
     <AuthFormShell onSubmit={runSubmit}>
       <View style={styles.form}>
+        {mode === 'register' ? (
+          <RegisterDisplayNameField
+            label={strings.displayName}
+            placeholder={strings.displayNamePlaceholder}
+            value={displayName}
+            onChangeText={(t) => {
+              setDisplayName(t);
+              if (dnErr) setDnErr(undefined);
+            }}
+            onBlur={onBlurDn}
+            error={dnErr}
+            inputRef={nameRef}
+            onSubmitEditing={() => emailRef.current?.focus()}
+          />
+        ) : null}
         <Input
+          ref={emailRef}
           label={strings.email}
           placeholder="name@example.com"
           autoCapitalize="none"
@@ -107,21 +136,7 @@ export function AuthForm({ mode, loading, error, onSubmit }: Props) {
 
         <AuthForgotLink strings={strings} />
 
-        {error ? (
-          <View style={styles.errorBox}>
-            <Text style={styles.errorText}>{error}</Text>
-          </View>
-        ) : null}
-
-        <Button
-          label={mode === 'login' ? strings.signIn : strings.signUp}
-          loading={loading}
-          onPress={runSubmit}
-          accessibilityLabel={mode === 'login' ? strings.signIn : strings.signUp}
-          style={styles.submit}
-        />
-
-        <AuthGoogleButton strings={strings} />
+        <AuthFormActions mode={mode} loading={loading} error={error} onSubmitPress={runSubmit} />
       </View>
     </AuthFormShell>
   );
@@ -130,15 +145,4 @@ export function AuthForm({ mode, loading, error, onSubmit }: Props) {
 const styles = StyleSheet.create({
   form: { marginTop: spacing.md },
   field: { marginBottom: spacing.md },
-  errorBox: {
-    backgroundColor: 'rgba(239, 68, 68, 0.12)',
-    padding: spacing.md,
-    borderRadius: 12,
-    marginTop: spacing.sm,
-    marginBottom: spacing.sm,
-    borderWidth: 1,
-    borderColor: 'rgba(239, 68, 68, 0.3)',
-  },
-  errorText: { ...typography.body.md, color: colors.error },
-  submit: { marginTop: spacing.md },
 });

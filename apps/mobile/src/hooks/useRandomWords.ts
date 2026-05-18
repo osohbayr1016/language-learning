@@ -2,12 +2,19 @@ import { useEffect, useState } from 'react';
 import { api } from '../lib/api';
 import type { Word } from '../lib/types';
 
-export function useRandomWords(count: number, hsk?: number) {
+/** When `enabled` is false, skips fetch (e.g. lesson word pool is used instead). */
+export function useRandomWords(count: number, hsk?: number, enabled = true) {
   const [words, setWords] = useState<Word[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [loading, setLoading] = useState(enabled);
   const [error, setError] = useState<string | null>(null);
 
   useEffect(() => {
+    if (!enabled) {
+      setWords([]);
+      setLoading(false);
+      setError(null);
+      return;
+    }
     void load();
     async function load() {
       setLoading(true);
@@ -22,7 +29,7 @@ export function useRandomWords(count: number, hsk?: number) {
         setLoading(false);
       }
     }
-  }, [count, hsk]);
+  }, [count, hsk, enabled]);
 
   return { words, loading, error };
 }

@@ -21,10 +21,13 @@ type Props = {
   currentOrderNum?: number;
   importedContent?: ImportedLessonContent | null;
   chapterHskLevel?: HskLevel;
+  lessonId?: number;
   /** false = админ урьдчилан харах (дараагийн хичээл, mock шалгалт нууна) */
   enablePostLessonNav?: boolean;
   /** Импорт/урьдчилан харах: XP, цаг, чадварын дугуйг харуулахгүй */
   minimalComplete?: boolean;
+  /** Workbook quiz should call admin lesson preview API (same draft content as lesson preview). */
+  workbookPracticeUsesAdminLessonDetail?: boolean;
 };
 
 export function LessonDoneScreen({
@@ -38,8 +41,10 @@ export function LessonDoneScreen({
   currentOrderNum,
   importedContent,
   chapterHskLevel,
+  lessonId,
   enablePostLessonNav = true,
   minimalComplete = false,
+  workbookPracticeUsesAdminLessonDetail = false,
 }: Props) {
   const { streak } = useGamification();
   const { token } = useAuth();
@@ -74,7 +79,9 @@ export function LessonDoneScreen({
   if (minimalComplete) {
     return (
       <LessonDoneMinimal
+        lessonId={lessonId}
         enablePostLessonNav={enablePostLessonNav}
+        workbookPracticeUsesAdminLessonDetail={workbookPracticeUsesAdminLessonDetail}
         nextLesson={nextLesson}
         goNext={goNext}
         onContinue={onContinue}

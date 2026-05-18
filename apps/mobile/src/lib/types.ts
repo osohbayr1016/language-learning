@@ -41,13 +41,24 @@ export type ImportedDialogue = {
   lines?: ImportedDialogueLine[];
   text_cn?: string;
   text_mn?: string;
+  audio_url?: string;
 };
 export type ImportedNote = { title: string; body: string };
+export type ImportedRadical = {
+  char: string;
+  name_mn: string;
+  variant?: string;
+  note_mn?: string;
+};
 export type ImportedWorkbookItem = {
   q: string;
   options?: string[];
   answer?: string | boolean | null;
   parts?: string[];
+  audio_url?: string;
+  full_track_url?: string;
+  gradable?: boolean;
+  packageExerciseType?: string;
 };
 export type ImportedWorkbookSection = {
   type: string;
@@ -62,9 +73,18 @@ export type ImportedLessonContent = {
   source: string;
   summary: string;
   dialogues: ImportedDialogue[];
-  vocab: { hanzi: string; pinyin: string; meaning_mn: string; hsk_level: number }[];
+  vocab: {
+    hanzi: string;
+    pinyin: string;
+    meaning_mn: string;
+    hsk_level: number;
+    radical?: string;
+  }[];
+  radicals?: ImportedRadical[];
   grammar: ImportedNote[];
   slang: ImportedNote[];
+  /** ZIP/HTML импортод `common_mistakes` массив байвал */
+  common_mistakes?: ImportedNote[];
   workbook: { sections: ImportedWorkbookSection[] };
   quizlet_text: string;
   mock_exam_template_id?: number;

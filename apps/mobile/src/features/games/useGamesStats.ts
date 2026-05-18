@@ -15,7 +15,7 @@ export type GamesStats = {
 
 const EMPTY: GamesStats = {
   total: 0,
-  bestByType: { match: 0, translate: 0, sentence: 0, stroke: 0, writer: 0 },
+  bestByType: { match: 0, translate: 0, sentence: 0, stroke: 0, writer: 0, arrange: 0 },
   lastPlayed: null,
   avgAccuracy: 0,
   recent: [],

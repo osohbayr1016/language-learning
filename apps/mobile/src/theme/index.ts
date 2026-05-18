@@ -138,3 +138,5 @@ export const gradients = {
 export const layout = {
   phoneWebMaxWidth: 430,
 } as const;
+
+export { sansFontFamily };

@@ -9,10 +9,10 @@ type Props = {
   total: number;
   onMoveUp: (idx: number) => void;
   onMoveDown: (idx: number) => void;
-  onRemove: (id: number) => void;
+  onRequestRemove: () => void;
 };
 
-export function AdminLessonWordRow({ item, index, total, onMoveUp, onMoveDown, onRemove }: Props) {
+export function AdminLessonWordRow({ item, index, total, onMoveUp, onMoveDown, onRequestRemove }: Props) {
   return (
     <View style={styles.wrow}>
       <View style={styles.wordOrderBtns}>
@@ -37,7 +37,7 @@ export function AdminLessonWordRow({ item, index, total, onMoveUp, onMoveDown, o
           {item.pinyin} · {item.meaning_mn}
         </Text>
       </View>
-      <Pressable onPress={() => void onRemove(item.word_id)}>
+      <Pressable onPress={onRequestRemove}>
         <Text style={styles.rm}>Хасах</Text>
       </Pressable>
     </View>

@@ -1,39 +1,42 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ActivityIndicator, StyleSheet, View } from 'react-native';
-import { Screen } from '../../../primitives';
-import { useRandomWords } from '../../../hooks/useRandomWords';
 import { useGameSession } from '../../../hooks/useGameSession';
 import { useAdaptiveTimer } from '../../../hooks/useAdaptiveTimer';
 import { useAudio } from '../../../context/AudioContext';
-import { colors, spacing } from '../../../theme';
 import { mn } from '../../../i18n/mn';
-import { GameHud } from '../GameHud';
 import { GameOverScreen } from '../GameOverScreen';
-import { SentencePrompt } from './SentencePrompt';
-import { CandidateTray } from './CandidateTray';
 import { timingScore } from '../translate/scoring';
 import type { Word } from '../../../lib/types';
+import { useGameScreenWordPool } from '../useGameScreenWordPool';
+import { canPlayLessonSentence } from '../lessonGameUtils';
+import { LessonGameGate } from '../LessonGameGate';
+import { SentencePlayPanel } from './SentencePlayPanel';
 
 const ROUNDS = 6;
 const OPTIONS = 4;
 
 type Props = {
+  lessonId?: string;
   initialWords?: Word[];
   onDone?: (score: number, accuracy: number) => void;
 };
 
-export default function SentenceScreen({ initialWords, onDone }: Props) {
-  const { words: randomPool, loading } = useRandomWords(ROUNDS + OPTIONS + 4);
-  const pool = initialWords ?? randomPool;
-  const { save } = useGameSession();
-  const timer = useAdaptiveTimer();
-  const { playWord } = useAudio();
+export default function SentenceScreen({ lessonId, initialWords, onDone }: Props) {
+  const { words, loading, lessonErr, useLesson, lessonIdNum } = useGameScreenWordPool({
+    lessonId,
+    initialWords,
+    randomCount: ROUNDS + OPTIONS + 4,
+  });
 
+  const pool = words;
   const queue = useMemo(
     () => pool.filter((w) => (w.example_zh ?? '').length > 0),
     [pool]
   );
   const distractorPool = useMemo(() => pool, [pool]);
+
+  const { save } = useGameSession();
+  const timer = useAdaptiveTimer();
+  const { playWord } = useAudio();
 
   const [idx, setIdx] = useState(0);
   const [selected, setSelected] = useState<Word | null>(null);
@@ -50,11 +53,9 @@ export default function SentenceScreen({ initialWords, onDone }: Props) {
     return [current, ...distractors].sort(() => Math.random() - 0.5);
   }, [current, distractorPool]);
 
-  useEffect(() => { if (current) timer.start(); }, [current, timer]);
-
-  if (!initialWords && loading) {
-    return <Screen><View style={styles.center}><ActivityIndicator color={colors.accent.purple} /></View></Screen>;
-  }
+  useEffect(() => {
+    if (current) timer.start();
+  }, [current, timer]);
 
   useEffect(() => {
     if (!loading && queue.length === 0 && onDone && !done) {
@@ -62,34 +63,8 @@ export default function SentenceScreen({ initialWords, onDone }: Props) {
     }
   }, [loading, queue.length, onDone, done]);
 
-  if (queue.length === 0) {
-    return (
-      <Screen>
-        <View style={styles.center}>
-          <GameHud title={mn.games.sentence} score={0} />
-        </View>
-      </Screen>
-    );
-  }
-
-  if (done) {
-    if (onDone) {
-      return null;
-    }
-    return (
-      <GameOverScreen
-        score={score}
-        xp={Math.round(score / 4)}
-        durationSeconds={Math.round((Date.now() - start) / 1000)}
-        onPlayAgain={() => {
-          setIdx(0); setSelected(null); setScore(0); setCorrectCount(0); setStart(Date.now()); setDone(false);
-        }}
-      />
-    );
-  }
-
   const handlePick = async (w: Word) => {
-    if (selected) return;
+    if (selected || !current) return;
     const ms = timer.stopAndReset() ?? 5000;
     const ok = w.id === current.id;
     setSelected(w);
@@ -114,6 +89,7 @@ export default function SentenceScreen({ initialWords, onDone }: Props) {
           duration_seconds: elapsed,
           words_practiced: queue.length,
           xp_earned: xp,
+          ...(lessonIdNum != null ? { lesson_id: lessonIdNum } : {}),
         });
         setDone(true);
         if (onDone) onDone(finalScore, acc);
@@ -123,28 +99,52 @@ export default function SentenceScreen({ initialWords, onDone }: Props) {
     }, 900);
   };
 
-  const state: 'idle' | 'correct' | 'wrong' = selected
-    ? selected.id === current.id ? 'correct' : 'wrong'
+  const trayState: 'idle' | 'correct' | 'wrong' = selected
+    ? selected.id === current?.id
+      ? 'correct'
+      : 'wrong'
     : 'idle';
 
   return (
-    <Screen scroll>
-      <GameHud
-        title={mn.games.sentence}
-        score={score}
-        progressLabel={`${idx + 1}/${queue.length}`}
-      />
-      <SentencePrompt word={current} filled={selected?.hanzi ?? null} />
-      <CandidateTray
-        candidates={candidates}
-        selectedId={selected?.id ?? null}
-        state={state}
-        onPick={handlePick}
-      />
-    </Screen>
+    <LessonGameGate
+      initialWords={initialWords}
+      loading={loading}
+      useLesson={useLesson}
+      lessonErr={lessonErr}
+      words={pool}
+      canPlay={canPlayLessonSentence(pool)}
+      tooFewMessage={mn.games.lessonWordsHintSentence}
+      emptyTitle={mn.games.sentence}
+      playlistEmpty={!loading && queue.length === 0}
+    >
+      {done ? (
+        onDone ? null : (
+          <GameOverScreen
+            score={score}
+            xp={Math.round(score / 4)}
+            durationSeconds={Math.round((Date.now() - start) / 1000)}
+            onPlayAgain={() => {
+              setIdx(0);
+              setSelected(null);
+              setScore(0);
+              setCorrectCount(0);
+              setStart(Date.now());
+              setDone(false);
+            }}
+          />
+        )
+      ) : (
+        <SentencePlayPanel
+          current={current}
+          queueLen={queue.length}
+          idx={idx}
+          score={score}
+          selected={selected}
+          candidates={candidates}
+          state={trayState}
+          onPick={handlePick}
+        />
+      )}
+    </LessonGameGate>
   );
 }
-
-const styles = StyleSheet.create({
-  center: { flex: 1, alignItems: 'center', justifyContent: 'center' },
-});

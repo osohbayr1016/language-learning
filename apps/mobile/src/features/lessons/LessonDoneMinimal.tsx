@@ -1,4 +1,5 @@
-import React from 'react';
+import { useRouter } from 'expo-router';
+import React, { useMemo } from 'react';
 import { StyleSheet, Text, View } from 'react-native';
 import { Ionicons } from '@expo/vector-icons';
 import { Button, Screen } from '../../primitives';
@@ -7,9 +8,13 @@ import { colors, spacing, typography } from '../../theme';
 import { mn } from '../../i18n/mn';
 import { LessonDoneMockExamCta } from './LessonDoneMockExamCta';
 import type { HskLevel, ImportedLessonContent } from '../../lib/types';
+import { interactiveWorkbookQuizCount } from './workbookPractice/collectInteractiveWorkbookQuizItems';
 
 type Props = {
+  lessonId?: number;
   enablePostLessonNav: boolean;
+  /** When true, workbook practice navigates with `adminPreview` so quiz data loads via admin preview endpoint. */
+  workbookPracticeUsesAdminLessonDetail?: boolean;
   nextLesson: { id: number; title_mn: string } | null;
   goNext: () => void;
   onContinue: () => void;
@@ -18,7 +23,9 @@ type Props = {
 };
 
 export function LessonDoneMinimal({
+  lessonId,
   enablePostLessonNav,
+  workbookPracticeUsesAdminLessonDetail = false,
   nextLesson,
   goNext,
   onContinue,
@@ -26,6 +33,21 @@ export function LessonDoneMinimal({
   chapterHskLevel,
 }: Props) {
   const { token } = useAuth();
+  const router = useRouter();
+
+  const practiceCount = useMemo(
+    () =>
+      importedContent && lessonId != null ? interactiveWorkbookQuizCount(importedContent) : 0,
+    [importedContent, lessonId]
+  );
+
+  const goWorkbookPractice = () => {
+    if (lessonId == null) return;
+    const qp = workbookPracticeUsesAdminLessonDetail ? '?adminPreview=1' : '';
+    router.push(`/lessons/${lessonId}/workbook-practice${qp}` as never);
+  };
+
+  const showWorkbookPractice = lessonId != null && practiceCount > 0;
 
   return (
     <Screen scroll>
@@ -40,6 +62,14 @@ export function LessonDoneMinimal({
             token={token}
             imported={importedContent}
             chapterHskLevel={chapterHskLevel}
+          />
+        ) : null}
+        {showWorkbookPractice ? (
+          <Button
+            label={mn.lesson.workbookPractice.testMyself}
+            variant="secondary"
+            onPress={goWorkbookPractice}
+            accessibilityLabel={mn.lesson.workbookPractice.testMyself}
           />
         ) : null}
         {enablePostLessonNav && nextLesson ? (

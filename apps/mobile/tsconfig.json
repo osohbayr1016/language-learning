@@ -6,7 +6,8 @@
     "moduleResolution": "Bundler",
     "jsx": "react-native",
     "lib": [
-      "ESNext"
+      "ESNext",
+      "DOM"
     ],
     "strict": true,
     "paths": {

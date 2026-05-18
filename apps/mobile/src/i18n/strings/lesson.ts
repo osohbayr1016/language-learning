@@ -42,13 +42,38 @@ export const lesson = {
   importedEmptyBlock: 'Энэ хэсэгт агуулга байхгүй.',
   importedEmptyDialogue: 'Ярианы мөр энэ хувилбарт байхгүй байна.',
   importedEmptyEasyTexts: 'Товч өгүүлбэрүүд энэ хувилбарт байхгүй байна.',
+  importedEmptyRadicals: 'Судар энэ хувилбарт байхгүй байна.',
+  radicalOnWord: 'Судар',
   importedSectionPrompt: {
     summary: 'Товч танилцуулга уншаад ойлголоо',
+    radicals: 'Судрыг уншаад ойлголоо',
     kanjis: 'Шинэ ханзнуудыг уншаад ойлголоо',
     phrases: 'Тогтоолуудыг уншаад ойлголоо',
     'easy-texts': 'Товч, ойлгомжтой текстүүдийг уншаад ойлголоо',
     dialogue: 'Ярилцлагыг уншаад ойлголоо',
     grammar: 'Дүрмийн хэсгийг уншаад ойлголоо',
     slang: 'Slang, идиомыг уншаад ойлголоо',
+  },
+  workbookPractice: {
+    /** CTA on lesson-complete screen when JSON has auto-gradable MCQ-style items */
+    testMyself: 'Өөрийгөө шалгах',
+    title: 'Хичээлийн дасгал',
+    empty:
+      'Автоматаар үнэлэх даалгавар (сонголттой) байхгүй байна — шинээр ZIP импорт хийж үзээрэй.',
+    roundLabel: 'Асуулт',
+    finish: 'Дуусах',
+    resultTitle: 'Дууслаа!',
+    resultAccuracy: 'Нарийвчлал: {n}%',
+    backStudy: 'Судлах хэсэг рүү',
+  },
+  workbookReview: {
+    title: 'Дасгалын хариулт',
+    empty: 'Энэ хичээлд workbook дасгал агуулаагүй байна.',
+    answerHeading: 'Хариулт',
+    noAnswer: 'Хариулт оруулаагүй',
+    trueAnswer: 'Үнэн',
+    falseAnswer: 'Худал',
+    clipAudio: 'Клип сонсох',
+    fullAudio: 'Бүтэн бичлэг',
   },
 };

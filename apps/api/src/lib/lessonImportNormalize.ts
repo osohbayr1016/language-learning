@@ -2,10 +2,12 @@ import type {
   ImportedDialogue,
   ImportedLessonContent,
   ImportedNote,
+  ImportedRadical,
   ImportedVocab,
   ImportedWorkbookItem,
   LessonHtmlPreview,
 } from './lessonImportTypes';
+import { commonMistakeNotes } from './lessonPackageNormalize';
 import { vocabQuizMismatchWarnings } from './lessonImportQuizWarnings';
 
 function str(v: unknown): string {
@@ -27,12 +29,50 @@ function notes(rows: unknown): ImportedNote[] {
 function vocab(rows: unknown): ImportedVocab[] {
   if (!Array.isArray(rows)) return [];
   return rows
-    .map((r) =>
-      Array.isArray(r)
-        ? { hanzi: str(r[0]), pinyin: str(r[1]), meaning_mn: str(r[2]), hsk_level: hsk(r[3]) }
-        : null
-    )
+    .map((r) => {
+      if (Array.isArray(r)) {
+        const radicalRaw = typeof r[4] === 'string' ? str(r[4]) : '';
+        const base: ImportedVocab = {
+          hanzi: str(r[0]),
+          pinyin: str(r[1]),
+          meaning_mn: str(r[2]),
+          hsk_level: hsk(r[3]),
+        };
+        if (radicalRaw) base.radical = radicalRaw;
+        return base;
+      }
+      const o = (r ?? {}) as Record<string, unknown>;
+      const radicalRaw = str(o.radical) || str(o.radical_char);
+      const base: ImportedVocab = {
+        hanzi: str(o.word ?? o.hanzi),
+        pinyin: str(o.pinyin),
+        meaning_mn: str(o.meaning_mn ?? o.mn),
+        hsk_level: hsk(o.hsk),
+      };
+      if (radicalRaw) base.radical = radicalRaw;
+      return base.hanzi && base.pinyin && base.meaning_mn ? base : null;
+    })
     .filter((r): r is ImportedVocab => !!r?.hanzi && !!r.pinyin && !!r.meaning_mn);
+}
+
+function radicalsHtml(raw: unknown): ImportedRadical[] {
+  if (!Array.isArray(raw)) return [];
+  const out: ImportedRadical[] = [];
+  for (const row of raw) {
+    const r = (row ?? {}) as Record<string, unknown>;
+    const char = str(r.char) || str(r.glyph) || str(r.radical);
+    const nameMn = str(r.name_mn) || str(r.mn) || str(r.name);
+    if (!char || !nameMn) continue;
+    const variant = str(r.variant) || str(r.variant_char) || undefined;
+    const noteMn = str(r.note_mn) || str(r.note) || undefined;
+    out.push({
+      char,
+      name_mn: nameMn,
+      ...(variant ? { variant } : {}),
+      ...(noteMn ? { note_mn: noteMn } : {}),
+    });
+  }
+  return out;
 }
 
 function line(raw: unknown) {
@@ -103,8 +143,12 @@ export function normalizeLessonImport(raw: unknown): ImportedLessonContent {
     summary: str(lesson.summary),
     dialogues: dialogues(lesson.dialogues),
     vocab: vocab(lesson.vocab),
+    radicals: radicalsHtml((lesson as Record<string, unknown>).radicals ?? root.radicals),
     grammar: notes(lesson.grammar),
     slang: notes(lesson.slang),
+    common_mistakes: commonMistakeNotes(
+      (lesson as Record<string, unknown>).common_mistakes ?? root.common_mistakes
+    ),
     workbook: workbook(root.workbook),
     quizlet_text: str(lesson.quizlet_text) || str(root.quizlet_text),
     ...(mockExamId != null ? { mock_exam_template_id: mockExamId } : {}),

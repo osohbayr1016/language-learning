@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { Fragment, useEffect, useState } from 'react';
 import {
   Alert,
   Modal,
@@ -11,6 +11,7 @@ import {
 } from 'react-native';
 import { api } from '../../lib/api';
 import type { Word } from '../../lib/types';
+import { ConfirmDialog } from '../../primitives';
 import { colors, spacing, typography } from '../../theme';
 
 type Props = {
@@ -35,6 +36,7 @@ export function AdminWordEditModal({ visible, word, token, onClose, onSaved }: P
   const [py, setPy] = useState('');
   const [mnStr, setMnStr] = useState('');
   const [hsk, setHsk] = useState('1');
+  const [deleteOpen, setDeleteOpen] = useState(false);
 
   useEffect(() => {
     if (!word) return;
@@ -61,8 +63,9 @@ export function AdminWordEditModal({ visible, word, token, onClose, onSaved }: P
     }
   };
 
-  const del = async () => {
+  const doDelete = async () => {
     if (!word) return;
+    setDeleteOpen(false);
     try {
       await api.words.remove(token, word.id);
       toast('Устгагдлаа');
@@ -74,30 +77,39 @@ export function AdminWordEditModal({ visible, word, token, onClose, onSaved }: P
   };
 
   return (
-    <Modal visible={visible} animationType="slide" transparent>
-      <View style={styles.back}>
-        <View style={styles.sheet}>
-          <Text style={styles.title}>Засах #{word?.id ?? ''}</Text>
-          <Text style={styles.lbl}>Ханз</Text>
-          <TextInput style={styles.inp} value={hanzi} onChangeText={setHanzi} />
-          <Text style={styles.lbl}>Pinyin</Text>
-          <TextInput style={styles.inp} value={py} onChangeText={setPy} autoCapitalize="none" />
-          <Text style={styles.lbl}>Утга</Text>
-          <TextInput style={styles.inp} value={mnStr} onChangeText={setMnStr} />
-          <Text style={styles.lbl}>HSK</Text>
-          <TextInput style={styles.inp} value={hsk} onChangeText={setHsk} keyboardType="number-pad" />
-          <Pressable style={styles.primary} onPress={() => void save()}>
-            <Text style={styles.primaryTxt}>Хадгалах</Text>
-          </Pressable>
-          <Pressable style={styles.danger} onPress={() => void del()}>
-            <Text style={styles.dangerTxt}>Устгах</Text>
-          </Pressable>
-          <Pressable style={styles.secondary} onPress={onClose}>
-            <Text style={styles.secondaryTxt}>Хаах</Text>
-          </Pressable>
+    <Fragment>
+      <Modal visible={visible} animationType="slide" transparent>
+        <View style={styles.back}>
+          <View style={styles.sheet}>
+            <Text style={styles.title}>Засах #{word?.id ?? ''}</Text>
+            <Text style={styles.lbl}>Ханз</Text>
+            <TextInput style={styles.inp} value={hanzi} onChangeText={setHanzi} />
+            <Text style={styles.lbl}>Pinyin</Text>
+            <TextInput style={styles.inp} value={py} onChangeText={setPy} autoCapitalize="none" />
+            <Text style={styles.lbl}>Утга</Text>
+            <TextInput style={styles.inp} value={mnStr} onChangeText={setMnStr} />
+            <Text style={styles.lbl}>HSK</Text>
+            <TextInput style={styles.inp} value={hsk} onChangeText={setHsk} keyboardType="number-pad" />
+            <Pressable style={styles.primary} onPress={() => void save()}>
+              <Text style={styles.primaryTxt}>Хадгалах</Text>
+            </Pressable>
+            <Pressable style={styles.danger} onPress={() => setDeleteOpen(true)}>
+              <Text style={styles.dangerTxt}>Устгах</Text>
+            </Pressable>
+            <Pressable style={styles.secondary} onPress={onClose}>
+              <Text style={styles.secondaryTxt}>Хаах</Text>
+            </Pressable>
+          </View>
         </View>
-      </View>
-    </Modal>
+      </Modal>
+      <ConfirmDialog
+        visible={deleteOpen}
+        title="Үг устгах"
+        message={word ? `«${word.hanzi}» үгийг бүрмөсөн устгах уу?` : undefined}
+        onCancel={() => setDeleteOpen(false)}
+        onConfirm={() => void doDelete()}
+      />
+    </Fragment>
   );
 }
 

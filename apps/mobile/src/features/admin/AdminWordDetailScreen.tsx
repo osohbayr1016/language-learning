@@ -15,7 +15,7 @@ import { api } from '../../lib/api';
 import type { Word } from '../../lib/types';
 import type { AdminChapter } from '../../lib/api/admin';
 import { useAuth } from '../../context/AuthContext';
-import { Screen, Button, Pill, Dialog } from '../../primitives';
+import { Screen, Button, Pill, Dialog, ConfirmDialog } from '../../primitives';
 import { PronounceButton } from '../../components/audio/PronounceButton';
 import { colors, radius, spacing, typography } from '../../theme';
 
@@ -38,9 +38,9 @@ export function AdminWordDetailScreen({ wordId }: Props) {
   const [searchQ, setSearchQ] = useState('');
   const [addLessonId, setAddLessonId] = useState<number | null>(null);
 
-  // Dialog state
   const [dialogVisible, setDialogVisible] = useState(false);
   const [dialogContent, setDialogContent] = useState({ title: '', message: '' });
+  const [deleteConfirmOpen, setDeleteConfirmOpen] = useState(false);
 
   const showDialog = (title: string, message?: string) => {
     setDialogContent({ title, message: message || '' });
@@ -96,16 +96,11 @@ export function AdminWordDetailScreen({ wordId }: Props) {
     }
   };
 
-  const del = async () => {
+  const performDelete = async () => {
+    setDeleteConfirmOpen(false);
     if (!token || !word) return;
-    
-    // Web fallback for delete
-    const g = globalThis as { confirm?: (s: string) => boolean };
-    if (!g.confirm?.(`"${draft.hanzi}" үгийг устгах уу?`)) return;
-    
     try {
       await api.words.remove(token, wordId);
-      // We don't show dialog here because we are navigating away immediately.
       router.back();
     } catch (e) {
       showDialog('Алдаа', (e as Error).message);
@@ -287,7 +282,7 @@ export function AdminWordDetailScreen({ wordId }: Props) {
           <Pressable style={styles.saveButton} onPress={() => void save()} disabled={saving}>
             <Text style={styles.saveButtonText}>{saving ? 'Хадгалж байна...' : 'Хадгалах'}</Text>
           </Pressable>
-          <Pressable style={styles.deleteButton} onPress={() => void del()}>
+          <Pressable style={styles.deleteButton} onPress={() => setDeleteConfirmOpen(true)}>
             <Text style={styles.deleteButtonText}>Устгах</Text>
           </Pressable>
         </View>
@@ -297,6 +292,13 @@ export function AdminWordDetailScreen({ wordId }: Props) {
         title={dialogContent.title}
         message={dialogContent.message}
         onClose={() => setDialogVisible(false)}
+      />
+      <ConfirmDialog
+        visible={deleteConfirmOpen}
+        title="Үг устгах"
+        message={`«${draft.hanzi ?? ''}» үгийг бүрмөсөн устгах уу?`}
+        onCancel={() => setDeleteConfirmOpen(false)}
+        onConfirm={() => void performDelete()}
       />
     </KeyboardAvoidingView>
   );

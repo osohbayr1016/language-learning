@@ -5,6 +5,7 @@ import type { ImportedLessonContent, WordWithProgress } from '../../../lib/types
 import { useAudio } from '../../../context/AudioContext';
 import { StrokeStepsModal } from '../../../components/writing/StrokeStepsModal';
 import { colors, radius, spacing, typography } from '../../../theme';
+import { mn } from '../../../i18n/mn';
 
 type VocabRow = ImportedLessonContent['vocab'][number];
 
@@ -63,6 +64,11 @@ export function VocabPane({
           <View key={`${row.hanzi}-${i}`} style={styles.block}>
             <Text style={styles.cnLine}>{row.hanzi}</Text>
             <Text style={styles.p}>{row.pinyin}</Text>
+            {row.radical ? (
+              <Text style={styles.p}>
+                {mn.lesson.radicalOnWord}: {row.radical}
+              </Text>
+            ) : null}
             <Text style={styles.p}>{row.meaning_mn}</Text>
             <View style={styles.row}>
               <HskPill level={row.hsk_level} />

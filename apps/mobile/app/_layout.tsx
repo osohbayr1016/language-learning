@@ -12,8 +12,11 @@ import { GamificationProvider } from "../src/context/GamificationContext";
 import { DisplayPrefsProvider } from "../src/context/DisplayPrefsContext";
 import { AppShell } from "../src/primitives/AppShell";
 import { colors } from "../src/theme";
+import { ensureWebHanziFonts } from "../src/lib/web/ensureWebHanziFonts";
 
 SplashScreen.preventAutoHideAsync();
+
+const PUBLIC_LEGAL_ROOTS = new Set(["privacy", "terms", "delete-account"]);
 
 function RouteGuard() {
   const { isAuthenticated, isLoading, hasSeenOnboarding, isAdmin } = useAuth();
@@ -22,11 +25,14 @@ function RouteGuard() {
 
   useEffect(() => {
     if (isLoading) return;
+    const rootSegment = segments[0] as string | undefined;
+    if (rootSegment && PUBLIC_LEGAL_ROOTS.has(rootSegment)) {
+      return;
+    }
     const inAuth = segments[0] === "(auth)";
     const inOnboarding = segments[0] === "(onboarding)";
     const inSetup = segments[0] === "(setup)";
     const inTabs = segments[0] === "(tabs)";
-    const rootSegment = segments[0] as string | undefined;
     const inAdmin = rootSegment === "admin";
 
     if (inAdmin) {
@@ -59,6 +65,7 @@ function RouteGuard() {
 
 export default function RootLayout() {
   useEffect(() => {
+    ensureWebHanziFonts();
     SplashScreen.hideAsync();
   }, []);
 

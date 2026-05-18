@@ -25,15 +25,14 @@ export function Hsk1LessonList({ chapters }: Props) {
       {chapters.map((chapter) => {
         const total = chapter.lessons.length;
         const completed = chapter.lessons.filter((l) => l.progress?.completed_at).length;
-        const gateLocked = chapter.locked_below_advance_gate === true;
-        const isLocked = chapter.is_published === 0 || gateLocked;
+        const isLocked = chapter.is_published === 0;
         const currentIndex = chapter.lessons.findIndex((l) => !l.progress?.completed_at);
 
         return (
           <View key={chapter.id}>
             <ChapterCard
               title={chapter.title_mn}
-              subtitle={gateLocked ? mn.study.advanceGateHint : chapter.subtitle_mn}
+              subtitle={chapter.subtitle_mn}
               color={chapter.color}
               completed={completed}
               total={total}
@@ -46,7 +45,7 @@ export function Hsk1LessonList({ chapters }: Props) {
                   lesson={lesson}
                   color={chapter.color}
                   current={i === currentIndex}
-                  locked={gateLocked}
+                  locked={false}
                 />
               ))}
           </View>
@@ -58,6 +57,6 @@ export function Hsk1LessonList({ chapters }: Props) {
 
 const styles = StyleSheet.create({
   emptyCard: { marginBottom: spacing.md },
-  emptyTitle: { ...typography.heading.sm, color: colors.text.primary, marginBottom: spacing.xs },
-  emptyText: { ...typography.body.md, color: colors.text.secondary },
+  emptyTitle: { ...typography.heading.md, fontWeight: '900', color: colors.text.primary, marginBottom: spacing.xs },
+  emptyText: { ...typography.body.md, fontWeight: '600', color: colors.text.secondary },
 });

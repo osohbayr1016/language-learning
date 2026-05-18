@@ -116,4 +116,15 @@ user.post('/progress', async (c) => {
   return c.json({ message: 'Явц хадгалагдлаа', data: { xp_earned: body.xp_earned } });
 });
 
+/** Profile ownership refs without ON DELETE CASCADE must be cleared before deleting the user row. */
+user.delete('/account', async (c) => {
+  const { sub } = c.get('user');
+  await c.env.DB.batch([
+    c.env.DB.prepare('UPDATE courses SET created_by = NULL WHERE created_by = ?').bind(sub),
+    c.env.DB.prepare('UPDATE cartoons SET created_by = NULL WHERE created_by = ?').bind(sub),
+    c.env.DB.prepare('DELETE FROM users WHERE id = ?').bind(sub),
+  ]);
+  return c.json({ message: 'Бүртгэл устгагдлаа' });
+});
+
 export default user;

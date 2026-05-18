@@ -1,6 +1,6 @@
 import React from 'react';
 import { StyleSheet, Text, View } from 'react-native';
-import { Hsk1ProgramSection } from './Hsk1ProgramSection';
+import { LearnCurriculumSection } from './LearnCurriculumSection';
 import { mn } from '../../i18n/mn';
 import { colors, spacing, typography } from '../../theme';
 
@@ -9,7 +9,7 @@ export function StudyCourseSection() {
   return (
     <View style={styles.wrap}>
       <Text style={styles.title}>{mn.study.hsk1StudySectionTitle}</Text>
-      <Hsk1ProgramSection />
+      <LearnCurriculumSection maxHskLevel={3} listTitle={mn.study.hsk1LessonsTitle} />
     </View>
   );
 }

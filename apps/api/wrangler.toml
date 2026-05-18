@@ -4,10 +4,13 @@ compatibility_date = "2025-05-01"
 compatibility_flags = ["nodejs_compat"]
 
 # Local dev defaults — overridden in env.production for the deployed Worker.
+# Local wrangler dev uses Miniflare by default — without this, DB is local SQLite only
+# and does not contain production XP / leaderboard rows. Routes this binding at 160b44e2… during dev.
 [[d1_databases]]
 binding = "DB"
 database_name = "chinese-learning-db"
 database_id = "160b44e2-1323-4e51-b788-8fb43e4cb078"
+remote = true
 
 [[r2_buckets]]
 binding = "STORAGE"

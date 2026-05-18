@@ -19,14 +19,18 @@ games.post('/session', async (c) => {
     duration_seconds: number;
     words_practiced: number;
     xp_earned: number;
+    lesson_id?: number | null;
   }>();
 
+  const lessonId =
+    body.lesson_id != null && Number.isFinite(Number(body.lesson_id)) ? Math.trunc(Number(body.lesson_id)) : null;
+
   await c.env.DB.prepare(
-    `INSERT INTO game_sessions (user_id, game_type, score, accuracy, duration_seconds, words_practiced, xp_earned)
-     VALUES (?, ?, ?, ?, ?, ?, ?)`
+    `INSERT INTO game_sessions (user_id, game_type, score, accuracy, duration_seconds, words_practiced, xp_earned, lesson_id)
+     VALUES (?, ?, ?, ?, ?, ?, ?, ?)`
   ).bind(
     sub, body.game_type, body.score, body.accuracy,
-    body.duration_seconds, body.words_practiced, body.xp_earned
+    body.duration_seconds, body.words_practiced, body.xp_earned, lessonId
   ).run();
 
   await addXpToUserStats(c.env.DB, sub, body.xp_earned);
@@ -53,7 +57,7 @@ games.get('/history', async (c) => {
 // GET /api/games/leaderboard
 games.get('/leaderboard', async (c) => {
   const leaderboard = await c.env.DB.prepare(
-    `SELECT u.display_name, u.avatar_url, s.total_xp, s.words_mastered,
+    `SELECT u.id AS user_id, u.display_name, u.avatar_url, s.total_xp, s.words_mastered,
             st.current_streak
      FROM user_stats s
      JOIN users u ON s.user_id = u.id

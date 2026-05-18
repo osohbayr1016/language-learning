@@ -19,11 +19,11 @@ export default function LoginScreen() {
 
   const showRedirectBanner = useMemo(() => reason === 'protected', [reason]);
 
-  const handleSubmit = async (email: string, password: string) => {
+  const handleSubmit = async (payload: { email: string; password: string }) => {
     setLoading(true);
     setError('');
     try {
-      const res = await api.auth.login({ email, password });
+      const res = await api.auth.login({ email: payload.email, password: payload.password });
       await signIn(res.data);
     } catch (err) {
       setError((err as Error).message || strings.requestFailed);

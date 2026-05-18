@@ -1,0 +1,65 @@
+import React from 'react';
+import { StyleSheet, Text, View } from 'react-native';
+import { colors, radius, spacing, typography } from '../../theme';
+import { useGamification } from '../../context/GamificationContext';
+
+export function GamesXpStrip() {
+  const { stats } = useGamification();
+  const xp = stats?.total_xp ?? 0;
+  const level = Math.floor(xp / 100) + 1;
+  const nextXp = level * 100;
+  const progress = (xp % 100) / 100;
+
+  return (
+    <View style={styles.container}>
+      <View style={styles.row}>
+        <View style={styles.rowSpacer} />
+        <View style={styles.levelBadge}>
+          <Text style={styles.levelBadgeText}>Түвшин {level}</Text>
+        </View>
+      </View>
+      <View style={styles.progressContainer}>
+        <View style={[styles.progressBar, { width: `${progress * 100}%` }]} />
+      </View>
+      <Text style={styles.progressText}>
+        {xp} / {nextXp} XP
+      </Text>
+    </View>
+  );
+}
+
+const styles = StyleSheet.create({
+  container: { marginBottom: spacing.lg },
+  row: { flexDirection: 'row', alignItems: 'center', justifyContent: 'flex-end' },
+  rowSpacer: { flex: 1 },
+  levelBadge: {
+    backgroundColor: colors.accent.purple,
+    paddingHorizontal: spacing.sm,
+    paddingVertical: 4,
+    borderRadius: radius.full,
+  },
+  levelBadgeText: {
+    ...typography.body.sm,
+    color: '#FFF',
+    fontWeight: '800',
+  },
+  progressContainer: {
+    height: 8,
+    backgroundColor: colors.bg.secondary,
+    borderRadius: radius.full,
+    marginTop: spacing.md,
+    overflow: 'hidden',
+  },
+  progressBar: {
+    height: '100%',
+    backgroundColor: colors.accent.purple,
+    borderRadius: radius.full,
+  },
+  progressText: {
+    ...typography.body.sm,
+    fontSize: 11,
+    color: colors.text.muted,
+    marginTop: 4,
+    textAlign: 'right',
+  },
+});

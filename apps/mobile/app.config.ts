@@ -76,6 +76,15 @@ export default (): ExpoConfig => ({
   },
   extra: {
     apiUrl: 'https://chinese-learning-api.osohoo691016.workers.dev',
+    /** Expo web deploy URL — native Settings legal links use HTTPS here */
+    siteUrl: process.env.EXPO_PUBLIC_SITE_URL ?? '',
+    legalPublisherName: process.env.EXPO_PUBLIC_LEGAL_PUBLISHER_NAME ?? '',
+    legalSupportEmail: process.env.EXPO_PUBLIC_LEGAL_SUPPORT_EMAIL ?? '',
+    legalPrivacyEmail: process.env.EXPO_PUBLIC_LEGAL_PRIVACY_EMAIL ?? '',
+    legalContactPhone: process.env.EXPO_PUBLIC_LEGAL_CONTACT_PHONE ?? '',
+    legalWebsiteUrl: process.env.EXPO_PUBLIC_LEGAL_WEBSITE_URL ?? '',
+    legalAppDisplayName: process.env.EXPO_PUBLIC_LEGAL_APP_DISPLAY_NAME ?? '',
+    legalLastUpdated: process.env.EXPO_PUBLIC_LEGAL_LAST_UPDATED ?? '',
     eas: {
       projectId: 'f37b493b-0499-4d37-a234-6b2abefdc319',
     },

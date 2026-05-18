@@ -1,6 +1,6 @@
 import { request } from './client';
 
-export type GameType = 'match' | 'translate' | 'sentence' | 'stroke' | 'writer';
+export type GameType = 'match' | 'translate' | 'sentence' | 'stroke' | 'writer' | 'arrange';
 
 export type GameSessionBody = {
   game_type: GameType;
@@ -9,9 +9,11 @@ export type GameSessionBody = {
   duration_seconds: number;
   words_practiced: number;
   xp_earned: number;
+  lesson_id?: number | null;
 };
 
 export type LeaderboardRow = {
+  user_id: number;
   display_name: string;
   avatar_url: string | null;
   total_xp: number;
